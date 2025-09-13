@@ -83,7 +83,7 @@ def analyze_etf_performance(ticker: str) -> dict:
         n_simulations = 1000
         n_days = 252  # 1 year
         
-        # Calculate return distribution after 1 year (based on 1 million won)
+        # Calculate return distribution after 1 year (based on 1 million base amount)
         base_amount = 1000000
         final_values = []
         

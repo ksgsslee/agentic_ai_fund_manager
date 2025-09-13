@@ -5,7 +5,7 @@ Financial Analyst Package Initialization
 Lab 1: Financial Analyst with Calculator Tool
 Financial Analyst Implementation (AgentCore Runtime Version)
 
-An AI agent system that comprehensively analyzes personal financial situations
+An AI agent system that thoroughly analyzes personal financial situations
 to calculate investment preferences and target returns using Calculator tool.
 """
 

@@ -10,7 +10,7 @@ An AI agent that designs optimal investment portfolios using real-time ETF data 
 - **Real-time ETF Analysis**: Real-time data retrieval based on yfinance through MCP Server
 - **Monte Carlo Simulation**: Accurate risk analysis with 1000 simulations
 - **Correlation Analysis**: Measurement and optimization of diversification effects between ETFs
-- **Portfolio Evaluation**: 1-10 point evaluation across 3 indicators: profitability, risk management, and diversification completeness
+- **Portfolio Evaluation**: 1-10 point evaluation across 3 indicators: profitability, risk management, and diversification
 
 ## 🏗️ Architecture
 
@@ -68,7 +68,7 @@ streamlit run app.py
 
 ### Input Information (Financial Analyst Results)
 - **Risk Profile**: Conservative, Neutral, Aggressive
-- **Risk Profile Rationale**: Age, investment experience, etc.
+- **Risk Profile Reasoning**: Age, investment experience, etc.
 - **Required Annual Return**: Target return rate (%)
 - **Recommended Investment Areas**: Multiple selection from 10 sectors
 - **Overall Assessment**: Investment strategy summary
@@ -130,14 +130,14 @@ sequenceDiagram
 
 ### 4. Optimal 3 ETF Selection
 - **Balance returns and diversification effects**
-- Simultaneously satisfy target return achievement and risk diversification
+- Balance target return achievement and risk diversification
 
 ### 5. Investment Weight Determination
 - Synthesize performance analysis and correlation results
 - Allocate 100% in integer ratios
 
 ### 6. Portfolio Evaluation
-- Evaluate profitability, risk management, and diversification completeness on 1-10 scale each
+- Evaluate profitability, risk management, and diversification on 1-10 scale each
 
 ## 🛠️ MCP Server Tools
 

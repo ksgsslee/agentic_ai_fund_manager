@@ -76,7 +76,7 @@ class PortfolioArchitect:
 Financial analysis results are provided in the following JSON format:
 {
   "risk_profile": <risk profile>,
-  "risk_profile_reason": <risk profile assessment rationale>,
+  "risk_profile_reason": <risk profile assessment reasoning>,
   "required_annual_return_rate": <required annual return rate>,
   "key_sectors": <recommended investment sector list>,
   "summary": <overall assessment>
@@ -89,21 +89,21 @@ Portfolio Design Process:
 3. Correlation Analysis: Analyze correlations between the 5 ETFs using the "calculate_correlation" tool.
 4. Optimal 3 ETF Selection: Select the optimal 3 ETFs by synthesizing performance analysis and correlation results.
    - Balance expected returns and diversification effects.
-   - Choose combinations that simultaneously satisfy target return achievement potential and risk diversification.
+   - Choose combinations that balance target return achievement potential and risk diversification.
 5. Optimal Weight Determination: Determine optimal investment weights based on the performance and correlations of the selected 3 ETFs.
 6. Portfolio Evaluation: Evaluate on a 1-10 scale across the following 3 indicators:
    - Profitability: Potential to achieve target returns
    - Risk Management: Volatility and loss probability levels
-   - Diversification Completeness: Correlation and asset class diversity
+   - Diversification: Correlation and asset class diversity
 
 Output the final results in the following JSON format:
 {
   "portfolio_allocation": {"ticker1": 50, "ticker2": 30, "ticker3": 20},
-  "reason": "Portfolio composition rationale and investment strategy explanation. Must include brief descriptions of each ETF.",
+  "reason": "Portfolio composition reasoning and investment strategy explanation. Must include brief descriptions of each ETF.",
   "portfolio_scores": {
-    "profitability": {"score": 9, "reason": "specific rationale"},
-    "risk_management": {"score": 7, "reason": "specific rationale"},
-    "diversification": {"score": 8, "reason": "specific rationale"}
+    "profitability": {"score": 9, "reason": "specific reasoning"},
+    "risk_management": {"score": 7, "reason": "specific reasoning"},
+    "diversification": {"score": 8, "reason": "specific reasoning"}
   }
 }
 

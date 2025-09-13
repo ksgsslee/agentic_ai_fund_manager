@@ -32,7 +32,7 @@ def extract_json_from_text(text_content):
     return text_content
 
 class FinancialAnalyst:
-    """AI Financial Analyst utilizing Calculator tool"""
+    """AI Financial Analyst using Calculator tool"""
     
     def __init__(self):
         self.agent = Agent(
@@ -59,14 +59,14 @@ Input Data:
 
 Analysis Process:
 1. Use the "calculator" tool to calculate return rate: ((target_amount/investment_amount)-1)*100
-2. Assess risk profile comprehensively considering age, experience, purpose, and areas of interest.
+2. Assess risk profile thoroughly considering age, experience, purpose, and areas of interest.
 3. Provide comprehensive evaluation considering return rate and risk profile.
 
 Output:
 {
 "risk_profile": "Very Conservative|Conservative|Neutral|Aggressive|Very Aggressive",
-"risk_profile_reason": "Risk profile assessment rationale (2-3 sentences)",
-"required_annual_return_rate": return rate with 2 decimal places,
+"risk_profile_reason": "Risk profile assessment reasoning (2-3 sentences)",
+"required_annual_return_rate": return_rate_as_number_with_2_decimal_places,
 "key_sectors": ["Recommended Investment Sector1", "Recommended Investment Sector2", "Recommended Investment Sector3"],
 "summary": "Overall assessment (3-4 sentences)"
 }"""

@@ -90,7 +90,7 @@ def display_portfolio_result(container, portfolio_content):
             
             with col3:
                 diversification = scores.get("diversification", {})
-                st.metric("Diversification Completeness", f"{diversification.get('score', 'N/A')}/10")
+                st.metric("Diversification", f"{diversification.get('score', 'N/A')}/10")
                 if diversification.get('reason'):
                     st.caption(diversification['reason'])
         
@@ -280,12 +280,12 @@ def invoke_portfolio_architect(financial_analysis):
 
 # UI Configuration
 with st.expander("Architecture", expanded=True):
-    st.image("../static/portfolio_architect.png", width=800)
+    st.image("../static/portfolio_architect.png")
 
 st.markdown("**Financial Analysis Results Input**")
 
 risk_profile = st.text_input("Risk Profile", value="Aggressive")
-risk_profile_reason = st.text_input("Risk Profile Rationale", value="35 years old, aggressive investment preference")
+risk_profile_reason = st.text_input("Risk Profile Reasoning", value="35 years old, aggressive investment preference")
 required_return = st.number_input("Required Annual Return (%)", value=40.0)
 key_sectors = st.multiselect(
     "Recommended Investment Areas", 
