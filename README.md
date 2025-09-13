@@ -131,49 +131,49 @@ A production-level investment advisory system where 4 specialized AI agents coll
 
 ## 🔧 Technical Implementation Details
 
-### AgentCore 서비스 활용
+### AgentCore Service Utilization
 
-**1. Runtime (Agent) - 에이전트 호스팅**
-- 각 AI 에이전트를 독립적인 서버리스 함수로 배포
-- 자동 스케일링 및 고가용성 보장
-- ECR 컨테이너 이미지 기반 배포
+**1. Runtime (Agent) - Agent Hosting**
+- Deploy each AI agent as independent serverless functions
+- Automatic scaling and high availability guaranteed
+- ECR container image-based deployment
 
-**2. Runtime (MCP Server) - 데이터 서버 호스팅**
-- yfinance 기반 ETF 데이터 조회 서버를 서버리스로 배포
-- MCP 프로토콜로 AI 도구화
-- 실시간 금융 데이터 제공
+**2. Runtime (MCP Server) - Data Server Hosting**
+- Deploy yfinance-based ETF data retrieval server as serverless
+- AI tooling through MCP protocol
+- Real-time financial data provision
 
-**3. Gateway - Lambda 함수를 MCP 변환**
-- Lambda 함수를 AI가 사용할 수 있는 MCP 도구로 변환 (Risk Manager에서 사용)
-- Cognito JWT 인증으로 보안 강화
-- 복잡한 Lambda 인프라를 간단한 AI 도구로 추상화
+**3. Gateway - Lambda Function to MCP Conversion**
+- Convert Lambda functions to MCP tools usable by AI (used by Risk Manager)
+- Enhanced security with Cognito JWT authentication
+- Abstract complex Lambda infrastructure into simple AI tools
 
-**4. Memory - 장기 메모리 및 개인화**
-- SUMMARY 전략으로 상담 세션 자동 요약
-- 사용자별 투자 히스토리 장기 보존
-- 개인화된 투자 서비스 제공 기반
+**4. Memory - Long-term Memory and Personalization**
+- Automatic consultation session summarization with SUMMARY strategy
+- Long-term preservation of user-specific investment history
+- Foundation for personalized investment services
 
-**5. Observability - 모니터링 및 추적**
-- 각 에이전트의 성능 및 사용량 모니터링
-- 실시간 로그 및 메트릭 수집
-- 시스템 최적화를 위한 인사이트 제공
+**5. Observability - Monitoring and Tracking**
+- Monitor performance and usage of each agent
+- Real-time log and metric collection
+- Insights for system optimization
 
-### 데이터 흐름
+### Data Flow
 
 ```
-사용자 입력
+User Input
     ↓
-Investment Advisor (LangGraph 오케스트레이션)
+Investment Advisor (LangGraph Orchestration)
     ↓
 Financial Analyst (Runtime + OpenAI GPT-OSS 120B)
-    ↓ (위험성향, 목표수익률)
+    ↓ (Risk Profile, Target Return)
 Portfolio Architect (Runtime + MCP Server + Claude 4.0 Sonnet)
-    ↓ (포트폴리오 배분)
+    ↓ (Portfolio Allocation)
 Risk Manager (Runtime + Gateway + Claude 3.7 Sonnet)
-    ↓ (리스크 시나리오)
-Investment Advisor (Memory 저장 + 최종 통합)
+    ↓ (Risk Scenarios)
+Investment Advisor (Memory Storage + Final Integration)
     ↓
-최종 투자 가이드 + 자동 요약 저장
+Final Investment Guide + Automatic Summary Storage
 ```
 
 ## 🚀 Quick Start
@@ -181,20 +181,20 @@ Investment Advisor (Memory 저장 + 최종 통합)
 ### 1. Prerequisites
 
 #### AWS Bedrock Model Access Setup (Required)
-이 프로젝트는 다음 Bedrock 모델들에 대한 액세스 권한이 필요합니다:
+This project requires access permissions for the following Bedrock models:
 
-- **OpenAI GPT-OSS 120B** (`openai.gpt-oss-120b-1:0`) - Financial Analyst용
-- **Claude 4.0 Sonnet** (`global.anthropic.claude-sonnet-4-20250514-v1:0`) - Portfolio Architect용  
-- **Claude 3.7 Sonnet** (`us.anthropic.claude-3-7-sonnet-20250219-v1:0`) - Risk Manager용
+- **OpenAI GPT-OSS 120B** (`openai.gpt-oss-120b-1:0`) - For Financial Analyst
+- **Claude 4.0 Sonnet** (`global.anthropic.claude-sonnet-4-20250514-v1:0`) - For Portfolio Architect  
+- **Claude 3.7 Sonnet** (`us.anthropic.claude-3-7-sonnet-20250219-v1:0`) - For Risk Manager
 
-**모델 액세스 요청 방법:**
-1. AWS 콘솔에서 **Amazon Bedrock** 서비스로 이동
-2. 좌측 메뉴에서 **Model access** 클릭
-3. 위 3개 모델에 대해 **Request model access** 클릭
-4. 승인 완료까지 대기 (보통 몇 분 소요)
+**How to request model access:**
+1. Navigate to **Amazon Bedrock** service in AWS Console
+2. Click **Model access** in the left menu
+3. Click **Request model access** for the above 3 models
+4. Wait for approval completion (usually takes a few minutes)
 
-#### 리전 설정
-모든 리소스는 **us-west-2** 리전에 배포됩니다. `config.py` 파일에서 변경 가능합니다.
+#### Region Configuration
+All resources are deployed to the **us-west-2** region. This can be changed in the `config.py` file.
 
 ### 2. Environment Setup
 ```bash
@@ -203,7 +203,7 @@ cd investment_advisor_strands
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-aws configure  # us-west-2 리전 설정 권장
+aws configure  # us-west-2 region configuration recommended
 ```
 
 ### 3. Complete Deployment (Recommended)
@@ -222,83 +222,83 @@ Access `http://localhost:8501` in browser
 python cleanup_all.py
 ```
 
-## 🎯 사용 시나리오
+## 🎯 Usage Scenarios
 
-### 시나리오 1: 전체 시스템 체험 (권장)
-1. `python deploy_all.py` - 전체 시스템 배포
-2. `cd investment_advisor && streamlit run app.py` - 통합 웹앱 실행
-3. 투자 정보 입력 후 4개 에이전트의 협업 과정 실시간 확인
-4. 상담 히스토리에서 자동 요약된 과거 상담 기록 확인
+### Scenario 1: Complete System Experience (Recommended)
+1. `python deploy_all.py` - Deploy entire system
+2. `cd investment_advisor && streamlit run app.py` - Run integrated web app
+3. Enter investment information and observe real-time collaboration between 4 agents
+4. Check automatically summarized past consultation records in consultation history
 
-### 시나리오 2: 개별 에이전트 학습
+### Scenario 2: Individual Agent Learning
 1. `cd financial_analyst && python deploy.py && streamlit run app.py`
-2. 재무 분석 과정과 Calculator 도구 사용 확인
-3. `cd ../portfolio_architect` - 포트폴리오 설계 과정 학습
-4. `cd ../risk_manager` - 리스크 분석 과정 학습
+2. Observe financial analysis process and Calculator tool usage
+3. `cd ../portfolio_architect` - Learn portfolio design process
+4. `cd ../risk_manager` - Learn risk analysis process
 
-### 시나리오 3: 개발 및 커스터마이징
-1. 각 에이전트 폴더의 `README.md` 참조하여 상세 구조 파악
-2. 개별 배포 및 테스트로 기능 확인 (`deployment_info.json` 파일로 배포 상태 확인)
-3. 코드 수정 후 개별 재배포 (각 폴더의 `deploy.py` 실행)
-4. 통합 웹앱에서 전체 워크플로우 테스트
-5. `shared/` 폴더의 공통 유틸리티 함수 활용하여 새로운 에이전트 개발
+### Scenario 3: Development and Customization
+1. Refer to `README.md` in each agent folder to understand detailed structure
+2. Verify functionality through individual deployment and testing (check deployment status with `deployment_info.json` file)
+3. Individual redeployment after code modifications (run `deploy.py` in each folder)
+4. Test entire workflow in integrated web app
+5. Develop new agents using common utility functions in `shared/` folder
 
-## ⚙️ 설정 변경
+## ⚙️ Configuration Changes
 
-### 리전 및 공통 설정 변경
-모든 배포 스크립트는 루트의 `config.py` 파일에서 공통 설정을 가져옵니다:
+### Region and Common Settings Changes
+All deployment scripts get common settings from the `config.py` file in the root:
 
 ```python
 # config.py
 class Config:
-    # AWS 리전 설정 (모든 에이전트에서 공통 사용)
-    REGION = "us-west-2"  # 원하는 리전으로 변경
+    # AWS region setting (commonly used by all agents)
+    REGION = "us-west-2"  # Change to desired region
     
-    # 에이전트별 이름 설정
+    # Agent name settings
     FINANCIAL_ANALYST_NAME = "financial_analyst"
     PORTFOLIO_ARCHITECT_NAME = "portfolio_architect"
-    # ... 기타 설정들
+    # ... other settings
 ```
 
-**설정 변경 후 재배포:**
+**Redeployment after configuration changes:**
 ```bash
-# 전체 재배포
-python cleanup_all.py  # 기존 리소스 정리
-python deploy_all.py   # 새 설정으로 재배포
+# Complete redeployment
+python cleanup_all.py  # Clean up existing resources
+python deploy_all.py   # Redeploy with new settings
 
-# 또는 개별 재배포
+# Or individual redeployment
 cd financial_analyst && python deploy.py
 ```
 
-### Bedrock 모델 변경
-각 에이전트의 메인 파일에서 모델 ID를 변경할 수 있습니다:
+### Bedrock Model Changes
+You can change model IDs in each agent's main file:
 
 ```python
 # financial_analyst/financial_analyst.py
 class Config:
-    MODEL_ID = "openai.gpt-oss-120b-1:0"  # 다른 모델로 변경 가능
+    MODEL_ID = "openai.gpt-oss-120b-1:0"  # Can be changed to other models
 ```
 
-## 🔧 기술 스택 및 아키텍처
+## 🔧 Technology Stack and Architecture
 
-### 핵심 기술
+### Core Technologies
 - **AI Framework**: Strands Agents SDK + LangGraph
 - **Infrastructure**: AWS Bedrock AgentCore (Runtime, Gateway, Memory, Observability)
 - **LLM**: 
   - Financial Analyst: OpenAI GPT-OSS 120B
   - Portfolio Architect: Claude 4.0 Sonnet (global.anthropic.claude-sonnet-4-20250514-v1:0)
   - Risk Manager: Claude 3.7 Sonnet (us.anthropic.claude-3-7-sonnet-20250219-v1:0)
-  - Investment Advisor: LangGraph 오케스트레이션 (LLM 없음, 다른 에이전트 호출)
-- **Data Sources**: yfinance (실시간 ETF/뉴스/시장 데이터)
+  - Investment Advisor: LangGraph orchestration (No LLM, calls other agents)
+- **Data Sources**: yfinance (Real-time ETF/news/market data)
 - **Authentication**: Cognito JWT OAuth2
-- **UI**: Streamlit (실시간 스트리밍 지원)
+- **UI**: Streamlit (Real-time streaming support)
 
-### 배포 구조 다이어그램
+### Deployment Architecture Diagram
 
 ```mermaid
 graph LR
-    subgraph "AWS 클라우드 리소스"
-        subgraph "AgentCore 서비스"
+    subgraph "AWS Cloud Resources"
+        subgraph "AgentCore Services"
             RT1[📦 Financial Analyst Runtime]
             RT2[📦 Portfolio Architect Runtime]
             RT3[📦 Risk Manager Runtime]
@@ -308,8 +308,8 @@ graph LR
             GW[🌉 Gateway for Risk Manager]
         end
         
-        subgraph "지원 서비스"
-            LAM[⚡ Lambda 함수 x3]
+        subgraph "Supporting Services"
+            LAM[⚡ Lambda Functions x3]
             LAY[📦 Lambda Layer]
             COG[🔐 Cognito User Pool x2]
             ECR[📦 ECR Repository x5]
@@ -333,110 +333,110 @@ graph LR
     style MEM fill:#fce4ec
 ```
 
-**총 배포 리소스**: 
-- 🏗️ **AgentCore**: Runtime 5개 (Agent 4개 + MCP Server 1개) + Gateway 1개 + Memory 1개
-- ⚡ **Lambda**: 함수 3개 + Layer 1개
-- 🔐 **인증**: Cognito User Pool 2개
-- 📦 **컨테이너**: ECR Repository 5개
+**Total Deployed Resources**: 
+- 🏗️ **AgentCore**: 5 Runtimes (4 Agents + 1 MCP Server) + 1 Gateway + 1 Memory
+- ⚡ **Lambda**: 3 Functions + 1 Layer
+- 🔐 **Authentication**: 2 Cognito User Pools
+- 📦 **Containers**: 5 ECR Repositories
 
-### 보안 및 인증
-- **Cognito JWT**: MCP Gateway 접근 제어
-- **IAM 역할**: 각 서비스별 최소 권한 원칙
-- **VPC**: 필요시 네트워크 격리 (선택사항)
-- **암호화**: 전송 중/저장 중 데이터 암호화
+### Security and Authentication
+- **Cognito JWT**: MCP Gateway access control
+- **IAM Roles**: Principle of least privilege for each service
+- **VPC**: Network isolation when needed (optional)
+- **Encryption**: Data encryption in transit and at rest
 
-## 📁 프로젝트 구조 및 개별 테스트
+## 📁 Project Structure and Individual Testing
 
 ```
 investment_advisor_strands/
-├── 📂 financial_analyst/           # Lab 1: 재무 분석 (AgentCore Runtime)
-│   ├── 📄 README.md               # 상세 설명 및 사용법
-│   ├── 🚀 deploy.py               # 개별 배포
-│   ├── 🌐 app.py                  # Streamlit 개별 테스트
-│   └── 🤖 financial_analyst.py    # 메인 에이전트
+├── 📂 financial_analyst/           # Lab 1: Financial Analysis (AgentCore Runtime)
+│   ├── 📄 README.md               # Detailed description and usage
+│   ├── 🚀 deploy.py               # Individual deployment
+│   ├── 🌐 app.py                  # Streamlit individual testing
+│   └── 🤖 financial_analyst.py    # Main agent
 │
-├── 📂 portfolio_architect/         # Lab 2: 포트폴리오 설계 (AgentCore Runtime + MCP Server)
-│   ├── 📄 README.md               # 상세 설명 및 사용법
-│   ├── 🚀 deploy.py               # 개별 배포
-│   ├── 🌐 app.py                  # Streamlit 개별 테스트
-│   ├── 🤖 portfolio_architect.py  # 메인 에이전트
-│   └── 📂 mcp_server/             # MCP Server (별도 Runtime)
-│       ├── 🚀 deploy_mcp.py       # MCP Server 배포
-│       └── 🔧 server.py           # ETF 데이터 조회 서버
+├── 📂 portfolio_architect/         # Lab 2: Portfolio Design (AgentCore Runtime + MCP Server)
+│   ├── 📄 README.md               # Detailed description and usage
+│   ├── 🚀 deploy.py               # Individual deployment
+│   ├── 🌐 app.py                  # Streamlit individual testing
+│   ├── 🤖 portfolio_architect.py  # Main agent
+│   └── 📂 mcp_server/             # MCP Server (Separate Runtime)
+│       ├── 🚀 deploy_mcp.py       # MCP Server deployment
+│       └── 🔧 server.py           # ETF data query server
 │
-├── 📂 risk_manager/               # Lab 3: 리스크 관리 (AgentCore Gateway)
-│   ├── 📄 README.md               # 상세 설명 및 사용법
-│   ├── 🚀 deploy.py               # 개별 배포 (4단계 통합)
-│   ├── 🌐 app.py                  # Streamlit 개별 테스트
-│   ├── 🤖 risk_manager.py         # 메인 에이전트
+├── 📂 risk_manager/               # Lab 3: Risk Management (AgentCore Gateway)
+│   ├── 📄 README.md               # Detailed description and usage
+│   ├── 🚀 deploy.py               # Individual deployment (4-step integration)
+│   ├── 🌐 app.py                  # Streamlit individual testing
+│   ├── 🤖 risk_manager.py         # Main agent
 │   ├── 📂 lambda_layer/           # Lambda Layer (yfinance)
-│   ├── 📂 lambda/                 # Lambda 함수 (데이터 조회)
-│   └── 📂 gateway/                # MCP Gateway (Lambda → MCP 도구)
+│   ├── 📂 lambda/                 # Lambda function (data query)
+│   └── 📂 gateway/                # MCP Gateway (Lambda → MCP tools)
 │
-├── 📂 investment_advisor/         # Lab 4: 통합 자문 (AgentCore Memory)
-│   ├── 📄 README.md               # 상세 설명 및 사용법
-│   ├── 🚀 deploy.py               # 개별 배포
-│   ├── 🌐 app.py                  # Streamlit 통합 웹앱 (메인)
-│   ├── 🤖 investment_advisor.py   # LangGraph 기반 통합 에이전트
+├── 📂 investment_advisor/         # Lab 4: Integrated Advisory (AgentCore Memory)
+│   ├── 📄 README.md               # Detailed description and usage
+│   ├── 🚀 deploy.py               # Individual deployment
+│   ├── 🌐 app.py                  # Streamlit integrated web app (main)
+│   ├── 🤖 investment_advisor.py   # LangGraph-based integrated agent
 │   
 │   └── 📂 agentcore_memory/       # AgentCore Memory
-│       └── 🚀 deploy_agentcore_memory.py # Memory 배포
+│       └── 🚀 deploy_agentcore_memory.py # Memory deployment
 │
-├── 📂 shared/                     # 공통 유틸리티
-│   ├── runtime_utils.py           # Runtime 관련 공통 함수
-│   ├── gateway_utils.py           # Gateway 관련 공통 함수
-│   └── cognito_utils.py           # 인증 관련 공통 함수
+├── 📂 shared/                     # Common utilities
+│   ├── runtime_utils.py           # Runtime-related common functions
+│   ├── gateway_utils.py           # Gateway-related common functions
+│   └── cognito_utils.py           # Authentication-related common functions
 │
-├── 🚀 deploy_all.py               # 🎯 전체 시스템 한번에 배포
-├── 🧹 cleanup_all.py              # 🎯 전체 시스템 한번에 정리
-├── ⚙️ config.py                   # 🎯 전체 프로젝트 공통 설정 (리전, 이름 등)
-├── 📋 requirements.txt            # Python 의존성
-└── 📄 README.md                   # 이 파일
+├── 🚀 deploy_all.py               # 🎯 Deploy entire system at once
+├── 🧹 cleanup_all.py              # 🎯 Clean up entire system at once
+├── ⚙️ config.py                   # 🎯 Common project settings (region, names, etc.)
+├── 📋 requirements.txt            # Python dependencies
+└── 📄 README.md                   # This file
 ```
 
-### 🧪 개별 에이전트 테스트 방법
+### 🧪 Individual Agent Testing Methods
 
-각 에이전트는 독립적으로 배포하고 테스트할 수 있습니다:
+Each agent can be deployed and tested independently:
 
 #### Lab 1: Financial Analyst
 ```bash
 cd financial_analyst
-python deploy.py                    # 배포
-streamlit run app.py               # 개별 테스트 웹앱
+python deploy.py                    # Deploy
+streamlit run app.py               # Individual test web app
 ```
-- **기능**: 투자자 정보 입력 → 위험 성향 평가 → 목표 수익률 계산
-- **도구**: Calculator로 정확한 수익률 계산 과정 확인
+- **Features**: Investor information input → Risk tolerance assessment → Target return calculation
+- **Tools**: Verify accurate return calculation process with Calculator
 
 #### Lab 2: Portfolio Architect  
 ```bash
 cd portfolio_architect
-cd mcp_server && python deploy_mcp.py && cd ..  # MCP Server 먼저 배포
-python deploy.py                    # 메인 에이전트 배포
-streamlit run app.py               # 개별 테스트 웹앱
+cd mcp_server && python deploy_mcp.py && cd ..  # Deploy MCP Server first
+python deploy.py                    # Deploy main agent
+streamlit run app.py               # Individual test web app
 ```
-- **기능**: 재무 분석 결과 입력 → ETF 분석 → 포트폴리오 설계
-- **구조**: Runtime 간 직접 MCP 통신 (Gateway 없음)
-- **도구**: 몬테카를로 시뮬레이션 + 상관관계 분석 과정 실시간 확인
+- **Features**: Financial analysis results input → ETF analysis → Portfolio design
+- **Architecture**: Direct MCP communication between Runtimes (no Gateway)
+- **Tools**: Real-time verification of Monte Carlo simulation + correlation analysis process
 
 #### Lab 3: Risk Manager
 ```bash
 cd risk_manager
-# 4단계 순차 배포 (필수)
+# 4-step sequential deployment (required)
 cd lambda_layer && python deploy_lambda_layer.py && cd ..
 cd lambda && python deploy_lambda.py && cd ..
 cd gateway && python deploy_gateway.py && cd ..
-python deploy.py                    # Risk Manager Runtime 배포
-streamlit run app.py               # 개별 테스트 웹앱
+python deploy.py                    # Deploy Risk Manager Runtime
+streamlit run app.py               # Individual test web app
 ```
-- **기능**: 포트폴리오 입력 → 뉴스/시장 데이터 분석 → 리스크 시나리오
-- **도구**: 실시간 뉴스, 거시경제 지표, 지정학적 데이터 수집 과정 확인
+- **Features**: Portfolio input → News/market data analysis → Risk scenarios
+- **Tools**: Verify real-time news, macroeconomic indicators, and geopolitical data collection process
 
-#### Lab 4: Investment Advisor (통합 시스템)
+#### Lab 4: Investment Advisor (Integrated System)
 ```bash
 cd investment_advisor
-cd agentcore_memory && python deploy_agentcore_memory.py && cd ..  # Memory 먼저 배포
-python deploy.py                    # 통합 에이전트 배포
-streamlit run app.py               # 🎯 메인 통합 웹앱
+cd agentcore_memory && python deploy_agentcore_memory.py && cd ..  # Deploy Memory first
+python deploy.py                    # Deploy integrated agent
+streamlit run app.py               # 🎯 Main integrated web app
 ```
-- **기능**: 전체 워크플로우 실행 → 3개 에이전트 순차 호출 → 최종 투자 가이드
-- **특징**: 실시간 스트리밍으로 모든 에이전트의 사고 과정 확인 + 상담 히스토리 관리
+- **Features**: Execute entire workflow → Sequential calls to 3 agents → Final investment guide
+- **Characteristics**: Real-time streaming to observe all agents' thinking processes + consultation history management
