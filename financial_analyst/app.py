@@ -130,7 +130,7 @@ def invoke_financial_advisor(input_data):
 
 # Architecture description
 with st.expander("Architecture", expanded=True):
-    st.image(os.path.join("../static/financial_analyst.png"), width=500)
+    st.image(os.path.join("../static/financial_analyst.png"))
 
 # Input form
 st.markdown("**Investor Information Input**")
