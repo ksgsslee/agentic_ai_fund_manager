@@ -12,9 +12,9 @@ An AI agent that designs optimal investment portfolios using real-time ETF data 
 - **Correlation Analysis**: Measurement and optimization of diversification effects between ETFs
 - **Portfolio Evaluation**: 1-10 point evaluation across 3 indicators: profitability, risk management, and diversification completeness
 
-## 🏗️ 아키텍처
+## 🏗️ Architecture
 
-![전체 시스템 아키텍처](../static/portfolio_architect.png)
+![Overall System Architecture](../static/portfolio_architect.png)
 
 ### Technology Stack
 - **AI Framework**: Strands Agents SDK

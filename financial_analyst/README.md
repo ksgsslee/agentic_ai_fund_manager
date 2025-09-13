@@ -11,10 +11,10 @@ An AI agent that analyzes personal financial situations to calculate risk profil
 - **Return Calculation**: Precise target return calculation using Calculator tool
 - **Sector Recommendations**: Investment sector recommendations tailored to individual preferences (displayed as tags)
 
-## 🏗️ 아키텍처
+## 🏗️ Architecture
 
 
-![전체 시스템 아키텍처](../static/financial_analyst.png)
+![Overall System Architecture](../static/financial_analyst.png)
 
 
 ### Technology Stack

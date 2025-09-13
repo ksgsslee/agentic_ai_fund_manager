@@ -1,7 +1,7 @@
 """
 app.py
 
-Financial Analyst Streamlit 애플리케이션
+Financial Analyst Streamlit Application
 """
 
 import streamlit as st
@@ -114,7 +114,7 @@ def invoke_financial_advisor(input_data):
                         result = json.loads(result_str)
                         
                         placeholder.divider()
-                        placeholder.subheader("📌 재무 분석 결과")
+                        placeholder.subheader("📌 Financial Analysis Results")
                         display_financial_analysis(placeholder, result)
 
                     elif event_type == "error":

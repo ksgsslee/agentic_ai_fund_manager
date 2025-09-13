@@ -1,8 +1,8 @@
 """
 app.py
 
-Portfolio Architect Streamlit 앱
-AI 포트폴리오 설계사 웹 인터페이스
+Portfolio Architect Streamlit App
+AI Portfolio Designer Web Interface
 """
 
 import streamlit as st
@@ -265,9 +265,9 @@ def invoke_portfolio_architect(financial_analysis):
                 elif event_type == "streaming_complete":
                     result_str = event_data.get("result", "")
                     
-                    # 최종 결과 표시
+                    # Display final results
                     placeholder.divider()
-                    placeholder.subheader("📌 포트폴리오 설계 결과")
+                    placeholder.subheader("📌 Portfolio Design Results")
                     display_portfolio_result(placeholder, result_str)
                     
             except json.JSONDecodeError:
