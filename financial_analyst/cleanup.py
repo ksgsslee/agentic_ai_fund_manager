@@ -10,8 +10,7 @@ import time
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-from deploy import Config
+# Config classes no longer needed - use region information directly from deployment info
 
 def load_deployment_info():
     """Load deployment information"""
@@ -49,10 +48,15 @@ def delete_iam_role(role_name):
     try:
         iam = boto3.client('iam')
         
-        # Delete policies
+        # Delete inline policies
         policies = iam.list_role_policies(RoleName=role_name)
         for policy in policies['PolicyNames']:
             iam.delete_role_policy(RoleName=role_name, PolicyName=policy)
+        
+        # Detach managed policies
+        attached_policies = iam.list_attached_role_policies(RoleName=role_name)
+        for policy in attached_policies['AttachedPolicies']:
+            iam.detach_role_policy(RoleName=role_name, PolicyArn=policy['PolicyArn'])
         
         # Delete role
         iam.delete_role(RoleName=role_name)
@@ -102,9 +106,9 @@ def main():
     
     print("\n🗑️ Deleting AWS resources...")
     
-    # 1. Delete Runtime
+    # 1. Delete Financial Analyst Runtime
     if 'agent_arn' in deployment_info:
-        region = deployment_info.get('region', 'us-west-2')
+        region = deployment_info.get('region', 'us-west-2')  # Default fallback
         delete_runtime(deployment_info['agent_arn'], region)
     
     # 2. Delete ECR repository
@@ -112,7 +116,7 @@ def main():
         region = deployment_info.get('region', 'us-west-2')
         delete_ecr_repo(deployment_info['ecr_repo_name'], region)
     
-    # 3. Delete IAM role
+    # 3. Delete IAM role (IAM is global service, no region needed)
     if 'iam_role_name' in deployment_info:
         delete_iam_role(deployment_info['iam_role_name'])
     
