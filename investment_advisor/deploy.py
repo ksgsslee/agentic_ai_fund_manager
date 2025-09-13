@@ -58,15 +58,15 @@ def load_agent_arns():
     return agent_arns
 
 def load_memory_info():
-    """AgentCore Memory 배포 정보 로드"""
-    print("🧠 AgentCore Memory 배포 정보 로드 중...")
+    """Load AgentCore Memory deployment information"""
+    print("🧠 Loading AgentCore Memory deployment information...")
     
     info_file = Path(__file__).parent / "agentcore_memory" / "deployment_info.json"
     
     if not info_file.exists():
         raise FileNotFoundError(
-            "AgentCore Memory가 먼저 배포되어야 합니다.\n"
-            "다음 명령을 실행하세요: cd agentcore_memory && python deploy_agentcore_memory.py"
+            "AgentCore Memory must be deployed first.\n"
+            "Run the following command: cd agentcore_memory && python deploy_agentcore_memory.py"
         )
     
     with open(info_file, 'r') as f:
@@ -76,21 +76,21 @@ def load_memory_info():
         return memory_id
 
 def create_iam_role_with_agent_permissions():
-    """Investment Advisor용 IAM 역할 생성 (다른 에이전트 호출 권한 포함)"""
-    print("🔐 Investment Advisor IAM 역할 생성 중...")
+    """Create IAM role for Investment Advisor (including permissions to call other agents)"""
+    print("🔐 Creating Investment Advisor IAM role...")
     
-    # 기본 AgentCore Runtime 역할 생성
+    # Create basic AgentCore Runtime role
     iam_role = create_agentcore_runtime_role(Config.AGENT_NAME, Config.REGION)
     iam_role_name = iam_role['Role']['RoleName']
     
-    # 다른 에이전트 호출 권한 추가
+    # Add permissions to call other agents
     _add_agent_call_permissions(iam_role_name)
     
     return iam_role['Role']['Arn'], iam_role_name
 
 def _add_agent_call_permissions(role_name):
-    """다른 에이전트 호출 권한을 IAM 역할에 추가"""
-    print("🔐 다른 에이전트 호출 권한 추가 중...")
+    """Add permissions to call other agents to IAM role"""
+    print("🔐 Adding permissions to call other agents...")
     
     import boto3
     iam_client = boto3.client('iam')
@@ -120,18 +120,18 @@ def _add_agent_call_permissions(role_name):
             PolicyName="InvestmentAdvisorAgentCallsPolicy",
             RoleName=role_name
         )
-        print("✅ 다른 에이전트 호출 권한 추가 완료")
+        print("✅ Agent call permissions added successfully")
     except Exception as e:
-        print(f"⚠️ 추가 권한 설정 오류: {e}")
+        print(f"⚠️ Additional permission setup error: {e}")
 
 def deploy_investment_advisor(agent_arns, memory_id):
-    """Investment Advisor Runtime 배포"""
-    print("🎯 Investment Advisor 배포 중...")
+    """Deploy Investment Advisor Runtime"""
+    print("🎯 Deploying Investment Advisor...")
     
-    # IAM 역할 생성 (권한 포함)
+    # Create IAM role (with permissions)
     role_arn, iam_role_name = create_iam_role_with_agent_permissions()
     
-    # Runtime 구성
+    # Configure Runtime
     current_dir = Path(__file__).parent
     runtime = Runtime()
     runtime.configure(
@@ -143,7 +143,7 @@ def deploy_investment_advisor(agent_arns, memory_id):
         agent_name=Config.AGENT_NAME
     )
     
-    # 환경변수 설정
+    # Set environment variables
     env_vars = {
         "FINANCIAL_ANALYST_ARN": agent_arns["financial_analyst"],
         "PORTFOLIO_ARCHITECT_ARN": agent_arns["portfolio_architect"],
@@ -152,24 +152,24 @@ def deploy_investment_advisor(agent_arns, memory_id):
         "AWS_REGION": Config.REGION
     }
     
-    # 배포 실행
+    # Execute deployment
     launch_result = runtime.launch(auto_update_on_conflict=True, env_vars=env_vars)
     
-    # 배포 완료 대기
-    for i in range(30):  # 최대 15분 대기
+    # Wait for deployment completion
+    for i in range(30):  # Wait up to 15 minutes
         try:
             status = runtime.status().endpoint['status']
-            print(f"📊 상태: {status} ({i*30}초 경과)")
+            print(f"📊 Status: {status} ({i*30} seconds elapsed)")
             if status in ['READY', 'CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']:
                 break
         except Exception as e:
-            print(f"⚠️ 상태 확인 오류: {e}")
+            print(f"⚠️ Status check error: {e}")
         time.sleep(30)
     
     if status != 'READY':
-        raise Exception(f"배포 실패: {status}")
+        raise Exception(f"Deployment failed: {status}")
     
-    # ECR 리포지토리 이름 추출
+    # Extract ECR repository name
     ecr_repo_name = None
     if hasattr(launch_result, 'ecr_uri') and launch_result.ecr_uri:
         ecr_repo_name = launch_result.ecr_uri.split('/')[-1].split(':')[0]
@@ -183,7 +183,7 @@ def deploy_investment_advisor(agent_arns, memory_id):
     }
 
 def save_deployment_info(advisor_info, agent_arns):
-    """배포 정보 저장"""
+    """Save deployment information"""
     deployment_info = {
         "agent_name": Config.AGENT_NAME,
         "agent_arn": advisor_info["agent_arn"],
@@ -203,28 +203,28 @@ def save_deployment_info(advisor_info, agent_arns):
 
 def main():
     try:
-        print("🎯 Investment Advisor Runtime 배포")
+        print("🎯 Investment Advisor Runtime Deployment")
         
-        # 다른 에이전트 ARN 로드
+        # Load other agent ARNs
         agent_arns = load_agent_arns()
         
-        # AgentCore Memory 정보 로드
+        # Load AgentCore Memory information
         memory_id = load_memory_info()
         
-        # Investment Advisor 배포
+        # Deploy Investment Advisor
         advisor_info = deploy_investment_advisor(agent_arns, memory_id)
         
-        # 배포 정보 저장
+        # Save deployment information
         info_file = save_deployment_info(advisor_info, agent_arns)
         
-        print(f"\n🎉 배포 완료!")
-        print(f"📄 배포 정보: {info_file}")
+        print(f"\n🎉 Deployment Complete!")
+        print(f"📄 Deployment Info: {info_file}")
         print(f"🔗 Investment Advisor ARN: {advisor_info['agent_arn']}")
         
         return 0
         
     except Exception as e:
-        print(f"❌ 배포 실패: {e}")
+        print(f"❌ Deployment Failed: {e}")
         return 1
 
 if __name__ == "__main__":

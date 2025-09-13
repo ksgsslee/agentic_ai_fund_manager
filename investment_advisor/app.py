@@ -253,7 +253,7 @@ def display_geopolitical_data(container, geopolitical_data):
         else:
             data = geopolitical_data
         
-        container.markdown("**🌍 주요 지역 ETF (지정학적 리스크)**")
+        container.markdown("**🌍 Regional ETFs (Geopolitical Risk)**")
         
         indicators = {k: v for k, v in data.items() if not k.startswith('_')}
         
@@ -271,27 +271,27 @@ def display_geopolitical_data(container, geopolitical_data):
                             st.write(f"**{key}**: 데이터 없음")
                 
     except Exception as e:
-        container.error(f"지정학적 데이터 표시 오류: {str(e)}")
+        container.error(f"Geopolitical data display error: {str(e)}")
 
 def display_financial_analysis(container, analysis_content):
-    """재무 분석 결과 표시"""
+    """Display financial analysis results"""
     data = extract_json_from_text(analysis_content)
     
-    container.markdown("**종합 총평**")
+    container.markdown("**Overall Assessment**")
     container.info(data.get("summary", ""))
 
     col1, col2 = container.columns(2)
     
     with col1:
-        st.metric("위험 성향", data.get("risk_profile", "N/A"))
-        st.markdown("**위험 성향 분석**")
+        st.metric("Risk Profile", data.get("risk_profile", "N/A"))
+        st.markdown("**Risk Profile Analysis**")
         st.write(data.get("risk_profile_reason", ""))
     
     with col2:
-        st.metric("필요 수익률", f"{data.get('required_annual_return_rate', 'N/A')}%")
+        st.metric("Required Return Rate", f"{data.get('required_annual_return_rate', 'N/A')}%")
         
-        # 추천 투자 섹터를 태그로 표시
-        st.markdown("**🎯 추천 투자 섹터**")
+        # Display recommended investment sectors as tags
+        st.markdown("**🎯 Recommended Investment Sectors**")
         sectors = data.get("key_sectors", [])
         tag_html = ""
         for sector in sectors:

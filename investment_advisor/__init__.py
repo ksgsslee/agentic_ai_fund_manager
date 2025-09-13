@@ -1,11 +1,17 @@
 """
 Investment Advisor Orchestrator Package
 
-AI Investment Advisory Orchestrator using LangGraph Multi-Agent Workflow.
-Provides comprehensive investment advisory services through sequential collaboration
-of specialized agents (Financial Analyst, Portfolio Architect, Risk Manager).
+LangGraph-based Multi-Agent Investment Advisory System.
+Implements sequential workflow pattern where specialized agents collaborate
+in a defined order: Financial Analyst → Portfolio Architect → Risk Manager.
+
+This orchestrator leverages:
+- LangGraph for workflow orchestration and state management
+- AWS Bedrock AgentCore for agent runtime and memory
+- Sequential agent collaboration with shared state
+- Long-term memory with automatic session summarization
 """
 
 __version__ = "1.0.0"
 __author__ = "Investment Advisor Team"
-__description__ = "AI Investment Advisory Orchestrator - LangGraph Multi-Agent Workflow"
+__description__ = "LangGraph Multi-Agent Investment Advisory System with Sequential Workflow"
