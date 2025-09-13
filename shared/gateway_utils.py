@@ -1,11 +1,11 @@
 """
 gateway_utils.py
-AgentCore Gateway 관련 공통 유틸리티 함수들
+Common utility functions for AgentCore Gateway
 
-이 모듈은 AWS Bedrock AgentCore Gateway 배포에 필요한 함수들을 제공합니다.
-- Gateway용 IAM 역할 생성
-- Gateway 생성 및 관리
-- Gateway Target 생성
+This module provides functions needed for AWS Bedrock AgentCore Gateway deployment.
+- IAM role creation for Gateway
+- Gateway creation and management
+- Gateway Target creation
 """
 
 import boto3
@@ -15,25 +15,25 @@ import time
 
 def create_agentcore_gateway_role(gateway_name, region):
     """
-    AgentCore Gateway용 IAM 역할 생성
+    Create IAM role for AgentCore Gateway
     
-    Gateway가 Lambda 함수를 호출하고 다른 AWS 서비스에 접근할 수 있도록
-    필요한 권한을 가진 IAM 역할을 생성합니다.
+    Creates an IAM role with necessary permissions for Gateway to invoke
+    Lambda functions and access other AWS services.
     
     Args:
-        gateway_name (str): 게이트웨이 이름 (역할명에 포함됨)
-        region (str): AWS 리전
+        gateway_name (str): Gateway name (included in role name)
+        region (str): AWS region
         
     Returns:
-        dict: 생성된 IAM 역할 정보
+        dict: Created IAM role information
     """
-    print("🔐 Gateway IAM 역할 생성 중...")
+    print("🔐 Creating Gateway IAM role...")
     
     iam_client = boto3.client('iam')
     agentcore_gateway_role_name = f'{gateway_name}-role'
     account_id = boto3.client("sts").get_caller_identity()["Account"]
     
-    # Gateway가 사용할 수 있는 권한 정책
+    # Permission policy for Gateway usage
     role_policy = {
         "Version": "2012-10-17",
         "Statement": [{
@@ -51,7 +51,7 @@ def create_agentcore_gateway_role(gateway_name, region):
         }]
     }
     
-    # Bedrock AgentCore 서비스가 이 역할을 사용할 수 있도록 하는 신뢰 정책
+    # Trust policy allowing Bedrock AgentCore service to use this role
     assume_role_policy_document = {
         "Version": "2012-10-17",
         "Statement": [{
@@ -76,19 +76,19 @@ def create_agentcore_gateway_role(gateway_name, region):
     role_policy_document = json.dumps(role_policy)
     
     try:
-        # 새 IAM 역할 생성
+        # Create new IAM role
         agentcore_gateway_iam_role = iam_client.create_role(
             RoleName=agentcore_gateway_role_name,
             AssumeRolePolicyDocument=assume_role_policy_document_json,
             Description='AgentCore Gateway execution role for Lambda invocation and AWS service access'
         )
-        print("✅ 새 IAM 역할 생성 완료")
+        print("✅ New IAM role creation complete")
         time.sleep(10)
         
     except iam_client.exceptions.EntityAlreadyExistsException:
-        print("♻️ 기존 역할 삭제 후 재생성 중...")
+        print("♻️ Deleting existing role and recreating...")
         
-        # 기존 인라인 정책들 삭제
+        # Delete existing inline policies
         policies = iam_client.list_role_policies(
             RoleName=agentcore_gateway_role_name,
             MaxItems=100
@@ -100,53 +100,53 @@ def create_agentcore_gateway_role(gateway_name, region):
                 PolicyName=policy_name
             )
         
-        # 기존 역할 삭제
+        # Delete existing role
         iam_client.delete_role(RoleName=agentcore_gateway_role_name)
         
-        # 새 역할 생성
+        # Create new role
         agentcore_gateway_iam_role = iam_client.create_role(
             RoleName=agentcore_gateway_role_name,
             AssumeRolePolicyDocument=assume_role_policy_document_json,
             Description='AgentCore Gateway execution role for Lambda invocation and AWS service access'
         )
-        print("✅ 역할 재생성 완료")
+        print("✅ Role recreation complete")
 
-    # 권한 정책 연결
+    # Attach permission policy
     try:
         iam_client.put_role_policy(
             PolicyDocument=role_policy_document,
             PolicyName="AgentCorePolicy",
             RoleName=agentcore_gateway_role_name
         )
-        print("✅ 권한 정책 연결 완료")
+        print("✅ Permission policy attachment complete")
     except Exception as e:
-        print(f"⚠️ 정책 연결 오류: {e}")
+        print(f"⚠️ Policy attachment error: {e}")
 
     return agentcore_gateway_iam_role
 
 
 def delete_existing_gateway(gateway_name, region):
     """
-    기존 Gateway 삭제 (Target들 먼저 삭제)
+    Delete existing Gateway (delete Targets first)
     
     Args:
-        gateway_name (str): 삭제할 Gateway 이름
-        region (str): AWS 리전
+        gateway_name (str): Gateway name to delete
+        region (str): AWS region
     """
     try:
-        print("🔍 기존 Gateway 확인 중...")
+        print("🔍 Checking existing Gateway...")
         gateway_client = boto3.client('bedrock-agentcore-control', region_name=region)
         gateways = gateway_client.list_gateways().get('items', [])
 
         for gw in gateways:
             if gw['name'] == gateway_name:
                 gateway_id = gw['gatewayId']
-                print(f"🗑️ 기존 Gateway 삭제 중: {gateway_id}")
+                print(f"🗑️ Deleting existing Gateway: {gateway_id}")
                 
-                # Target들 먼저 삭제
+                # Delete Targets first
                 targets = gateway_client.list_gateway_targets(gatewayIdentifier=gateway_id).get('items', [])
                 for target in targets:
-                    print(f"🗑️ Target 삭제 중: {target['targetId']}")
+                    print(f"🗑️ Deleting Target: {target['targetId']}")
                     gateway_client.delete_gateway_target(
                         gatewayIdentifier=gateway_id,
                         targetId=target['targetId']
@@ -154,36 +154,36 @@ def delete_existing_gateway(gateway_name, region):
                 
                 time.sleep(3)
                 
-                # Gateway 삭제
+                # Delete Gateway
                 gateway_client.delete_gateway(gatewayIdentifier=gateway_id)
-                print("✅ 기존 Gateway 삭제 완료")
+                print("✅ Existing Gateway deletion complete")
                 time.sleep(3)
                 break
         else:
-            print("ℹ️ 삭제할 기존 Gateway 없음")
+            print("ℹ️ No existing Gateway to delete")
                 
     except Exception as e:
-        print(f"⚠️ Gateway 삭제 중 오류 (무시하고 진행): {str(e)}")
+        print(f"⚠️ Error during Gateway deletion (ignoring and proceeding): {str(e)}")
         pass
 
 
 def create_gateway(gateway_name, role_arn, auth_components, region):
     """
-    AgentCore Gateway 생성
+    Create AgentCore Gateway
     
     Args:
-        gateway_name (str): Gateway 이름
-        role_arn (str): Gateway 실행용 IAM 역할 ARN
-        auth_components (dict): Cognito 인증 구성 요소
-        region (str): AWS 리전
+        gateway_name (str): Gateway name
+        role_arn (str): IAM role ARN for Gateway execution
+        auth_components (dict): Cognito authentication components
+        region (str): AWS region
         
     Returns:
-        dict: 생성된 Gateway 정보
+        dict: Created Gateway information
     """
-    print("🌉 Gateway 생성 중...")
+    print("🌉 Creating Gateway...")
     gateway_client = boto3.client('bedrock-agentcore-control', region_name=region)
     
-    # JWT 인증 설정
+    # JWT authentication configuration
     auth_config = {
         'customJWTAuthorizer': {
             'allowedClients': [auth_components['client_id']],
@@ -200,30 +200,30 @@ def create_gateway(gateway_name, role_arn, auth_components, region):
         description=f'{gateway_name} - MCP Gateway for AI agent integration'
     )
     
-    print(f"✅ Gateway 생성 완료: {gateway['gatewayId']}")
+    print(f"✅ Gateway creation complete: {gateway['gatewayId']}")
     return gateway
 
 
 def create_gateway_target(gateway_id, target_name, target_config, region):
     """
-    Gateway Target 생성 (Lambda 함수를 MCP 도구로 노출)
+    Create Gateway Target (expose Lambda functions as MCP tools)
     
     Args:
         gateway_id (str): Gateway ID
-        target_name (str): Target 이름
-        target_config (dict): Target 설정
-        region (str): AWS 리전
+        target_name (str): Target name
+        target_config (dict): Target configuration
+        region (str): AWS region
         
     Returns:
-        dict: 생성된 Target 정보
+        dict: Created Target information
     """
-    print("🎯 Gateway Target 생성 중...")
+    print("🎯 Creating Gateway Target...")
     gateway_client = boto3.client('bedrock-agentcore-control', region_name=region)
     
     tool_count = len(target_config["mcp"]["lambda"]["toolSchema"]["inlinePayload"])
-    print(f"📋 Target 설정: {tool_count}개 도구 구성")
+    print(f"📋 Target configuration: {tool_count} tools configured")
     
-    # Gateway Target 생성
+    # Create Gateway Target
     target = gateway_client.create_gateway_target(
         gatewayIdentifier=gateway_id,
         name=target_name,
@@ -233,5 +233,5 @@ def create_gateway_target(gateway_id, target_name, target_config, region):
         }]
     )
     
-    print(f"✅ Gateway Target 생성 완료: {target['targetId']}")
+    print(f"✅ Gateway Target creation complete: {target['targetId']}")
     return target
