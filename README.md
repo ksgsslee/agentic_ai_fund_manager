@@ -200,7 +200,7 @@ Investment Advisor (Memory 저장 + 최종 통합)
 ```bash
 git clone <repository-url>
 cd investment_advisor_strands
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 aws configure  # us-west-2 리전 설정 권장
