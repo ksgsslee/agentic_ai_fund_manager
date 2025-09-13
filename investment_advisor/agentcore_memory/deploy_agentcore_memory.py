@@ -35,7 +35,7 @@ def deploy_memory():
             memory_id = existing_memory['id']
             print(f"✅ Using existing memory: {memory_id}")
         else:
-            # Create new memory - SUMMARY strategy for Long-term auto-summarization
+            # Create new memory - SUMMARY strategy for long-term automatic summarization
             from bedrock_agentcore.memory.constants import StrategyType
             
             memory = memory_client.create_memory_and_wait(
@@ -45,7 +45,7 @@ def deploy_memory():
                     {
                         StrategyType.SUMMARY.value: {
                             "name": "InvestmentSessionSummary",
-                            "description": "Auto-summarizes entire investment consultation session",
+                            "description": "Automatically summarizes entire investment consultation session",
                             "namespaces": ["investment/session/{sessionId}"]
                         }
                     }

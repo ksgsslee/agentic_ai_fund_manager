@@ -127,48 +127,48 @@ class AgentClient:
 agent_client = AgentClient()
 
 def financial_node(state: InvestmentState):
-    """Financial Analysis node - First step in sequential workflow"""
+    """Financial Analysis node"""
     writer = get_stream_writer()
     writer({"type": "node_start", "agent_name": "financial", "session_id": state["session_id"]})
     
-    # Invoke Financial Analyst agent
+    # Invoke Financial Analyst
     result = agent_client.call_agent_with_streaming("financial", state["user_input"], writer)
     
     writer({"type": "node_complete", "agent_name": "financial", "session_id": state["session_id"], "result": result})
     
-    # Save to memory as session conversation event
+    # Save to memory
     agent_client.save_to_memory(state["session_id"], "financial", state["user_input"], result)
     
     state["financial_analysis"] = result
     return state
 
 def portfolio_node(state: InvestmentState):
-    """Portfolio Architecture node - Second step in sequential workflow"""
+    """Portfolio Architecture node"""
     writer = get_stream_writer()
     writer({"type": "node_start", "agent_name": "portfolio", "session_id": state["session_id"]})
     
-    # Invoke Portfolio Architect agent
+    # Invoke Portfolio Architect
     result = agent_client.call_agent_with_streaming("portfolio", state["financial_analysis"], writer)
     
     writer({"type": "node_complete", "agent_name": "portfolio", "session_id": state["session_id"], "result": result})
     
-    # Save to memory as session conversation event
+    # Save to memory
     agent_client.save_to_memory(state["session_id"], "portfolio", state["financial_analysis"], result)
     
     state["portfolio_recommendation"] = result
     return state
 
 def risk_node(state: InvestmentState):
-    """Risk Management node - Final step in sequential workflow"""
+    """Risk Management node"""
     writer = get_stream_writer()
     writer({"type": "node_start", "agent_name": "risk", "session_id": state["session_id"]})
     
-    # Invoke Risk Manager agent
+    # Invoke Risk Manager
     result = agent_client.call_agent_with_streaming("risk", state["portfolio_recommendation"], writer)
     
     writer({"type": "node_complete", "agent_name": "risk", "session_id": state["session_id"], "result": result})
     
-    # Save to memory as session conversation event
+    # Save to memory
     agent_client.save_to_memory(state["session_id"], "risk", state["portfolio_recommendation"], result)
     
     state["risk_analysis"] = result
@@ -195,7 +195,7 @@ class InvestmentAdvisor:
         self.graph = create_graph()
     
     async def run_consultation(self, user_input, session_id=None):
-        """Execute investment consultation through sequential agent workflow"""
+        """Execute investment consultation"""
         # Use session ID from Streamlit, generate default if not provided
         if not session_id:
             session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"

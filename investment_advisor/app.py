@@ -76,25 +76,9 @@ AGENT_ARN, MEMORY_ID, REGION, STATIC_PATH = load_deployment_info()
 agentcore_client = boto3.client('bedrock-agentcore', region_name=REGION)
 memory_client = MemoryClient(region_name=REGION)
 
-def extract_json_from_text(text):
-    """Extract JSON from text"""
-    if isinstance(text, dict):
-        return text
-    if not isinstance(text, str):
-        return None
-    
-    start = text.find('{')
-    end = text.rfind('}') + 1
-    if start != -1 and end > start:
-        try:
-            return json.loads(text[start:end])
-        except json.JSONDecodeError:
-            return None
-    return None
-
 def display_calculator_result(container, tool_input, result_text):
     """Display Calculator tool results"""
-    container.markdown("**🧮 Calculator Calculation Results**")
+    container.markdown("**Return Rate Calculated by Calculator Tool**")
     container.code(f"Input: {tool_input}\n\n{result_text}", language="text")
 
 def display_etf_analysis_result(container, etf_data):
@@ -174,11 +158,9 @@ def display_correlation_analysis(container, correlation_data):
             
             container.markdown("**Correlation Interpretation**")
             container.info("""
-            - **1.0**: Perfect positive correlation (moves in the same direction)
-            - **0.7~0.9**: High positive correlation (limited diversification effect)
-            - **0.3~0.7**: Medium positive correlation (moderate diversification effect)
-            - **-0.3~0.3**: Low correlation (good diversification effect)
-            - **-1.0**: Perfect negative correlation (moves in opposite directions)
+            - **0.7 and above**: High correlation (limited diversification effect)
+            - **0.3~0.7**: Medium correlation (moderate diversification effect)
+            - **Below 0.3**: Low correlation (good diversification effect)
             """)
         
     except Exception as e:
@@ -206,7 +188,7 @@ def display_news_data(container, news_data):
             container.dataframe(
                 news_df[['publish_date', 'title', 'summary']],
                 hide_index=True,
-                use_container_width=True
+                width="stretch"
             )
         else:
             for i, news_item in enumerate(news_list[:5], 1):
@@ -240,7 +222,7 @@ def display_market_data(container, market_data):
                             value = info['value']
                             st.metric(description, f"{value}")
                         else:
-                            st.write(f"**{key}**: 데이터 없음")
+                            st.write(f"**{key}**: No data available")
                 
     except Exception as e:
         container.error(f"Market data display error: {str(e)}")
@@ -253,7 +235,7 @@ def display_geopolitical_data(container, geopolitical_data):
         else:
             data = geopolitical_data
         
-        container.markdown("**🌍 Regional ETFs (Geopolitical Risk)**")
+        container.markdown("**🌍 Major Regional ETFs (Geopolitical Risk)**")
         
         indicators = {k: v for k, v in data.items() if not k.startswith('_')}
         
@@ -268,14 +250,14 @@ def display_geopolitical_data(container, geopolitical_data):
                             value = info['value']
                             st.metric(description, f"{value}")
                         else:
-                            st.write(f"**{key}**: 데이터 없음")
+                            st.write(f"**{key}**: No data available")
                 
     except Exception as e:
         container.error(f"Geopolitical data display error: {str(e)}")
 
 def display_financial_analysis(container, analysis_content):
     """Display financial analysis results"""
-    data = extract_json_from_text(analysis_content)
+    data = json.loads(analysis_content)
     
     container.markdown("**Overall Assessment**")
     container.info(data.get("summary", ""))
@@ -283,12 +265,12 @@ def display_financial_analysis(container, analysis_content):
     col1, col2 = container.columns(2)
     
     with col1:
-        st.metric("Risk Profile", data.get("risk_profile", "N/A"))
+        st.metric("**Risk Profile**", data.get("risk_profile", "N/A"))
         st.markdown("**Risk Profile Analysis**")
         st.write(data.get("risk_profile_reason", ""))
     
     with col2:
-        st.metric("Required Return Rate", f"{data.get('required_annual_return_rate', 'N/A')}%")
+        st.metric("**Required Return**", f"{data.get('required_annual_return_rate', 'N/A')}%")
         
         # Display recommended investment sectors as tags
         st.markdown("**🎯 Recommended Investment Sectors**")
@@ -299,17 +281,17 @@ def display_financial_analysis(container, analysis_content):
         st.markdown(tag_html, unsafe_allow_html=True)
 
 def display_portfolio_result(container, portfolio_content):
-    """포트폴리오 설계 결과 표시"""
+    """Display portfolio design results"""
     try:
-        data = extract_json_from_text(portfolio_content)
+        data = json.loads(portfolio_content)
         if not data:
-            container.error("포트폴리오 데이터를 찾을 수 없습니다.")
+            container.error("Portfolio data not found.")
             return
         
         col1, col2 = container.columns(2)
         
         with col1:
-            st.markdown("**포트폴리오 배분**")
+            st.markdown("**Portfolio Allocation**")
             fig = go.Figure(data=[go.Pie(
                 labels=list(data["portfolio_allocation"].keys()),
                 values=list(data["portfolio_allocation"].values()),
@@ -320,62 +302,62 @@ def display_portfolio_result(container, portfolio_content):
             st.plotly_chart(fig)
         
         with col2:
-            st.markdown("**포트폴리오 구성 근거**")
+            st.markdown("**Portfolio Composition Rationale**")
             st.info(data["reason"])
         
         if "portfolio_scores" in data:
-            container.markdown("**포트폴리오 평가 점수**")
+            container.markdown("**Portfolio Evaluation Scores**")
             scores = data["portfolio_scores"]
             
             col1, col2, col3 = container.columns(3)
             with col1:
                 profitability = scores.get("profitability", {})
-                st.metric("수익성", f"{profitability.get('score', 'N/A')}/10")
+                st.metric("Profitability", f"{profitability.get('score', 'N/A')}/10")
                 if profitability.get('reason'):
                     st.caption(profitability['reason'])
             
             with col2:
                 risk_mgmt = scores.get("risk_management", {})
-                st.metric("리스크 관리", f"{risk_mgmt.get('score', 'N/A')}/10")
+                st.metric("Risk Management", f"{risk_mgmt.get('score', 'N/A')}/10")
                 if risk_mgmt.get('reason'):
                     st.caption(risk_mgmt['reason'])
             
             with col3:
                 diversification = scores.get("diversification", {})
-                st.metric("분산투자 완성도", f"{diversification.get('score', 'N/A')}/10")
+                st.metric("Diversification", f"{diversification.get('score', 'N/A')}/10")
                 if diversification.get('reason'):
                     st.caption(diversification['reason'])
         
     except Exception as e:
-        container.error(f"포트폴리오 표시 오류: {str(e)}")
+        container.error(f"Portfolio display error: {str(e)}")
 
 def display_risk_analysis_result(container, analysis_content):
-    """리스크 분석 결과 표시"""
+    """Display risk analysis results"""
     try:
-        data = extract_json_from_text(analysis_content)
+        data = json.loads(analysis_content)
         if not data:
-            container.error("리스크 분석 데이터를 찾을 수 없습니다.")
+            container.error("Risk analysis data not found.")
             return
         
         for i, scenario_key in enumerate(["scenario1", "scenario2"], 1):
             if scenario_key in data:
                 scenario = data[scenario_key]
                 
-                container.subheader(f"시나리오 {i}: {scenario.get('name', f'Scenario {i}')}")
-                container.markdown(scenario.get('description', '설명 없음'))
+                container.subheader(f"Scenario {i}: {scenario.get('name', f'Scenario {i}')}")
+                container.markdown(scenario.get('description', 'No description available'))
                 
                 probability_str = scenario.get('probability', '0%')
                 try:
                     prob_value = int(probability_str.replace('%', ''))
-                    container.markdown(f"**📊 발생 확률: {probability_str}**")
+                    container.markdown(f"**📊 Probability: {probability_str}**")
                     container.progress(prob_value / 100)
                 except:
-                    container.markdown(f"**📊 발생 확률: {probability_str}**")
+                    container.markdown(f"**📊 Probability: {probability_str}**")
                 
                 col1, col2 = container.columns(2)
                 
                 with col1:
-                    st.markdown("**조정된 포트폴리오 배분**")
+                    st.markdown("**Adjusted Portfolio Allocation**")
                     allocation = scenario.get('allocation_management', {})
                     if allocation:
                         fig = go.Figure(data=[go.Pie(
@@ -384,21 +366,21 @@ def display_risk_analysis_result(container, analysis_content):
                             hole=.3,
                             textinfo='label+percent'
                         )])
-                        fig.update_layout(height=400, title=f"시나리오 {i} 포트폴리오")
+                        fig.update_layout(height=400, title=f"Scenario {i} Portfolio")
                         st.plotly_chart(fig, width='stretch')
                 
                 with col2:
-                    st.markdown("**조정 이유 및 전략**")
-                    st.info(scenario.get('reason', '근거 없음'))
+                    st.markdown("**Adjustment Reasoning and Strategy**")
+                    st.info(scenario.get('reason', 'No reasoning provided'))
 
         
     except Exception as e:
-        container.error(f"리스크 분석 표시 오류: {str(e)}")
+        container.error(f"Risk analysis display error: {str(e)}")
 
 def invoke_investment_advisor(input_data, session_id):
-    """Investment Advisor 호출 - 세션 ID 전달"""
+    """Invoke Investment Advisor - Pass session ID"""
     try:
-        # 세션 ID를 payload에 포함
+        # Include session ID in payload
         payload_data = {
             "input_data": input_data,
             "session_id": session_id
@@ -432,7 +414,7 @@ def invoke_investment_advisor(input_data, session_id):
                         if current_agent and current_agent in current_thinking:
                             current_thinking[current_agent] += chunk_data
                             if current_thinking[current_agent].strip() and current_agent in current_text_placeholders:
-                                # expander 내부에서 채팅 형태로 표시
+                                # Display in chat format inside expander
                                 with current_text_placeholders[current_agent].chat_message("assistant"):
                                     st.markdown(current_thinking[current_agent])
                     
@@ -506,7 +488,7 @@ def invoke_investment_advisor(input_data, session_id):
                         
                         agent_containers[agent_name] = results_container.container()
                         
-                        # 사고과정을 expander로 감싸기
+                        # Wrap reasoning process in expander
                         thinking_expander = agent_containers[agent_name].expander(f"🧠 {agent_display_names.get(agent_name, agent_name)} Reasoning", expanded=True)
                         agent_thinking_containers[agent_name] = thinking_expander.container()
                         
@@ -520,19 +502,19 @@ def invoke_investment_advisor(input_data, session_id):
                         if agent_name in agent_containers and result:
                             container = agent_containers[agent_name]
                             
-                            # 최종 결과는 expander 밖에 표시 (메인 영역)
+                            # Display final results outside expander (main area)
                             if agent_name == "financial":
-                                container.subheader("📌 재무 분석 결과")
+                                container.subheader("📌 Financial Analysis Results")
                                 display_financial_analysis(container, result)
                                 container.divider()
                                 
                             elif agent_name == "portfolio":
-                                container.subheader("📌 포트폴리오 설계 결과")
+                                container.subheader("📌 Portfolio Design Results")
                                 display_portfolio_result(container, result)
                                 container.divider()
                                 
                             elif agent_name == "risk":
-                                container.subheader("📌 리스크 분석 및 시나리오 플래닝")
+                                container.subheader("📌 Risk Analysis and Scenario Planning")
                                 display_risk_analysis_result(container, result)
                                 container.divider()
                         
@@ -544,10 +526,10 @@ def invoke_investment_advisor(input_data, session_id):
                 except json.JSONDecodeError:
                     continue
         
-        # 모든 분석 완료 메시지를 results_container 맨 아래에 표시
+        # Display analysis completion message at the bottom of results_container
         with results_container:
-            st.success("🎉 모든 에이전트 분석 완료!")
-            st.info("💾 이 상담 내용은 AgentCore Memory에 자동으로 요약되어 저장됩니다. 좌측 📚 상담 히스토리 메뉴에서 확인하실 수 있습니다.")
+            st.success("🎉 All Agent Analysis Complete!")
+            st.info("💾 This consultation content is automatically summarized and stored in AgentCore Memory. You can check it in the 📚 Consultation History menu on the left.")
 
         return {"status": "success"}
         
@@ -555,9 +537,9 @@ def invoke_investment_advisor(input_data, session_id):
         return {"status": "error", "error": str(e)}
 
 def load_current_session_summary():
-    """현재 세션의 Long-term Memory 요약 로드"""
+    """Load current session's Long-term Memory summary"""
     try:
-        # 현재 세션의 SUMMARY 전략 결과 조회
+        # Query current session's SUMMARY strategy results
         current_session = st.session_state.current_session_id
         session_namespace = f"investment/session/{current_session}"
         
@@ -568,14 +550,14 @@ def load_current_session_summary():
         )
         
         if response and len(response) > 0:
-            # 가장 최신 요약 반환
+            # Return the latest summary
             latest_record = response[0]
             
-            # content 추출
+            # Extract content
             content = latest_record.get('content', {})
             content_text = content.get('text', str(content)) if isinstance(content, dict) else str(content)
             
-            # timestamp 추출
+            # Extract timestamp
             timestamp = latest_record.get('createdAt', latest_record.get('created_at', 'Unknown'))
             timestamp_str = timestamp.isoformat() if hasattr(timestamp, 'isoformat') else str(timestamp)
             
@@ -592,97 +574,97 @@ def load_current_session_summary():
             }
         
     except Exception as e:
-        st.error(f"현재 세션 Memory 조회 실패: {e}")
+        st.error(f"Current session Memory query failed: {e}")
         return {
             'session_id': st.session_state.current_session_id,
             'found': False,
             'error': str(e)
         }
 
-# 메뉴별 UI 구성
-if menu == "🤖 새로운 투자 상담":
-    with st.expander("🏗️ Investment Advisor 아키텍처", expanded=True):
+# UI configuration by menu
+if menu == "🤖 New Investment Consultation":
+    with st.expander("🏗️ Investment Advisor Architecture", expanded=True):
         st.image(os.path.join(STATIC_PATH, "investment_advisor.png"))
 
 
-    st.markdown("**투자자 정보 입력**")
+    st.markdown("**Investor Information Input**")
 
     col1, col2 = st.columns(2)
 
     with col1:
         total_investable_amount = st.number_input(
-            "💰 투자 가능 금액 (억원 단위)",
+            "💰 Available Investment Amount (in hundred millions)",
             min_value=0.0,
             max_value=1000.0,
             value=0.5,
             step=0.1,
             format="%.1f"
         )
-        st.caption("예: 0.5 = 5천만원")
+        st.caption("e.g., 0.5 = 50 million")
 
     with col2:
         target_amount = st.number_input(
-            "🎯 1년 후 목표 금액 (억원 단위)",
+            "🎯 Target Amount After 1 Year (in hundred millions)",
             min_value=0.0,
             max_value=1000.0,
             value=0.7,
             step=0.1,
             format="%.1f"
         )
-        st.caption("예: 0.7 = 7천만원")
+        st.caption("e.g., 0.7 = 70 million")
 
     col3, col4, col5 = st.columns(3)
 
     with col3:
-        age_options = [f"{i}-{i+4}세" for i in range(20, 101, 5)]
+        age_options = [f"{i}-{i+4} years old" for i in range(20, 101, 5)]
         age = st.selectbox(
-            "나이",
+            "Age",
             options=age_options,
             index=3
         )
 
     with col4:
-        experience_categories = ["0-1년", "1-3년", "3-5년", "5-10년", "10-20년", "20년 이상"]
+        experience_categories = ["0-1 years", "1-3 years", "3-5 years", "5-10 years", "10-20 years", "20+ years"]
         stock_investment_experience_years = st.selectbox(
-            "주식 투자 경험",
+            "Stock Investment Experience",
             options=experience_categories,
             index=3
         )
 
     with col5:
         investment_purpose = st.selectbox(
-            "🎯 투자 목적",
-            options=["단기 수익 추구", "노후 준비", "주택 구입 자금", "자녀 교육비", "여유 자금 운용"],
+            "🎯 Investment Purpose",
+            options=["Short-term Profit", "Retirement Planning", "Home Purchase Fund", "Education Fund", "Surplus Fund Management"],
             index=0
         )
 
     preferred_sectors = st.multiselect(
-        "📈 관심 투자 분야 (복수 선택)",
+        "📈 Investment Areas of Interest (Multiple Selection)",
         options=[
-            "배당주 (안정적 배당)",
-            "성장주 (기술/바이오)",
-            "가치주 (저평가 우량주)", 
-            "리츠 (부동산 투자)",
-            "암호화폐 (디지털 자산)",
-            "글로벌 주식 (해외 분산)",
-            "채권 (안전 자산)",
-            "원자재/금 (인플레이션 헤지)",
-            "ESG/친환경 (지속가능 투자)",
-            "인프라/유틸리티 (필수 서비스)"
+            "Dividend Stocks (Stable Dividends)",
+            "Growth Stocks (Tech/Bio)",
+            "Value Stocks (Undervalued Quality Stocks)", 
+            "REITs (Real Estate Investment)",
+            "Cryptocurrency (Digital Assets)",
+            "Global Stocks (International Diversification)",
+            "Bonds (Safe Assets)",
+            "Commodities/Gold (Inflation Hedge)",
+            "ESG/Green (Sustainable Investment)",
+            "Infrastructure/Utilities (Essential Services)"
         ],
-        default=["성장주 (기술/바이오)"]
+        default=["Growth Stocks (Tech/Bio)"]
     )
 
-    submitted = st.button("분석 시작", width='stretch')
+    submitted = st.button("Start Analysis", width='stretch')
 
     if submitted:
-        # 기존 세션 사용 (페이지 로드 시 이미 생성됨)
+        # Use existing session (already created on page load)
         
         age_number = int(age.split('-')[0]) + 2
         
         experience_mapping = {
-            "0-1년": 1, "1-3년": 2, "3-5년": 4, 
-            "5-10년": 7, "10-20년": 15, "20년 이상": 25
+            "0-1 years": 1, "1-3 years": 2, "3-5 years": 4, 
+            "5-10 years": 7, "10-20 years": 15, "20+ years": 25
         }
         experience_years = experience_mapping[stock_investment_experience_years]
         
@@ -696,38 +678,38 @@ if menu == "🤖 새로운 투자 상담":
         }
         
         st.divider()
-        with st.spinner("AI 분석 중..."):
+        with st.spinner("AI Analysis in Progress..."):
             result = invoke_investment_advisor(
                 input_data, 
                 st.session_state.current_session_id
             )
             
             if result['status'] == 'error':
-                st.error(f"❌ 분석 중 오류: {result.get('error', 'Unknown error')}")
+                st.error(f"❌ Analysis error: {result.get('error', 'Unknown error')}")
 
-elif menu == "📚 상담 히스토리 (Long-term Memory)":
-    st.markdown("### 📚 현재 세션 투자 상담 요약")
-    st.info(f"현재 세션 **{st.session_state.current_session_id}**의 AgentCore SUMMARY 전략 자동 요약을 확인할 수 있습니다.")
+elif menu == "📚 Consultation History (Long-term Memory)":
+    st.markdown("### 📚 Current Session Investment Consultation Summary")
+    st.info(f"You can check the automatic summary of current session **{st.session_state.current_session_id}** using AgentCore SUMMARY strategy.")
     
-    if st.button("🔄 요약 새로고침", width='stretch'):
+    if st.button("🔄 Refresh Summary", width='stretch'):
         st.rerun()
     
-    with st.spinner("현재 세션의 Long-term Memory 로딩 중..."):
+    with st.spinner("Loading current session's Long-term Memory..."):
         summary_data = load_current_session_summary()
     
     if not summary_data['found']:
         if 'error' in summary_data:
-            st.error(f"요약 조회 중 오류 발생: {summary_data['error']}")
+            st.error(f"Error occurred while querying summary: {summary_data['error']}")
         else:
-            st.warning("현재 세션의 투자 상담 요약이 아직 생성되지 않았습니다.")
+            st.warning("Investment consultation summary for the current session has not been generated yet.")
             st.markdown("""
-            **요약 생성 조건:**
-            - 투자 상담을 완료해야 합니다 (3개 에이전트 모두 실행)
-            - AgentCore SUMMARY 전략이 자동으로 요약을 생성합니다
-            - 요약 생성까지 몇 분 정도 소요될 수 있습니다
+            **Summary Generation Conditions:**
+            - Investment consultation must be completed (all 3 agents executed)
+            - AgentCore SUMMARY strategy automatically generates summaries
+            - Summary generation may take a few minutes
             """)
     else:
-        # 시간 표시를 더 읽기 쉽게 포맷
+        # Format time display for better readability
         timestamp = summary_data['timestamp']
         try:
             if isinstance(timestamp, str) and 'T' in timestamp:
@@ -740,25 +722,25 @@ elif menu == "📚 상담 히스토리 (Long-term Memory)":
         
         content = summary_data['content']
         
-        # XML 형태의 summary를 간단하게 처리
+        # Simple processing of XML-format summary
         if isinstance(content, str):
-            st.markdown("## 📋 투자 상담 요약")
+            st.markdown("## 📋 Investment Consultation Summary")
             
-            # XML에서 topic들을 추출해서 표시
+            # Extract and display topics from XML
             import re
             topics = re.findall(r'<topic name="([^"]+)">\s*(.*?)\s*</topic>', content, re.DOTALL)
             
             if topics:
                 for topic_name, topic_content in topics:
                     st.subheader(f"📌 {topic_name}")
-                    # HTML 엔티티 디코딩
+                    # HTML entity decoding
                     clean_content = topic_content.replace('&quot;', '"').replace('&#39;', "'")
                     st.write(clean_content.strip())
                     st.divider()
             else:
-                # XML 파싱 실패 시 원본 표시
+                # Display original content if XML parsing fails
                 st.text(content)
         else:
-            # 일반 텍스트 처리
-            st.markdown("## 📋 투자 상담 요약")
+            # General text processing
+            st.markdown("## 📋 Investment Consultation Summary")
             st.write(content)
