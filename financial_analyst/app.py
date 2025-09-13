@@ -13,35 +13,35 @@ from pathlib import Path
 st.set_page_config(page_title="Financial Analyst")
 st.title("💰 Financial Analyst")
 
-# 배포 정보 로드
+# Load deployment information
 try:
     with open(Path(__file__).parent / "deployment_info.json", "r") as f:
         deployment_info = json.load(f)
     AGENT_ARN = deployment_info["agent_arn"]
     REGION = deployment_info["region"]
 except Exception as e:
-    st.error("배포 정보를 찾을 수 없습니다. deploy.py를 먼저 실행해주세요.")
+    st.error("Deployment information not found. Please run deploy.py first.")
     st.stop()
 
 agentcore_client = boto3.client('bedrock-agentcore', region_name=REGION)
 
 def display_financial_analysis(trace_container, result):
-    """재무 분석 결과 표시"""
-    trace_container.markdown("**종합 총평**")
+    """Display financial analysis results"""
+    trace_container.markdown("**Overall Assessment**")
     trace_container.info(result.get("summary", ""))
 
     col1, col2 = trace_container.columns(2)
     
     with col1:
-        st.metric("**위험 성향**", result.get("risk_profile", "N/A"))
-        st.markdown("**위험 성향 분석**")
+        st.metric("**Risk Profile**", result.get("risk_profile", "N/A"))
+        st.markdown("**Risk Profile Analysis**")
         st.write(result.get("risk_profile_reason", ""))
     
     with col2:
-        st.metric("**필요 수익률**", f"{result.get('required_annual_return_rate', 'N/A')}%")
+        st.metric("**Required Return**", f"{result.get('required_annual_return_rate', 'N/A')}%")
         
-        # 추천 투자 섹터를 태그로 표시
-        st.markdown("**🎯 추천 투자 섹터**")
+        # Display recommended investment sectors as tags
+        st.markdown("**🎯 Recommended Investment Sectors**")
         sectors = result.get("key_sectors", [])
         tag_html = ""
         for sector in sectors:
@@ -49,12 +49,12 @@ def display_financial_analysis(trace_container, result):
         st.markdown(tag_html, unsafe_allow_html=True)
 
 def display_calculator_result(trace_container, tool_input, result_text):
-    """Calculator 도구 결과 표시"""
-    trace_container.markdown("**Calculator 도구로 계산된 수익률**")
+    """Display Calculator tool results"""
+    trace_container.markdown("**Return Rate Calculated by Calculator Tool**")
     trace_container.code(f"Input: {tool_input}\n\n{result_text}", language="text")
 
 def invoke_financial_advisor(input_data):
-    """AgentCore Runtime 호출"""
+    """Invoke AgentCore Runtime"""
     try:
         response = agentcore_client.invoke_agent_runtime(
             agentRuntimeArn=AGENT_ARN,
@@ -128,92 +128,92 @@ def invoke_financial_advisor(input_data):
     except Exception as e:
         return {"status": "error", "error": str(e)}
 
-# 아키텍처 설명
-with st.expander("아키텍처", expanded=True):
+# Architecture description
+with st.expander("Architecture", expanded=True):
     st.image(os.path.join("../static/financial_analyst.png"), width=500)
 
-# 입력 폼
-st.markdown("**투자자 정보 입력**")
+# Input form
+st.markdown("**Investor Information Input**")
 col1, col2 = st.columns(2)
 
 with col1:
     total_investable_amount = st.number_input(
-        "💰 투자 가능 금액 (억원 단위)",
+        "💰 Available Investment Amount (in hundred millions)",
         min_value=0.0,
         max_value=1000.0,
         value=0.5,
         step=0.1,
         format="%.1f"
     )
-    st.caption("예: 0.5 = 5천만원")
+    st.caption("e.g., 0.5 = 50 million won")
 
 with col2:
     target_amount = st.number_input(
-        "🎯 1년 후 목표 금액 (억원 단위)",
+        "🎯 Target Amount After 1 Year (in hundred millions)",
         min_value=0.0,
         max_value=1000.0,
         value=0.7,
         step=0.1,
         format="%.1f"
     )
-    st.caption("예: 0.7 = 7천만원")
+    st.caption("e.g., 0.7 = 70 million won")
 
 col3, col4, col5 = st.columns(3)
 
 with col3:
-    age_options = [f"{i}-{i+4}세" for i in range(20, 101, 5)]
+    age_options = [f"{i}-{i+4} years old" for i in range(20, 101, 5)]
     age = st.selectbox(
-        "나이",
+        "Age",
         options=age_options,
         index=3
     )
 
 with col4:
-    experience_categories = ["0-1년", "1-3년", "3-5년", "5-10년", "10-20년", "20년 이상"]
+    experience_categories = ["0-1 years", "1-3 years", "3-5 years", "5-10 years", "10-20 years", "20+ years"]
     stock_investment_experience_years = st.selectbox(
-        "주식 투자 경험",
+        "Stock Investment Experience",
         options=experience_categories,
         index=3
     )
 
 with col5:
     investment_purpose = st.selectbox(
-        "🎯 투자 목적",
-        options=["단기 수익 추구", "노후 준비", "주택 구입 자금", "자녀 교육비", "여유 자금 운용"],
+        "🎯 Investment Purpose",
+        options=["Short-term Profit", "Retirement Planning", "Home Purchase Fund", "Education Fund", "Surplus Fund Management"],
         index=0
     )
 
 preferred_sectors = st.multiselect(
-    "📈 관심 투자 분야 (복수 선택)",
+    "📈 Investment Areas of Interest (Multiple Selection)",
     options=[
-        "배당주 (안정적 배당)",
-        "성장주 (기술/바이오)",
-        "가치주 (저평가 우량주)", 
-        "리츠 (부동산 투자)",
-        "암호화폐 (디지털 자산)",
-        "글로벌 주식 (해외 분산)",
-        "채권 (안전 자산)",
-        "원자재/금 (인플레이션 헤지)",
-        "ESG/친환경 (지속가능 투자)",
-        "인프라/유틸리티 (필수 서비스)"
+        "Dividend Stocks (Stable Dividends)",
+        "Growth Stocks (Tech/Bio)",
+        "Value Stocks (Undervalued Quality Stocks)", 
+        "REITs (Real Estate Investment)",
+        "Cryptocurrency (Digital Assets)",
+        "Global Stocks (International Diversification)",
+        "Bonds (Safe Assets)",
+        "Commodities/Gold (Inflation Hedge)",
+        "ESG/Green (Sustainable Investment)",
+        "Infrastructure/Utilities (Essential Services)"
     ],
-    default=["성장주 (기술/바이오)"]
+    default=["Growth Stocks (Tech/Bio)"]
 )
 
-submitted = st.button("분석 시작", width='stretch')
+submitted = st.button("Start Analysis", width='stretch')
 
 if submitted:
-    # 나이 범위를 숫자로 변환
+    # Convert age range to number
     age_number = int(age.split('-')[0]) + 2
     
-    # 경험 년수를 숫자로 변환
+    # Convert experience years to number
     experience_mapping = {
-        "0-1년": 1,
-        "1-3년": 2,
-        "3-5년": 4,
-        "5-10년": 7,
-        "10-20년": 15,
-        "20년 이상": 25
+        "0-1 years": 1,
+        "1-3 years": 2,
+        "3-5 years": 4,
+        "5-10 years": 7,
+        "10-20 years": 15,
+        "20+ years": 25
     }
     experience_years = experience_mapping[stock_investment_experience_years]
     
@@ -228,14 +228,14 @@ if submitted:
     
     st.divider()
     
-    with st.spinner("AI 분석 중..."):
+    with st.spinner("AI Analysis in Progress..."):
         try:
             result = invoke_financial_advisor(input_data)
             
             if result['status'] == 'error':
-                st.error(f"❌ 분석 중 오류가 발생했습니다: {result.get('error', 'Unknown error')}")
+                st.error(f"❌ An error occurred during analysis: {result.get('error', 'Unknown error')}")
                 st.stop()
             
         except Exception as e:
-            st.error(f"❌ 예상치 못한 오류가 발생했습니다: {str(e)}")
+            st.error(f"❌ An unexpected error occurred: {str(e)}")
             

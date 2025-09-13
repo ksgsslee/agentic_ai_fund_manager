@@ -1,7 +1,7 @@
 """
 cleanup.py
 
-Financial Analyst 시스템 정리 스크립트
+Financial Analyst System Cleanup Script
 """
 
 import json
@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from deploy import Config
 
 def load_deployment_info():
-    """배포 정보 로드"""
+    """Load deployment information"""
     info_file = Path(__file__).parent / "deployment_info.json"
     if info_file.exists():
         with open(info_file) as f:
@@ -22,48 +22,48 @@ def load_deployment_info():
     return None
 
 def delete_runtime(agent_arn, region):
-    """Runtime 삭제"""
+    """Delete Runtime"""
     try:
         runtime_id = agent_arn.split('/')[-1]
         client = boto3.client('bedrock-agentcore-control', region_name=region)
         client.delete_agent_runtime(agentRuntimeId=runtime_id)
-        print(f"✅ Runtime 삭제: {runtime_id} (리전: {region})")
+        print(f"✅ Runtime deleted: {runtime_id} (region: {region})")
         return True
     except Exception as e:
-        print(f"⚠️ Runtime 삭제 실패: {e}")
+        print(f"⚠️ Runtime deletion failed: {e}")
         return False
 
 def delete_ecr_repo(repo_name, region):
-    """ECR 리포지토리 삭제"""
+    """Delete ECR repository"""
     try:
         ecr = boto3.client('ecr', region_name=region)
         ecr.delete_repository(repositoryName=repo_name, force=True)
-        print(f"✅ ECR 삭제: {repo_name} (리전: {region})")
+        print(f"✅ ECR deleted: {repo_name} (region: {region})")
         return True
     except Exception as e:
-        print(f"⚠️ ECR 삭제 실패 {repo_name}: {e}")
+        print(f"⚠️ ECR deletion failed {repo_name}: {e}")
         return False
 
 def delete_iam_role(role_name):
-    """IAM 역할 삭제"""
+    """Delete IAM role"""
     try:
         iam = boto3.client('iam')
         
-        # 정책 삭제
+        # Delete policies
         policies = iam.list_role_policies(RoleName=role_name)
         for policy in policies['PolicyNames']:
             iam.delete_role_policy(RoleName=role_name, PolicyName=policy)
         
-        # 역할 삭제
+        # Delete role
         iam.delete_role(RoleName=role_name)
-        print(f"✅ IAM 역할 삭제: {role_name}")
+        print(f"✅ IAM role deleted: {role_name}")
         return True
     except Exception as e:
-        print(f"⚠️ IAM 역할 삭제 실패 {role_name}: {e}")
+        print(f"⚠️ IAM role deletion failed {role_name}: {e}")
         return False
 
 def cleanup_local_files():
-    """로컬 생성 파일들 삭제"""
+    """Delete locally generated files"""
     current_dir = Path(__file__).parent
     files_to_delete = [
         current_dir / "deployment_info.json",
@@ -76,53 +76,53 @@ def cleanup_local_files():
     for file_path in files_to_delete:
         if file_path.exists():
             file_path.unlink()
-            print(f"✅ 파일 삭제: {file_path.name}")
+            print(f"✅ File deleted: {file_path.name}")
             deleted_count += 1
     
     if deleted_count > 0:
-        print(f"✅ 로컬 파일 정리 완료! ({deleted_count}개 파일 삭제)")
+        print(f"✅ Local file cleanup complete! ({deleted_count} files deleted)")
     else:
-        print("📁 삭제할 로컬 파일이 없습니다.")
+        print("📁 No local files to delete.")
 
 def main():
-    print("🧹 Financial Analyst 시스템 정리")
+    print("🧹 Financial Analyst System Cleanup")
     
-    # 배포 정보 로드
+    # Load deployment information
     deployment_info = load_deployment_info()
     
     if not deployment_info:
-        print("⚠️ 배포 정보가 없습니다.")
+        print("⚠️ No deployment information found.")
         return
     
-    # 확인
-    response = input("\n정말로 모든 리소스를 삭제하시겠습니까? (y/N): ")
+    # Confirmation
+    response = input("\nAre you sure you want to delete all resources? (y/N): ")
     if response.lower() != 'y':
-        print("❌ 취소됨")
+        print("❌ Cancelled")
         return
     
-    print("\n🗑️ AWS 리소스 삭제 중...")
+    print("\n🗑️ Deleting AWS resources...")
     
-    # 1. Runtime 삭제
+    # 1. Delete Runtime
     if 'agent_arn' in deployment_info:
         region = deployment_info.get('region', 'us-west-2')
         delete_runtime(deployment_info['agent_arn'], region)
     
-    # 2. ECR 리포지토리 삭제
+    # 2. Delete ECR repository
     if 'ecr_repo_name' in deployment_info and deployment_info['ecr_repo_name']:
         region = deployment_info.get('region', 'us-west-2')
         delete_ecr_repo(deployment_info['ecr_repo_name'], region)
     
-    # 3. IAM 역할 삭제
+    # 3. Delete IAM role
     if 'iam_role_name' in deployment_info:
         delete_iam_role(deployment_info['iam_role_name'])
     
-    print("\n🎉 AWS 리소스 정리 완료!")
+    print("\n🎉 AWS resource cleanup complete!")
     
-    # 4. 로컬 파일들 정리
-    if input("\n로컬 생성 파일들도 삭제하시겠습니까? (y/N): ").lower() == 'y':
+    # 4. Clean up local files
+    if input("\nDo you also want to delete locally generated files? (y/N): ").lower() == 'y':
         cleanup_local_files()
     else:
-        print("📁 로컬 파일들은 유지됩니다.")
+        print("📁 Local files will be preserved.")
 
 if __name__ == "__main__":
     main()

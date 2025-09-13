@@ -1,7 +1,7 @@
 """
 financial_analyst.py
 
-Financial Analyst - Calculator 도구 활용 재무 분석
+Financial Analyst - Financial Analysis Using Calculator Tool
 """
 
 import json
@@ -13,13 +13,13 @@ from bedrock_agentcore.runtime import BedrockAgentCoreApp
 app = BedrockAgentCoreApp()
 
 class Config:
-    """Financial Analyst 설정"""
+    """Financial Analyst Configuration"""
     MODEL_ID = "openai.gpt-oss-120b-1:0"
     TEMPERATURE = 0.1
     MAX_TOKENS = 3000
 
 def extract_json_from_text(text_content):
-    """AI 응답에서 JSON 부분만 추출"""
+    """Extract only JSON part from AI response"""
     if not isinstance(text_content, str):
         return text_content
     
@@ -32,7 +32,7 @@ def extract_json_from_text(text_content):
     return text_content
 
 class FinancialAnalyst:
-    """Calculator 도구를 활용한 AI 재무 분석사"""
+    """AI Financial Analyst utilizing Calculator tool"""
     
     def __init__(self):
         self.agent = Agent(
@@ -47,32 +47,32 @@ class FinancialAnalyst:
         )
         
     def _get_prompt(self) -> str:
-        return """재무분석 전문가로서 개인 맞춤형 투자 분석을 수행합니다.
+        return """As a financial analysis expert, perform personalized investment analysis.
 
-입력 데이터:
-- total_investable_amount: 투자 가능 금액
-- target_amount: 1년 후 목표 금액
-- age: 나이  
-- stock_investment_experience_years: 투자 경험 연수
-- investment_purpose: 투자 목적
-- preferred_sectors: 관심 투자 분야
+Input Data:
+- total_investable_amount: Available investment amount
+- target_amount: Target amount after 1 year
+- age: Age  
+- stock_investment_experience_years: Years of investment experience
+- investment_purpose: Investment purpose
+- preferred_sectors: Areas of investment interest
 
-분석 과정:
-1. "calculator" 도구를 사용하여 수익률을 계산하세요: ((목표금액/투자금액)-1)*100
-2. 나이, 경험, 목적, 관심분야를 종합한 위험성향 평가하세요.
-3. 수익률, 위험성향을 고려한 종합 평가하세요.
+Analysis Process:
+1. Use the "calculator" tool to calculate return rate: ((target_amount/investment_amount)-1)*100
+2. Assess risk profile comprehensively considering age, experience, purpose, and areas of interest.
+3. Provide comprehensive evaluation considering return rate and risk profile.
 
-출력:
+Output:
 {
-"risk_profile": "매우 보수적|보수적|중립적|공격적|매우 공격적",
-"risk_profile_reason": "위험성향 평가 근거 (2-3문장)",
-"required_annual_return_rate": 수익률(소수점2자리),
-"key_sectors": ["추천 투자 섹터1", "추천 투자 섹터2", "추천 투자 섹터3"],
-"summary": "종합 총평 (3-4문장)"
+"risk_profile": "Very Conservative|Conservative|Neutral|Aggressive|Very Aggressive",
+"risk_profile_reason": "Risk profile assessment rationale (2-3 sentences)",
+"required_annual_return_rate": return_rate(2_decimal_places),
+"key_sectors": ["Recommended Investment Sector1", "Recommended Investment Sector2", "Recommended Investment Sector3"],
+"summary": "Overall assessment (3-4 sentences)"
 }"""
 
     async def analyze_financial_situation_async(self, user_input):
-        """Calculator 도구를 활용한 실시간 스트리밍 재무 분석"""
+        """Real-time streaming financial analysis using Calculator tool"""
         try:
             user_input_str = json.dumps(user_input, ensure_ascii=False)
 
@@ -117,7 +117,7 @@ analyst = None
 
 @app.entrypoint
 async def financial_analyst(payload):
-    """AgentCore Runtime 엔트리포인트"""
+    """AgentCore Runtime entrypoint"""
     global analyst
     
     if analyst is None:

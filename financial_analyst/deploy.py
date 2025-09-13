@@ -1,7 +1,7 @@
 """
 deploy.py
 
-Financial Analyst AgentCore Runtime 배포 스크립트
+Financial Analyst AgentCore Runtime Deployment Script
 """
 
 import sys
@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from bedrock_agentcore_starter_toolkit import Runtime
 
-# 공통 설정 및 shared 모듈 경로 추가
+# Add common configuration and shared module paths
 root_path = Path(__file__).parent.parent
 sys.path.insert(0, str(root_path))
 sys.path.insert(0, str(root_path / "shared"))
@@ -19,19 +19,19 @@ from config import Config as GlobalConfig
 from runtime_utils import create_agentcore_runtime_role
 
 class Config:
-    """Financial Analyst 배포 설정"""
+    """Financial Analyst deployment configuration"""
     REGION = GlobalConfig.REGION
     AGENT_NAME = GlobalConfig.FINANCIAL_ANALYST_NAME
 
 def deploy_financial_analyst():
-    """Financial Analyst Runtime 배포"""
-    print("🎯 Financial Analyst 배포 중...")
+    """Deploy Financial Analyst Runtime"""
+    print("🎯 Deploying Financial Analyst...")
     
-    # IAM 역할 생성
+    # Create IAM role
     iam_role = create_agentcore_runtime_role(Config.AGENT_NAME, Config.REGION)
     iam_role_name = iam_role['Role']['RoleName']
     
-    # Runtime 구성
+    # Configure Runtime
     current_dir = Path(__file__).parent
     runtime = Runtime()
     runtime.configure(
@@ -43,24 +43,24 @@ def deploy_financial_analyst():
         agent_name=Config.AGENT_NAME
     )
     
-    # 배포 실행
+    # Execute deployment
     launch_result = runtime.launch(auto_update_on_conflict=True)
     
-    # 배포 완료 대기
+    # Wait for deployment completion
     for i in range(30):
         try:
             status = runtime.status().endpoint['status']
-            print(f"📊 상태: {status} ({i*30}초 경과)")
+            print(f"📊 Status: {status} ({i*30} seconds elapsed)")
             if status in ['READY', 'CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']:
                 break
         except Exception as e:
-            print(f"⚠️ 상태 확인 오류: {e}")
+            print(f"⚠️ Status check error: {e}")
         time.sleep(30)
     
     if status != 'READY':
-        raise Exception(f"배포 실패: {status}")
+        raise Exception(f"Deployment failed: {status}")
     
-    # ECR 리포지토리 이름 추출
+    # Extract ECR repository name
     ecr_repo_name = None
     if hasattr(launch_result, 'ecr_uri') and launch_result.ecr_uri:
         ecr_repo_name = launch_result.ecr_uri.split('/')[-1].split(':')[0]
@@ -74,7 +74,7 @@ def deploy_financial_analyst():
     }
 
 def save_deployment_info(analyst_info):
-    """배포 정보 저장"""
+    """Save deployment information"""
     deployment_info = {
         "agent_name": Config.AGENT_NAME,
         "agent_arn": analyst_info["agent_arn"],
@@ -93,22 +93,22 @@ def save_deployment_info(analyst_info):
 
 def main():
     try:
-        print("🎯 Financial Analyst Runtime 배포")
+        print("🎯 Financial Analyst Runtime Deployment")
         
-        # Financial Analyst 배포
+        # Deploy Financial Analyst
         analyst_info = deploy_financial_analyst()
         
-        # 배포 정보 저장
+        # Save deployment information
         info_file = save_deployment_info(analyst_info)
         
-        print(f"\n🎉 배포 완료!")
-        print(f"📄 배포 정보: {info_file}")
+        print(f"\n🎉 Deployment Complete!")
+        print(f"📄 Deployment Info: {info_file}")
         print(f"🔗 Financial Analyst ARN: {analyst_info['agent_arn']}")
         
         return 0
         
     except Exception as e:
-        print(f"❌ 배포 실패: {e}")
+        print(f"❌ Deployment Failed: {e}")
         return 1
 
 if __name__ == "__main__":

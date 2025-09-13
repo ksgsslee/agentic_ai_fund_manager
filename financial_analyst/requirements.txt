@@ -1,7 +1,7 @@
 # requirements.txt
-# Financial Analyst AgentCore Runtime 의존성
+# Financial Analyst AgentCore Runtime Dependencies
 
-# AI 에이전트 프레임워크
+# AI Agent Framework
 strands-agents
 strands-agents-tools
 
