@@ -66,7 +66,7 @@ Output:
 {
 "risk_profile": "Very Conservative|Conservative|Neutral|Aggressive|Very Aggressive",
 "risk_profile_reason": "Risk profile assessment rationale (2-3 sentences)",
-"required_annual_return_rate": return_rate(2_decimal_places),
+"required_annual_return_rate": return rate with 2 decimal places,
 "key_sectors": ["Recommended Investment Sector1", "Recommended Investment Sector2", "Recommended Investment Sector3"],
 "summary": "Overall assessment (3-4 sentences)"
 }"""

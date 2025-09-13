@@ -59,7 +59,7 @@ streamlit run app.py
 ## 📊 Usage
 
 ### Input Information
-- **Available Investment Amount**: In hundred millions (e.g., 0.5 = 50 million won)
+- **Available Investment Amount**: In hundred millions (e.g., 0.5 = 50 million)
 - **Target Amount**: Target amount after 1 year
 - **Age**: Age range selection
 - **Investment Experience**: Years of stock investment experience

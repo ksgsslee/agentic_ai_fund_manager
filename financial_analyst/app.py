@@ -145,7 +145,7 @@ with col1:
         step=0.1,
         format="%.1f"
     )
-    st.caption("e.g., 0.5 = 50 million won")
+    st.caption("e.g., 0.5 = 50 million")
 
 with col2:
     target_amount = st.number_input(
@@ -156,7 +156,7 @@ with col2:
         step=0.1,
         format="%.1f"
     )
-    st.caption("e.g., 0.7 = 70 million won")
+    st.caption("e.g., 0.7 = 70 million")
 
 col3, col4, col5 = st.columns(3)
 
