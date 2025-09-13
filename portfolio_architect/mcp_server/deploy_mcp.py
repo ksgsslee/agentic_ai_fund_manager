@@ -58,11 +58,17 @@ def setup_cognito_auth():
         'discovery_url': discovery_url
     }
 
-def create_mcp_runtime(role_arn, auth_components):
-    """Create MCP Server Runtime"""
-    print("🔧 Configuring MCP Server Runtime...")
-    current_dir = Path(__file__).parent
+def deploy_mcp_server(auth_components):
+    """Deploy MCP Server Runtime"""
+    print("🎯 Deploying MCP Server...")
     
+    # Create IAM role
+    iam_role = create_agentcore_runtime_role(Config.MCP_SERVER_NAME, Config.REGION)
+    iam_role_name = iam_role['Role']['RoleName']
+    time.sleep(10)  # Wait for IAM propagation
+    
+    # Configure Runtime
+    current_dir = Path(__file__).parent
     auth_config = {
         "customJWTAuthorizer": {
             "allowedClients": [auth_components['client_id']],
@@ -73,7 +79,7 @@ def create_mcp_runtime(role_arn, auth_components):
     runtime = Runtime()
     runtime.configure(
         entrypoint=str(current_dir / "server.py"),
-        execution_role=role_arn,
+        execution_role=iam_role['Role']['Arn'],
         auto_create_ecr=True,
         requirements_file=str(current_dir / "requirements.txt"),
         region=Config.REGION,
@@ -97,65 +103,66 @@ def create_mcp_runtime(role_arn, auth_components):
         time.sleep(30)
     
     if status != 'READY':
-        raise Exception(f"MCP Server deployment failed: {status}")
+        raise Exception(f"Deployment failed: {status}")
+    
+    # Extract ECR repository name
+    ecr_repo_name = None
+    if hasattr(launch_result, 'ecr_uri') and launch_result.ecr_uri:
+        ecr_repo_name = launch_result.ecr_uri.split('/')[-1].split(':')[0]
     
     return {
-        'agent_arn': launch_result.agent_arn,
-        'agent_id': launch_result.agent_id
+        "agent_arn": launch_result.agent_arn,
+        "agent_id": launch_result.agent_id,
+        "region": Config.REGION,
+        "iam_role_name": iam_role_name,
+        "ecr_repo_name": ecr_repo_name
     }
 
-def save_deployment_info(result):
+
+
+def save_deployment_info(auth_components, mcp_server_info):
     """Save deployment information"""
+    deployment_info = {
+        "agent_name": Config.MCP_SERVER_NAME,
+        "agent_arn": mcp_server_info["agent_arn"],
+        "agent_id": mcp_server_info["agent_id"],
+        "user_pool_id": auth_components['user_pool_id'],
+        "client_id": auth_components['client_id'],
+        "client_secret": auth_components['client_secret'],
+        "region": Config.REGION,
+        "iam_role_name": mcp_server_info["iam_role_name"],
+        "ecr_repo_name": mcp_server_info.get("ecr_repo_name"),
+        "deployed_at": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
     info_file = Path(__file__).parent / "mcp_deployment_info.json"
     with open(info_file, 'w') as f:
-        json.dump(result, f, indent=2)
+        json.dump(deployment_info, f, indent=2)
+    
     return str(info_file)
 
 def main():
     try:
         print("🚀 ETF Data MCP Server Deployment")
         
-        # Create IAM role
-        iam_role = create_agentcore_runtime_role(Config.MCP_SERVER_NAME, Config.REGION)
-        iam_role_name = iam_role['Role']['RoleName']
-        time.sleep(10)  # Wait for IAM propagation
-        
         # Set up Cognito authentication
         auth_components = setup_cognito_auth()
         
-        # Create MCP Server Runtime
-        runtime_result = create_mcp_runtime(iam_role['Role']['Arn'], auth_components)
-        
-        # Extract ECR repository name
-        ecr_repo_name = None
-        if hasattr(runtime_result, 'ecr_uri') and runtime_result['ecr_uri']:
-            ecr_repo_name = runtime_result['ecr_uri'].split('/')[-1].split(':')[0]
-
-        # Configure deployment result
-        result = {
-            'agent_arn': runtime_result['agent_arn'],
-            'agent_id': runtime_result['agent_id'],
-            'user_pool_id': auth_components['user_pool_id'],
-            'client_id': auth_components['client_id'],
-            'client_secret': auth_components['client_secret'],
-            'region': Config.REGION,
-            'iam_role_name': iam_role_name,
-            'ecr_repo_name': ecr_repo_name,
-            'deployed_at': time.strftime("%Y-%m-%d %H:%M:%S")
-        }
+        # Deploy MCP Server
+        mcp_server_info = deploy_mcp_server(auth_components)
         
         # Save deployment information
-        info_file = save_deployment_info(result)
+        info_file = save_deployment_info(auth_components, mcp_server_info)
         
         print(f"\n🎉 MCP Server Deployment Complete!")
-        print(f"🔗 Agent ARN: {result['agent_arn']}")
         print(f"📄 Deployment Info: {info_file}")
+        print(f"🔗 Agent ARN: {mcp_server_info['agent_arn']}")
         
-        return result
+        return 0
         
     except Exception as e:
         print(f"❌ MCP Server Deployment Failed: {e}")
-        raise
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
