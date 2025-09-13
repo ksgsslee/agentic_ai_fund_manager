@@ -210,7 +210,7 @@ def cleanup_local_files():
     for file_path in files_to_delete:
         if file_path.exists():
             file_path.unlink()
-            print(f"✅ 파일 삭제: {file_path.name}")
+            print(f"✅ File deleted: {file_path.name}")
             deleted_count += 1
     
     if deleted_count > 0:

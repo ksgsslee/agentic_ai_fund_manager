@@ -2,8 +2,8 @@
 __init__.py
 Risk Manager Package Initialization
 
-Lab 3: Risk Manager with Planning Pattern
-Risk Manager + Planning Pattern Implementation (AgentCore Runtime Version)
+Lab 3: Risk Manager with Real-time Data Analysis
+Risk Manager Implementation (AgentCore Runtime Version)
 
 An AI agent system that performs news-based risk analysis based on portfolio proposals
 and provides portfolio adjustment guidance according to economic scenarios.

@@ -115,7 +115,7 @@ def display_market_data(container, market_data):
                             value = info['value']
                             st.metric(description, f"{value}")
                         else:
-                            st.write(f"**{key}**: 데이터 없음")
+                            st.write(f"**{key}**: No data available")
                 
     except Exception as e:
         container.error(f"Market data display error: {str(e)}")
@@ -143,7 +143,7 @@ def display_geopolitical_data(container, geopolitical_data):
                             value = info['value']
                             st.metric(description, f"{value}")
                         else:
-                            st.write(f"**{key}**: 데이터 없음")
+                            st.write(f"**{key}**: No data available")
                 
     except Exception as e:
         container.error(f"Geopolitical data display error: {str(e)}")

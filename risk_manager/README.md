@@ -12,9 +12,9 @@ An AI agent that analyzes real-time news and macroeconomic data based on Portfol
 - **Scenario Planning**: Derive 2 key economic scenarios and establish portfolio adjustment strategies
 - **Planning Pattern**: Systematic workflow-based risk analysis and response planning
 
-## 🏗️ 아키텍처
+## 🏗️ Architecture
 
-![전체 시스템 아키텍처](../static/risk_manager.png)
+![Overall System Architecture](../static/risk_manager.png)
 
 ### Technology Stack
 - **AI Framework**: Strands Agents SDK
@@ -75,148 +75,148 @@ sequenceDiagram
     S-->>U: Display scenario-based visualization
 ```
 
-## 🔧 리스크 분석 프로세스
+## 🔧 Risk Analysis Process
 
-### 1. 포트폴리오 분석
-- 입력받은 포트폴리오 구성 (3개 ETF + 비중) 분석
-- 각 ETF의 특성 및 리스크 요인 식별
+### 1. Portfolio Analysis
+- Analyze input portfolio composition (3 ETFs + allocations)
+- Identify characteristics and risk factors of each ETF
 
-### 2. 실시간 뉴스 수집
-- **get_product_news 도구**: 각 ETF별 최신 뉴스 5개 수집
-- 제목, 요약, 발행일 정보 추출
-- 리스크 요인 및 시장 심리 분석
+### 2. Real-time News Collection
+- **get_product_news tool**: Collect latest 5 news articles for each ETF
+- Extract title, summary, and publication date information
+- Analyze risk factors and market sentiment
 
-### 3. 거시경제 지표 모니터링
-- **get_market_data 도구**: 주요 경제 지표 7개 실시간 조회
-  - 금리: 2년/10년 국채 수익률, 달러 지수
-  - 변동성/원자재: VIX, WTI 원유, 금 선물
-  - 주식: S&P 500 지수
+### 3. Macroeconomic Indicator Monitoring
+- **get_market_data tool**: Real-time retrieval of 7 major economic indicators
+  - Interest rates: 2-year/10-year Treasury yields, Dollar Index
+  - Volatility/Commodities: VIX, WTI crude oil, gold futures
+  - Equity: S&P 500 Index
 
-### 4. 지정학적 리스크 분석
-- **get_geopolitical_indicators 도구**: 주요 지역 ETF 5개 실시간 조회
-  - 아시아: 중국 A주, 일본, 한국 ETF
-  - 글로벌: 신흥국, 유럽 ETF
+### 4. Geopolitical Risk Analysis
+- **get_geopolitical_indicators tool**: Real-time retrieval of 5 major regional ETFs
+  - Asia: China A-shares, Japan, South Korea ETFs
+  - Global: Emerging markets, Europe ETFs
 
-### 5. 시나리오 도출
-- **2개 핵심 시나리오**: 뉴스 + 거시경제 + 지정학적 요인 종합 분석
-- 각 시나리오별 발생 확률 및 영향도 평가
+### 5. Scenario Development
+- **2 Core Scenarios**: Comprehensive analysis of news + macroeconomic + geopolitical factors
+- Evaluate probability of occurrence and impact for each scenario
 
-### 6. 포트폴리오 조정 전략
-- **기존 ETF 유지**: 새로운 자산 추가 없이 비중만 조정
-- 시나리오별 최적 배분 비율 계산
-- 구체적인 조정 이유 및 실행 방안 제시
+### 6. Portfolio Adjustment Strategy
+- **Maintain Existing ETFs**: Adjust only allocations without adding new assets
+- Calculate optimal allocation ratios for each scenario
+- Provide specific adjustment reasoning and implementation plans
 
-## 🚀 설치 및 실행
+## 🚀 Installation and Setup
 
-### 1. 환경 설정
+### 1. Environment Setup
 ```bash
-# 루트 폴더에서 의존성 설치
+# Install dependencies from root folder
 cd ..
 pip install -r requirements.txt
 
-# AWS 자격 증명 설정
+# Configure AWS credentials
 aws configure
 
-# risk_manager 폴더로 이동
+# Navigate to risk_manager folder
 cd risk_manager
 ```
 
-### 2. 배포 (4단계 순차 배포 필수)
+### 2. Deployment (4-step sequential deployment required)
 ```bash
-# 1단계: Lambda Layer 배포 (yfinance 라이브러리)
+# Step 1: Deploy Lambda Layer (yfinance library)
 cd lambda_layer
 python deploy_lambda_layer.py
 
-# 2단계: Lambda 함수 배포 (뉴스/시장 데이터 조회)
+# Step 2: Deploy Lambda function (news/market data retrieval)
 cd ../lambda
 python deploy_lambda.py
 
-# 3단계: MCP Gateway 배포 (Lambda를 AI 도구로 노출)
+# Step 3: Deploy MCP Gateway (expose Lambda as AI tools)
 cd ../gateway
 python deploy_gateway.py
 
-# 4단계: Risk Manager Runtime 배포
+# Step 4: Deploy Risk Manager Runtime
 cd ..
 python deploy.py
 
-# 배포 상태 확인
+# Check deployment status
 cat deployment_info.json
 ```
 
-**⚠️ 주의**: 각 단계는 순서대로 실행해야 하며, 이전 단계가 완료된 후 다음 단계를 진행해야 합니다.
+**⚠️ Note**: Each step must be executed in order, and the next step should only proceed after the previous step is completed.
 
-### 3. Streamlit 실습
+### 3. Streamlit Demo
 ```bash
-# 웹 앱 실행
+# Run web app
 streamlit run app.py
 
-# 브라우저에서 http://localhost:8501 접속
+# Access http://localhost:8501 in browser
 ```
 
-## 📊 사용 방법
+## 📊 Usage
 
-### 입력 정보 (Portfolio Architect 결과)
-- **포트폴리오 배분**: 3개 ETF와 각각의 투자 비중 (%)
-- **포트폴리오 구성 근거**: 투자 전략 및 ETF 선정 이유
-- **포트폴리오 평가 점수**: 수익성, 리스크 관리, 분산투자 완성도 (1-10점)
+### Input Information (Portfolio Architect Results)
+- **Portfolio Allocation**: 3 ETFs and their respective investment weights (%)
+- **Portfolio Composition Reasoning**: Investment strategy and ETF selection reasoning
+- **Portfolio Evaluation Scores**: Profitability, risk management, diversification (1-10 points)
 
-### 출력 결과
+### Output Results
 ```json
 {
   "scenario1": {
-    "name": "테크 주도 경기 회복",
-    "description": "금리 인하와 함께 기술 섹터가 주도하는 경기 회복 시나리오",
+    "name": "Tech-Led Economic Recovery",
+    "description": "Economic recovery scenario led by technology sector with interest rate cuts",
     "probability": "35%",
     "allocation_management": {
       "QQQ": 70,
       "SPY": 25,
       "GLD": 5
     },
-    "reason": "기술 섹터 성장에 더 많이 노출하여 수익 극대화"
+    "reason": "Maximize returns by increasing exposure to technology sector growth"
   },
   "scenario2": {
-    "name": "인플레이션 지속과 경기 둔화",
-    "description": "고금리 지속 및 인플레이션 압력 하에서의 경기 둔화",
+    "name": "Persistent Inflation and Economic Slowdown",
+    "description": "Economic slowdown under sustained high interest rates and inflation pressure",
     "probability": "25%",
     "allocation_management": {
       "QQQ": 40,
       "SPY": 40,
       "GLD": 20
     },
-    "reason": "안전자산 비중 확대로 리스크 헤지 강화"
+    "reason": "Strengthen risk hedging by expanding safe asset allocation"
   }
 }
 ```
 
-## 🛠️ Lambda 도구 상세
+## 🛠️ Lambda Tools Details
 
 ### get_product_news(ticker)
-- **기능**: 특정 ETF의 최신 뉴스 5개 조회
-- **데이터 소스**: yfinance API
-- **출력**: 제목, 요약, 발행일, 링크 정보
-- **용도**: ETF별 리스크 요인 및 시장 심리 분석
+- **Function**: Retrieve latest 5 news articles for specific ETF
+- **Data Source**: yfinance API
+- **Output**: Title, summary, publication date, link information
+- **Purpose**: ETF-specific risk factor and market sentiment analysis
 
 ### get_market_data()
-- **기능**: 주요 거시경제 지표 실시간 조회 (7개 지표)
-- **지표 구성**:
-  - **금리 지표** (3개): 미국 2년 국채 수익률, 미국 10년 국채 수익률, 미국 달러 강세 지수
-  - **변동성/원자재** (3개): VIX 변동성 지수, WTI 원유 선물 가격, 금 선물 가격
-  - **주식 지수** (1개): S&P 500 지수
-- **용도**: 거시경제 환경 분석 및 경제 시나리오 도출
+- **Function**: Real-time retrieval of major macroeconomic indicators (7 indicators)
+- **Indicator Composition**:
+  - **Interest Rate Indicators** (3): US 2-year Treasury yield, US 10-year Treasury yield, US Dollar Strength Index
+  - **Volatility/Commodities** (3): VIX Volatility Index, WTI crude oil futures price, gold futures price
+  - **Equity Index** (1): S&P 500 Index
+- **Purpose**: Macroeconomic environment analysis and economic scenario development
 
 ### get_geopolitical_indicators()
-- **기능**: 주요 지역 ETF 실시간 조회 (5개 지역)
-- **지역 구성**:
-  - **중국** (ASHR): 중국 A주 ETF
-  - **신흥국** (EEM): 신흥국 ETF  
-  - **유럽** (VGK): 유럽 ETF
-  - **일본** (EWJ): 일본 ETF
-  - **한국** (EWY): 한국 ETF
-- **용도**: 지정학적 리스크 및 지역별 시장 상황 분석
+- **Function**: Real-time retrieval of major regional ETFs (5 regions)
+- **Regional Composition**:
+  - **China** (ASHR): China A-Shares ETF
+  - **Emerging Markets** (EEM): Emerging Markets ETF  
+  - **Europe** (VGK): Europe ETF
+  - **Japan** (EWJ): Japan ETF
+  - **South Korea** (EWY): South Korea ETF
+- **Purpose**: Geopolitical risk and regional market condition analysis
 
-## 🔧 커스터마이징
+## 🔧 Customization
 
-### 모델 변경
+### Model Configuration
 ```python
 # risk_manager.py
 class Config:
@@ -225,42 +225,42 @@ class Config:
     MAX_TOKENS = 4000
 ```
 
-### 시장 지표 추가/수정
+### Adding/Modifying Market Indicators
 ```python
-# lambda/lambda_function.py에서 MARKET_INDICATORS 딕셔너리 수정
+# Modify MARKET_INDICATORS dictionary in lambda/lambda_function.py
 MARKET_INDICATORS = {
-    "new_indicator": {"ticker": "TICKER_SYMBOL", "description": "지표 설명"},
-    # ... 기존 지표들
+    "new_indicator": {"ticker": "TICKER_SYMBOL", "description": "Indicator description"},
+    # ... existing indicators
 }
 ```
 
-## 📁 프로젝트 구조
+## 📁 Project Structure
 
 ```
 risk_manager/
-├── risk_manager.py         # 메인 에이전트 (AgentCore Runtime)
-├── deploy.py               # Risk Manager Runtime 배포 (4단계 중 마지막)
-├── cleanup.py              # 시스템 정리
-├── app.py                  # Streamlit 웹 앱
-├── requirements.txt        # Python 의존성
-├── lambda_layer/           # Lambda Layer (yfinance 라이브러리)
-│   ├── deploy_lambda_layer.py    # Layer 배포 스크립트
-│   └── layer-yfinance.zip        # yfinance 라이브러리 패키지
-├── lambda/                 # Lambda 함수 (뉴스/시장 데이터 조회)
-│   ├── deploy_lambda.py          # Lambda 배포 스크립트
-│   └── lambda_function.py        # 뉴스 및 시장 데이터 조회 함수
-└── gateway/                # MCP Gateway (Lambda를 AI 도구로 노출)
-    ├── deploy_gateway.py         # Gateway 배포 스크립트
-    └── target_config.py          # MCP 도구 스키마 정의
+├── risk_manager.py         # Main agent (AgentCore Runtime)
+├── deploy.py               # Risk Manager Runtime deployment (final step of 4)
+├── cleanup.py              # System cleanup
+├── app.py                  # Streamlit web app
+├── requirements.txt        # Python dependencies
+├── lambda_layer/           # Lambda Layer (yfinance library)
+│   ├── deploy_lambda_layer.py    # Layer deployment script
+│   └── layer-yfinance.zip        # yfinance library package
+├── lambda/                 # Lambda functions (news/market data retrieval)
+│   ├── deploy_lambda.py          # Lambda deployment script
+│   └── lambda_function.py        # News and market data retrieval function
+└── gateway/                # MCP Gateway (expose Lambda as AI tools)
+    ├── deploy_gateway.py         # Gateway deployment script
+    └── target_config.py          # MCP tool schema definition
 ```
 
-## 🔗 전체 시스템 연동
+## 🔗 Full System Integration
 
-이 Risk Manager는 **AI 투자 어드바이저** 시스템의 세 번째 단계입니다:
+This Risk Manager is the third stage of the **AI Investment Advisor** system:
 
-1. **Financial Analyst** → 재무 분석 및 위험 성향 평가
-2. **Portfolio Architect** → 실시간 ETF 데이터 기반 포트폴리오 설계
-3. **Risk Manager** (현재) → 뉴스 분석 및 리스크 시나리오 플래닝
-4. **Investment Advisor** → 전체 에이전트 통합 및 최종 리포트
+1. **Financial Analyst** → Financial analysis and risk profile assessment
+2. **Portfolio Architect** → Real-time ETF data-based portfolio design
+3. **Risk Manager** (current) → News analysis and risk scenario planning
+4. **Investment Advisor** → Full agent integration and final report
 
-전체 시스템 실행은 `../investment_advisor/app.py`에서 가능합니다.
+The complete system can be run from `../investment_advisor/app.py`.
