@@ -1,7 +1,7 @@
 """
 server.py
 
-ETF Data MCP Server - 실시간 ETF 데이터 조회
+ETF Data MCP Server - Real-time ETF Data Retrieval
 """
 
 import yfinance as yf
@@ -13,16 +13,16 @@ mcp = FastMCP(host="0.0.0.0", stateless_http=True)
 
 @mcp.tool()
 def calculate_correlation(tickers: list) -> dict:
-    """선택된 ETF들 간 상관관계 매트릭스 계산"""
+    """Calculate correlation matrix between selected ETFs"""
     try:
         import numpy as np
         from datetime import datetime, timedelta
         
-        # 2년치 데이터로 상관관계 계산
+        # Calculate correlation with 2 years of data
         end_date = datetime.today().date()
         start_date = end_date - timedelta(days=504)
         
-        # 모든 ETF 데이터 수집
+        # Collect all ETF data
         etf_data = {}
         for ticker in tickers:
             etf = yf.Ticker(ticker)
@@ -30,7 +30,7 @@ def calculate_correlation(tickers: list) -> dict:
             if not hist.empty:
                 etf_data[ticker] = hist['Close'].pct_change().dropna()
         
-        # 상관관계 매트릭스 생성
+        # Generate correlation matrix
         correlation_matrix = {}
         for ticker1 in tickers:
             correlation_matrix[ticker1] = {}
@@ -38,9 +38,9 @@ def calculate_correlation(tickers: list) -> dict:
                 if ticker1 == ticker2:
                     correlation_matrix[ticker1][ticker2] = 1.0
                 elif ticker1 in etf_data and ticker2 in etf_data:
-                    # 공통 날짜 찾기
+                    # Find common dates
                     common_dates = etf_data[ticker1].index.intersection(etf_data[ticker2].index)
-                    if len(common_dates) > 100:  # 충분한 데이터가 있을 때만
+                    if len(common_dates) > 100:  # Only when sufficient data is available
                         returns1 = etf_data[ticker1][common_dates]
                         returns2 = etf_data[ticker2][common_dates]
                         
@@ -60,11 +60,11 @@ def calculate_correlation(tickers: list) -> dict:
 
 @mcp.tool()
 def analyze_etf_performance(ticker: str) -> dict:
-    """개별 ETF 성과 분석 (몬테카를로 시뮬레이션 포함)"""
+    """Individual ETF performance analysis (including Monte Carlo simulation)"""
     try:
-        # 2년치 데이터 수집
+        # Collect 2 years of data
         end_date = datetime.today().date()
-        start_date = end_date - timedelta(days=504)  # 약 2년
+        start_date = end_date - timedelta(days=504)  # Approximately 2 years
         
         etf = yf.Ticker(ticker)
         hist = etf.history(start=start_date, end=end_date)
@@ -72,50 +72,50 @@ def analyze_etf_performance(ticker: str) -> dict:
         if hist.empty:
             return {"error": f"No data available for ticker: {ticker}"}
         
-        # 일일 수익률 계산
+        # Calculate daily returns
         daily_returns = hist['Close'].pct_change().dropna()
         
-        # 연간 수익률과 변동성 계산
+        # Calculate annual return and volatility
         annual_return = np.mean(daily_returns) * 252
         annual_volatility = np.std(daily_returns) * np.sqrt(252)
         
-        # 몬테카를로 시뮬레이션 (1000회로 간소화)
+        # Monte Carlo simulation (simplified to 1000 iterations)
         n_simulations = 1000
-        n_days = 252  # 1년
+        n_days = 252  # 1 year
         
-        # 1년 후 수익률 분포 계산 (100만원 기준)
+        # Calculate return distribution after 1 year (based on 1 million won)
         base_amount = 1000000
         final_values = []
         
         for _ in range(n_simulations):
-            # 정규분포에서 일일 수익률 샘플링
+            # Sample daily returns from normal distribution
             simulated_returns = np.random.normal(
                 annual_return / 252, 
                 annual_volatility / np.sqrt(252), 
                 n_days
             )
             
-            # 복리 계산
+            # Calculate compound returns
             final_value = base_amount * np.prod(1 + simulated_returns)
             final_values.append(final_value)
         
         final_values = np.array(final_values)
         
-        # 간단한 지표들만 계산
+        # Calculate simple indicators only
         expected_return_pct = (np.mean(final_values) / base_amount - 1) * 100
         loss_probability = np.sum(final_values < base_amount) / n_simulations * 100
         
-        # 수익률 구간별 분포 계산
+        # Calculate return distribution by range
         return_percentages = (final_values / base_amount - 1) * 100
         
         distribution = {
-            "-20% 이하": int(np.sum(return_percentages <= -20)),
+            "-20% and below": int(np.sum(return_percentages <= -20)),
             "-20% ~ -10%": int(np.sum((return_percentages > -20) & (return_percentages <= -10))),
             "-10% ~ 0%": int(np.sum((return_percentages > -10) & (return_percentages <= 0))),
             "0% ~ 10%": int(np.sum((return_percentages > 0) & (return_percentages <= 10))),
             "10% ~ 20%": int(np.sum((return_percentages > 10) & (return_percentages <= 20))),
             "20% ~ 30%": int(np.sum((return_percentages > 20) & (return_percentages <= 30))),
-            "30% 이상": int(np.sum(return_percentages > 30))
+            "30% and above": int(np.sum(return_percentages > 30))
         }
         
         return {

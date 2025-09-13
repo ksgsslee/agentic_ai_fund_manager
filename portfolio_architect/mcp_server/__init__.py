@@ -1,8 +1,8 @@
 """
 MCP Server Package
 
-ETF 데이터 조회를 위한 MCP Server 패키지입니다.
-yfinance를 사용하여 실시간 ETF 가격 데이터를 제공합니다.
+MCP Server package for ETF data retrieval.
+Provides real-time ETF price data using yfinance.
 """
 
 __version__ = "1.0.0"

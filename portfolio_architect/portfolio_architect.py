@@ -1,8 +1,8 @@
 """
 portfolio_architect.py
 
-Portfolio Architect - AI 포트폴리오 설계사
-MCP Server 연동으로 실시간 ETF 데이터 기반 포트폴리오 설계
+Portfolio Architect - AI Portfolio Designer
+Real-time ETF data-based portfolio design through MCP Server integration
 """
 
 import json
@@ -17,7 +17,7 @@ from bedrock_agentcore.runtime import BedrockAgentCoreApp
 app = BedrockAgentCoreApp()
 
 class Config:
-    """Portfolio Architect 설정"""
+    """Portfolio Architect Configuration"""
     MODEL_ID = "global.anthropic.claude-sonnet-4-20250514-v1:0"
     TEMPERATURE = 0.3
     MAX_TOKENS = 3000
@@ -30,7 +30,7 @@ class PortfolioArchitect:
         self._create_agent()
     
     def _setup_auth(self):
-        """Cognito OAuth2 토큰 획득"""
+        """Acquire Cognito OAuth2 token"""
         info = self.mcp_server_info
         self.mcp_url = info['mcp_url']
         
@@ -46,7 +46,7 @@ class PortfolioArchitect:
         self.access_token = response.json()['access_token']
     
     def _init_mcp_client(self):
-        """MCP 클라이언트 초기화"""
+        """Initialize MCP client"""
         self.mcp_client = MCPClient(
             lambda: streamablehttp_client(
                 self.mcp_url, 
@@ -55,7 +55,7 @@ class PortfolioArchitect:
         )
     
     def _create_agent(self):
-        """AI 에이전트 생성"""
+        """Create AI agent"""
         with self.mcp_client as client:
             tools = client.list_tools_sync()
             
@@ -71,44 +71,44 @@ class PortfolioArchitect:
             )
     
     def _get_prompt(self):
-        return """당신은 전문 투자 설계사입니다. 고객의 재무 분석 결과를 바탕으로 최적의 투자 포트폴리오를 설계해야 합니다.
+        return """You are a professional investment designer. You need to design an optimal investment portfolio based on the client's financial analysis results.
 
-재무 분석 결과가 다음과 같은 JSON 형식으로 제공됩니다:
+Financial analysis results are provided in the following JSON format:
 {
-  "risk_profile": <위험 성향>,
-  "risk_profile_reason": <위험 성향 평가 근거>,
-  "required_annual_return_rate": <필요 연간 수익률>,
-  "key_sectors": <추천 투자 섹터 리스트>,
-  "summary": <종합 총평>
+  "risk_profile": <risk profile>,
+  "risk_profile_reason": <risk profile assessment rationale>,
+  "required_annual_return_rate": <required annual return rate>,
+  "key_sectors": <recommended investment sector list>,
+  "summary": <overall assessment>
 }
 
-포트폴리오 설계 프로세스:
+Portfolio Design Process:
 
-1. 후보 ETF 선정: key_sectors와 위험 성향을 고려하여 5개 ETF 후보를 선정하세요.
-2. 성과 분석: 선정된 5개 ETF에 대해 "analyze_etf_performance" 도구로 각각의 성과를 분석하세요.
-3. 상관관계 분석: "calculate_correlation" 도구로 5개 ETF 간의 상관관계를 분석하세요.
-4. 최적 3개 ETF 선정: 성과 분석과 상관관계 결과를 종합하여 최적의 3개 ETF를 선정하세요.
-   - 예상 수익률과 분산투자 효과를 균형있게 고려하세요.
-   - 목표 수익률 달성 가능성과 리스크 분산을 동시에 만족하는 조합을 선택하세요.
-5. 최적 비중 결정: 선정된 3개 ETF의 성과와 상관관계를 바탕으로 최적의 투자 비중을 결정하세요.
-6. 포트폴리오 평가: 다음 3가지 지표로 1~10점 평가하세요:
-   - 수익성: 목표 수익률 달성 가능성
-   - 리스크 관리: 변동성과 손실 확률 수준
-   - 분산투자 완성도: 상관관계와 자산군 다양성
+1. Candidate ETF Selection: Select 5 ETF candidates considering key_sectors and risk profile.
+2. Performance Analysis: Analyze the performance of each of the 5 selected ETFs using the "analyze_etf_performance" tool.
+3. Correlation Analysis: Analyze correlations between the 5 ETFs using the "calculate_correlation" tool.
+4. Optimal 3 ETF Selection: Select the optimal 3 ETFs by synthesizing performance analysis and correlation results.
+   - Balance expected returns and diversification effects.
+   - Choose combinations that simultaneously satisfy target return achievement potential and risk diversification.
+5. Optimal Weight Determination: Determine optimal investment weights based on the performance and correlations of the selected 3 ETFs.
+6. Portfolio Evaluation: Evaluate on a 1-10 scale across the following 3 indicators:
+   - Profitability: Potential to achieve target returns
+   - Risk Management: Volatility and loss probability levels
+   - Diversification Completeness: Correlation and asset class diversity
 
-최종 결과를 다음 JSON 형식으로 출력하세요:
+Output the final results in the following JSON format:
 {
   "portfolio_allocation": {"ticker1": 50, "ticker2": 30, "ticker3": 20},
-  "reason": "포트폴리오 구성 근거 및 투자 전략 설명. 각 ETF에 대한 간단한 설명을 반드시 포함하세요.",
+  "reason": "Portfolio composition rationale and investment strategy explanation. Must include brief descriptions of each ETF.",
   "portfolio_scores": {
-    "profitability": {"score": 9, "reason": "구체적 근거"},
-    "risk_management": {"score": 7, "reason": "구체적 근거"},
-    "diversification": {"score": 8, "reason": "구체적 근거"}
+    "profitability": {"score": 9, "reason": "specific rationale"},
+    "risk_management": {"score": 7, "reason": "specific rationale"},
+    "diversification": {"score": 8, "reason": "specific rationale"}
   }
 }
 
-주의사항:
-- 투자 비중은 정수로 표현하고 총합이 100%가 되어야 합니다."""
+Important Notes:
+- Investment weights must be expressed as integers and total 100%."""
 
     async def design_portfolio_async(self, financial_analysis):
         analysis_str = json.dumps(financial_analysis, ensure_ascii=False)
@@ -146,7 +146,7 @@ class PortfolioArchitect:
                 if "result" in event:
                     yield {"type": "streaming_complete", "result": str(event["result"])}
 
-# 전역 인스턴스
+# Global instance
 architect = None
 
 @app.entrypoint
@@ -154,7 +154,7 @@ async def portfolio_architect(payload):
     global architect
     
     if architect is None:
-        # 환경변수에서 MCP Server 정보 구성
+        # Configure MCP Server information from environment variables
         region = os.getenv("AWS_REGION", "us-west-2")
         mcp_agent_arn = os.getenv("MCP_AGENT_ARN")
         encoded_arn = mcp_agent_arn.replace(':', '%3A').replace('/', '%2F')

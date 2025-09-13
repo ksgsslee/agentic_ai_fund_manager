@@ -1,7 +1,7 @@
 # requirements.txt
-# Portfolio Architect 의존성
+# Portfolio Architect Dependencies
 
-# AI 에이전트 프레임워크
+# AI Agent Framework
 strands-agents
 
 # AWS Bedrock AgentCore Runtime

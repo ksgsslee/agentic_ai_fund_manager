@@ -1,8 +1,8 @@
 """
 deploy_mcp.py
 
-MCP Server 배포 스크립트
-ETF 데이터 조회용 MCP Server 배포
+MCP Server Deployment Script
+Deploy MCP Server for ETF data retrieval
 """
 
 import boto3
@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 from bedrock_agentcore_starter_toolkit import Runtime
 
-# 공통 설정 및 shared 모듈 경로 추가
+# Add common configuration and shared module paths
 root_path = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(root_path))
 sys.path.insert(0, str(root_path / "shared"))
@@ -22,19 +22,19 @@ from cognito_utils import get_or_create_user_pool, get_or_create_resource_server
 from runtime_utils import create_agentcore_runtime_role
 
 class Config:
-    """MCP Server 배포 설정"""
+    """MCP Server deployment configuration"""
     REGION = GlobalConfig.REGION
     MCP_SERVER_NAME = GlobalConfig.MCP_SERVER_NAME
 
 def setup_cognito_auth():
-    """Cognito 인증 설정"""
-    print("🔐 Cognito 인증 설정 중...")
+    """Set up Cognito authentication"""
+    print("🔐 Setting up Cognito authentication...")
     cognito = boto3.client('cognito-idp', region_name=Config.REGION)
     
-    # User Pool 생성/조회
+    # Create/get User Pool
     user_pool_id = get_or_create_user_pool(cognito, f"{Config.MCP_SERVER_NAME}-pool", Config.REGION)
     
-    # Resource Server 생성/조회
+    # Create/get Resource Server
     resource_server_id = f"{Config.MCP_SERVER_NAME}-server"
     scopes = [
         {"ScopeName": "runtime:read", "ScopeDescription": "Runtime read access"},
@@ -43,7 +43,7 @@ def setup_cognito_auth():
     get_or_create_resource_server(cognito, user_pool_id, resource_server_id, 
                                  f"{Config.MCP_SERVER_NAME} Resource Server", scopes)
     
-    # M2M Client 생성/조회
+    # Create/get M2M Client
     client_id, client_secret = get_or_create_m2m_client(
         cognito, user_pool_id, f"{Config.MCP_SERVER_NAME}-client", 
         resource_server_id, ["runtime:read", "runtime:write"]
@@ -59,8 +59,8 @@ def setup_cognito_auth():
     }
 
 def create_mcp_runtime(role_arn, auth_components):
-    """MCP Server Runtime 생성"""
-    print("🔧 MCP Server Runtime 구성 중...")
+    """Create MCP Server Runtime"""
+    print("🔧 Configuring MCP Server Runtime...")
     current_dir = Path(__file__).parent
     
     auth_config = {
@@ -82,22 +82,22 @@ def create_mcp_runtime(role_arn, auth_components):
         agent_name=Config.MCP_SERVER_NAME
     )
     
-    # 배포 실행
+    # Execute deployment
     launch_result = runtime.launch()
     
-    # 배포 완료 대기
-    for i in range(30):  # 최대 15분 대기
+    # Wait for deployment completion
+    for i in range(30):  # Maximum 15 minutes wait
         try:
             status = runtime.status().endpoint['status']
-            print(f"📊 상태: {status} ({i*30}초 경과)")
+            print(f"📊 Status: {status} ({i*30} seconds elapsed)")
             if status in ['READY', 'CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']:
                 break
         except Exception as e:
-            print(f"⚠️ 상태 확인 오류: {e}")
+            print(f"⚠️ Status check error: {e}")
         time.sleep(30)
     
     if status != 'READY':
-        raise Exception(f"MCP Server 배포 실패: {status}")
+        raise Exception(f"MCP Server deployment failed: {status}")
     
     return {
         'agent_arn': launch_result.agent_arn,
@@ -105,7 +105,7 @@ def create_mcp_runtime(role_arn, auth_components):
     }
 
 def save_deployment_info(result):
-    """배포 정보 저장"""
+    """Save deployment information"""
     info_file = Path(__file__).parent / "mcp_deployment_info.json"
     with open(info_file, 'w') as f:
         json.dump(result, f, indent=2)
@@ -113,25 +113,25 @@ def save_deployment_info(result):
 
 def main():
     try:
-        print("🚀 ETF Data MCP Server 배포")
+        print("🚀 ETF Data MCP Server Deployment")
         
-        # IAM 역할 생성
+        # Create IAM role
         iam_role = create_agentcore_runtime_role(Config.MCP_SERVER_NAME, Config.REGION)
         iam_role_name = iam_role['Role']['RoleName']
-        time.sleep(10)  # IAM 전파 대기
+        time.sleep(10)  # Wait for IAM propagation
         
-        # Cognito 인증 설정
+        # Set up Cognito authentication
         auth_components = setup_cognito_auth()
         
-        # MCP Server Runtime 생성
+        # Create MCP Server Runtime
         runtime_result = create_mcp_runtime(iam_role['Role']['Arn'], auth_components)
         
-        # ECR 리포지토리 이름 추출
+        # Extract ECR repository name
         ecr_repo_name = None
         if hasattr(runtime_result, 'ecr_uri') and runtime_result['ecr_uri']:
             ecr_repo_name = runtime_result['ecr_uri'].split('/')[-1].split(':')[0]
 
-        # 배포 결과 구성
+        # Configure deployment result
         result = {
             'agent_arn': runtime_result['agent_arn'],
             'agent_id': runtime_result['agent_id'],
@@ -144,17 +144,17 @@ def main():
             'deployed_at': time.strftime("%Y-%m-%d %H:%M:%S")
         }
         
-        # 배포 정보 저장
+        # Save deployment information
         info_file = save_deployment_info(result)
         
-        print(f"\n🎉 MCP Server 배포 완료!")
+        print(f"\n🎉 MCP Server Deployment Complete!")
         print(f"🔗 Agent ARN: {result['agent_arn']}")
-        print(f"📄 배포 정보: {info_file}")
+        print(f"📄 Deployment Info: {info_file}")
         
         return result
         
     except Exception as e:
-        print(f"❌ MCP Server 배포 실패: {e}")
+        print(f"❌ MCP Server Deployment Failed: {e}")
         raise
 
 if __name__ == "__main__":

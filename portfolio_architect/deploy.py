@@ -1,8 +1,8 @@
 """
 deploy.py
 
-Portfolio Architect 배포 스크립트
-MCP Server와 Portfolio Architect Runtime 순차 배포
+Portfolio Architect Deployment Script
+Sequential deployment of MCP Server and Portfolio Architect Runtime
 """
 
 import sys
@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 from bedrock_agentcore_starter_toolkit import Runtime
 
-# 공통 설정 및 shared 모듈 경로 추가
+# Add common configuration and shared module paths
 root_path = Path(__file__).parent.parent
 sys.path.insert(0, str(root_path))
 sys.path.insert(0, str(root_path / "shared"))
@@ -21,32 +21,32 @@ from config import Config as GlobalConfig
 from runtime_utils import create_agentcore_runtime_role
 
 class Config:
-    """Portfolio Architect 배포 설정"""
+    """Portfolio Architect deployment configuration"""
     REGION = GlobalConfig.REGION
     AGENT_NAME = GlobalConfig.PORTFOLIO_ARCHITECT_NAME
 
 def load_mcp_info():
-    """MCP Server 배포 정보 로드"""
+    """Load MCP Server deployment information"""
     info_file = Path(__file__).parent / "mcp_server" / "mcp_deployment_info.json"
     if not info_file.exists():
-        print("❌ MCP Server 배포 정보가 없습니다.")
-        print("💡 먼저 다음 명령을 실행하세요:")
+        print("❌ MCP Server deployment information not found.")
+        print("💡 Please run the following commands first:")
         print("   cd mcp_server")
         print("   python deploy_mcp.py")
-        raise FileNotFoundError("MCP Server를 먼저 배포해주세요.")
+        raise FileNotFoundError("Please deploy MCP Server first.")
     
     with open(info_file) as f:
         return json.load(f)
 
 def deploy_portfolio_architect(mcp_info):
-    """Portfolio Architect Runtime 배포"""
-    print("🎯 Portfolio Architect 배포 중...")
+    """Deploy Portfolio Architect Runtime"""
+    print("🎯 Deploying Portfolio Architect...")
     
-    # IAM 역할 생성
+    # Create IAM role
     iam_role = create_agentcore_runtime_role(Config.AGENT_NAME, Config.REGION)
     iam_role_name = iam_role['Role']['RoleName']
     
-    # Runtime 구성
+    # Configure Runtime
     current_dir = Path(__file__).parent
     runtime = Runtime()
     runtime.configure(
@@ -58,7 +58,7 @@ def deploy_portfolio_architect(mcp_info):
         agent_name=Config.AGENT_NAME
     )
     
-    # 환경변수 설정
+    # Set environment variables
     env_vars = {
         "MCP_AGENT_ARN": mcp_info['agent_arn'],
         "MCP_CLIENT_ID": mcp_info['client_id'],
@@ -67,24 +67,24 @@ def deploy_portfolio_architect(mcp_info):
         "AWS_REGION": Config.REGION
     }
     
-    # 배포 실행
+    # Execute deployment
     launch_result = runtime.launch(auto_update_on_conflict=True, env_vars=env_vars)
     
-    # 배포 완료 대기
-    for i in range(30):  # 최대 15분 대기
+    # Wait for deployment completion
+    for i in range(30):  # Maximum 15 minutes wait
         try:
             status = runtime.status().endpoint['status']
-            print(f"📊 상태: {status} ({i*30}초 경과)")
+            print(f"📊 Status: {status} ({i*30} seconds elapsed)")
             if status in ['READY', 'CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']:
                 break
         except Exception as e:
-            print(f"⚠️ 상태 확인 오류: {e}")
+            print(f"⚠️ Status check error: {e}")
         time.sleep(30)
     
     if status != 'READY':
-        raise Exception(f"배포 실패: {status}")
+        raise Exception(f"Deployment failed: {status}")
     
-    # ECR 리포지토리 이름 추출
+    # Extract ECR repository name
     ecr_repo_name = None
     if hasattr(launch_result, 'ecr_uri') and launch_result.ecr_uri:
         ecr_repo_name = launch_result.ecr_uri.split('/')[-1].split(':')[0]
@@ -98,7 +98,7 @@ def deploy_portfolio_architect(mcp_info):
     }
 
 def save_deployment_info(mcp_info, architect_info):
-    """배포 정보 저장"""
+    """Save deployment information"""
     deployment_info = {
         "agent_name": Config.AGENT_NAME,
         "agent_arn": architect_info["agent_arn"],
@@ -117,26 +117,26 @@ def save_deployment_info(mcp_info, architect_info):
 
 def main():
     try:
-        print("🎯 Portfolio Architect 전체 시스템 배포")
+        print("🎯 Portfolio Architect Full System Deployment")
         
-        # MCP Server 정보 로드 (필수)
+        # Load MCP Server information (required)
         mcp_info = load_mcp_info()
-        print("✅ MCP Server 정보 로드 완료")
+        print("✅ MCP Server information loading complete")
         
-        # Portfolio Architect 배포
+        # Deploy Portfolio Architect
         architect_info = deploy_portfolio_architect(mcp_info)
         
-        # 배포 정보 저장
+        # Save deployment information
         info_file = save_deployment_info(mcp_info, architect_info)
         
-        print(f"\n🎉 배포 완료!")
-        print(f"📄 배포 정보: {info_file}")
+        print(f"\n🎉 Deployment Complete!")
+        print(f"📄 Deployment Info: {info_file}")
         print(f"🔗 Portfolio Architect ARN: {architect_info['agent_arn']}")
         
         return 0
         
     except Exception as e:
-        print(f"❌ 배포 실패: {e}")
+        print(f"❌ Deployment Failed: {e}")
         return 1
 
 if __name__ == "__main__":
