@@ -61,10 +61,15 @@ def delete_iam_role(role_name):
     try:
         iam = boto3.client('iam')
         
-        # Delete policies
+        # Delete inline policies
         policies = iam.list_role_policies(RoleName=role_name)
         for policy in policies['PolicyNames']:
             iam.delete_role_policy(RoleName=role_name, PolicyName=policy)
+        
+        # Detach managed policies
+        attached_policies = iam.list_attached_role_policies(RoleName=role_name)
+        for policy in attached_policies['AttachedPolicies']:
+            iam.detach_role_policy(RoleName=role_name, PolicyArn=policy['PolicyArn'])
         
         # Delete role
         iam.delete_role(RoleName=role_name)
