@@ -81,7 +81,7 @@ def display_news_data(container, news_data):
             container.dataframe(
                 news_df[['publish_date', 'title', 'summary']],
                 hide_index=True,
-                use_container_width=True
+                width="stretch"
             )
         else:
             for i, news_item in enumerate(news_list[:5], 1):
@@ -268,7 +268,7 @@ def invoke_risk_manager(portfolio_data):
 
 # UI Configuration
 with st.expander("Architecture", expanded=True):
-    st.image("../static/risk_manager.png", width=800)
+    st.image("../static/risk_manager.png")
 st.markdown("**Portfolio Configuration Input**")
 
 # Portfolio allocation input
