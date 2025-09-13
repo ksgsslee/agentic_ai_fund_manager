@@ -1,135 +1,135 @@
-# 🤖 Agentic AI 투자 어드바이저
+# 🤖 Agentic AI Investment Advisor
 
-**AWS Bedrock AgentCore & Strands Agent & LangGraph**를 활용한 Agentic AI 투자 어드바이저
+Agentic AI Investment Advisor powered by **AWS Bedrock AgentCore & Strands Agent & LangGraph**
 
-## 🎯 시스템 개요
+## 🎯 System Overview
 
-개인 맞춤형 투자 포트폴리오를 제안하는 4개의 전문 AI 에이전트가 협업하는 프로덕션 레벨 투자 자문 시스템입니다.
+A production-level investment advisory system where 4 specialized AI agents collaborate to provide personalized investment portfolio recommendations.
 
-## 🏗️ 전체 시스템 아키텍처
+## 🏗️ Overall System Architecture
 
-![전체 시스템 아키텍처](static/investment_advisor.png)
+![Overall System Architecture](static/investment_advisor.png)
 
-## 🏗️ 에이전트별 상세 구조
+## 🏗️ Detailed Agent Architecture
 
 ### Lab 1: Financial Analyst
-**역할**: 개인 재무 상황 분석 및 위험 성향 평가
+**Role**: Personal financial situation analysis and risk profile assessment
 
 ![Financial Analyst](static/financial_analyst.png)
 
-**구조**:
-- **AgentCore Runtime**: 서버리스 에이전트 호스팅
-- **도구**: Calculator (정확한 수익률 계산)
-- **AI 모델**: OpenAI GPT-OSS 120B
+**Architecture**:
+- **AgentCore Runtime**: Serverless agent hosting
+- **Tools**: Calculator (accurate return calculation)
+- **AI Model**: OpenAI GPT-OSS 120B
 
-**처리 과정**:
-1. 사용자 입력 데이터 분석 (나이, 투자경험, 투자금액, 목표금액)
-2. Calculator 도구로 필요 연간 수익률 계산: `((목표금액/투자금액)-1)*100`
-3. 나이와 경험을 고려한 위험 성향 평가 (보수적/중립적/공격적)
-4. 개인 성향에 맞는 투자 섹터 추천
+**Processing Flow**:
+1. Analyze user input data (age, investment experience, investment amount, target amount)
+2. Calculate required annual return using Calculator tool: `((target_amount/investment_amount)-1)*100`
+3. Assess risk profile considering age and experience (Conservative/Neutral/Aggressive)
+4. Recommend investment sectors based on personal preferences
 
-**출력**:
+**Output**:
 ```json
 {
-  "risk_profile": "공격적",
+  "risk_profile": "Aggressive",
   "required_annual_return_rate": 40.0,
-  "key_sectors": ["성장주", "기술주", "글로벌 주식"],
-  "summary": "40% 목표 수익률 달성을 위한 공격적 투자 전략 필요"
+  "key_sectors": ["Growth Stocks", "Technology Stocks", "Global Equities"],
+  "summary": "Aggressive investment strategy required to achieve 40% target return"
 }
 ```
 
 ### Lab 2: Portfolio Architect
-**역할**: 실시간 ETF 데이터 기반 최적 포트폴리오 설계
+**Role**: Optimal portfolio design based on real-time ETF data
 
 ![Portfolio Architect](static/portfolio_architect.png)
 
-**구조**:
-- **AgentCore Runtime**: 메인 포트폴리오 설계 에이전트
-- **MCP Server Runtime**: yfinance API 연동 (별도 Runtime으로 배포)
-- **도구**: `analyze_etf_performance`, `calculate_correlation`
-- **인증**: Cognito JWT OAuth2 (Runtime 간 직접 통신)
+**Architecture**:
+- **AgentCore Runtime**: Main portfolio design agent
+- **MCP Server Runtime**: yfinance API integration (deployed as separate Runtime)
+- **Tools**: `analyze_etf_performance`, `calculate_correlation`
+- **Authentication**: Cognito JWT OAuth2 (direct Runtime-to-Runtime communication)
 
-**처리 과정**:
-1. Financial Analyst 결과를 바탕으로 5개 후보 ETF 선정
-2. 각 ETF에 대해 몬테카를로 시뮬레이션 (1000회) 실행
-3. ETF 간 상관관계 매트릭스 계산 (분산투자 효과 측정)
-4. 수익률과 분산투자 효과를 고려하여 최적 3개 ETF 선정
-5. 투자 비중 결정 및 포트폴리오 평가 (수익성/리스크관리/분산투자 점수)
+**Processing Flow**:
+1. Select 5 candidate ETFs based on Financial Analyst results
+2. Execute Monte Carlo simulation (1000 iterations) for each ETF
+3. Calculate correlation matrix between ETFs (measure diversification effects)
+4. Select optimal 3 ETFs considering returns and diversification effects
+5. Determine investment weights and evaluate portfolio (profitability/risk management/diversification scores)
 
-**출력**:
+**Output**:
 ```json
 {
   "portfolio_allocation": {"QQQ": 50, "SPY": 30, "GLD": 20},
-  "reason": "기술주 중심 성장 전략...",
+  "reason": "Tech-focused growth strategy...",
   "portfolio_scores": {
-    "profitability": {"score": 8, "reason": "목표 수익률 달성 가능성 높음"},
-    "risk_management": {"score": 7, "reason": "적정 변동성 수준"},
-    "diversification": {"score": 9, "reason": "낮은 상관관계로 우수한 분산투자"}
+    "profitability": {"score": 8, "reason": "High probability of achieving target return"},
+    "risk_management": {"score": 7, "reason": "Appropriate volatility level"},
+    "diversification": {"score": 9, "reason": "Excellent diversification with low correlation"}
   }
 }
 ```
 
 ### Lab 3: Risk Manager
-**역할**: 뉴스 및 거시경제 데이터 기반 리스크 시나리오 분석
+**Role**: Risk scenario analysis based on news and macroeconomic data
 
 ![Risk Manager](static/risk_manager.png)
 
-**구조**:
-- **AgentCore Gateway**: Lambda 함수를 MCP 도구로 노출
-- **Lambda Layer**: yfinance 라이브러리 패키징
-- **Lambda 함수**: 뉴스/시장/지정학적 데이터 조회
-- **도구**: `get_product_news`, `get_market_data`, `get_geopolitical_indicators`
+**Architecture**:
+- **AgentCore Gateway**: Expose Lambda functions as MCP tools
+- **Lambda Layer**: yfinance library packaging
+- **Lambda Functions**: News/market/geopolitical data retrieval
+- **Tools**: `get_product_news`, `get_market_data`, `get_geopolitical_indicators`
 
-**처리 과정**:
-1. 포트폴리오 ETF별 최신 뉴스 5개 수집 및 분석
-2. 주요 거시경제 지표 7개 실시간 조회 (금리, 달러지수, VIX, 원유, 금, S&P500)
-3. 지역별 ETF 5개 조회 (중국, 신흥국, 유럽, 일본, 한국)
-4. 3가지 데이터를 종합하여 2개 핵심 경제 시나리오 도출
-5. 각 시나리오별 포트폴리오 조정 전략 수립
+**Processing Flow**:
+1. Collect and analyze latest 5 news articles for each portfolio ETF
+2. Real-time retrieval of 7 major macroeconomic indicators (interest rates, dollar index, VIX, oil, gold, S&P500)
+3. Query 5 regional ETFs (China, emerging markets, Europe, Japan, Korea)
+4. Synthesize 3 data types to derive 2 key economic scenarios
+5. Establish portfolio adjustment strategies for each scenario
 
-**출력**:
+**Output**:
 ```json
 {
   "scenario1": {
-    "name": "테크 주도 경기 회복",
+    "name": "Tech-Led Economic Recovery",
     "probability": "35%",
     "allocation_management": {"QQQ": 70, "SPY": 25, "GLD": 5},
-    "reason": "기술 섹터 성장에 더 많이 노출하여 수익 극대화"
+    "reason": "Maximize returns by increasing exposure to technology sector growth"
   },
   "scenario2": {
-    "name": "인플레이션 지속과 경기 둔화", 
+    "name": "Persistent Inflation and Economic Slowdown", 
     "probability": "25%",
     "allocation_management": {"QQQ": 40, "SPY": 40, "GLD": 20},
-    "reason": "안전자산 비중 확대로 리스크 헤지 강화"
+    "reason": "Strengthen risk hedging by expanding safe asset allocation"
   }
 }
 ```
 
 ### Lab 4: Investment Advisor
-**역할**: 3개 에이전트 결과 통합 및 장기 메모리 관리
+**Role**: Integration of 3 agent results and long-term memory management
 
 ![Investment Advisor](static/investment_advisor.png)
 
-**구조**:
-- **LangGraph**: 3개 에이전트 순차 실행 워크플로우
-- **AgentCore Memory**: SUMMARY 전략으로 상담 히스토리 자동 요약
-- **에이전트 호출**: 다른 3개 에이전트의 Runtime을 직접 호출
+**Architecture**:
+- **LangGraph**: Sequential execution workflow of 3 agents
+- **AgentCore Memory**: Automatic consultation history summarization with SUMMARY strategy
+- **Agent Invocation**: Direct calls to other 3 agent Runtimes
 
-**처리 과정**:
-1. **순차 에이전트 실행**:
-   - `financial_node` → Financial Analyst Runtime 호출
-   - `portfolio_node` → Portfolio Architect Runtime 호출  
-   - `risk_node` → Risk Manager Runtime 호출
-2. **실시간 스트리밍**: 각 에이전트의 사고 과정과 도구 사용을 실시간 표시
-3. **메모리 저장**: 각 에이전트 결과를 세션별 대화 이벤트로 저장
-4. **자동 요약**: SUMMARY 전략이 전체 상담 세션을 Topic별로 구조화하여 요약
+**Processing Flow**:
+1. **Sequential Agent Execution**:
+   - `financial_node` → Invoke Financial Analyst Runtime
+   - `portfolio_node` → Invoke Portfolio Architect Runtime  
+   - `risk_node` → Invoke Risk Manager Runtime
+2. **Real-time Streaming**: Display each agent's reasoning process and tool usage in real-time
+3. **Memory Storage**: Save each agent's results as session-based conversation events
+4. **Automatic Summarization**: SUMMARY strategy structures and summarizes entire consultation sessions by topics
 
-**메모리 구조**:
-- **Short-term**: 각 에이전트 결과를 세션별 대화로 저장 (7일)
-- **Long-term**: SUMMARY 전략이 Topic별로 구조화된 요약 생성 (영구 보존)
-- **네임스페이스**: `investment/session/{sessionId}` 구조
+**Memory Structure**:
+- **Short-term**: Store each agent's results as session-based conversations (7 days)
+- **Long-term**: SUMMARY strategy generates topic-structured summaries (permanent preservation)
+- **Namespace**: `investment/session/{sessionId}` structure
 
-## � 기술 적 구현 세부사항
+## 🔧 Technical Implementation Details
 
 ### AgentCore 서비스 활용
 
@@ -176,11 +176,11 @@ Investment Advisor (Memory 저장 + 최종 통합)
 최종 투자 가이드 + 자동 요약 저장
 ```
 
-## 🚀 빠른 시작
+## 🚀 Quick Start
 
-### 1. 사전 요구사항
+### 1. Prerequisites
 
-#### AWS Bedrock Model Access 설정 (필수)
+#### AWS Bedrock Model Access Setup (Required)
 이 프로젝트는 다음 Bedrock 모델들에 대한 액세스 권한이 필요합니다:
 
 - **OpenAI GPT-OSS 120B** (`openai.gpt-oss-120b-1:0`) - Financial Analyst용
@@ -196,7 +196,7 @@ Investment Advisor (Memory 저장 + 최종 통합)
 #### 리전 설정
 모든 리소스는 **us-west-2** 리전에 배포됩니다. `config.py` 파일에서 변경 가능합니다.
 
-### 2. 환경 설정
+### 2. Environment Setup
 ```bash
 git clone <repository-url>
 cd investment_advisor_strands
@@ -206,18 +206,18 @@ pip install -r requirements.txt
 aws configure  # us-west-2 리전 설정 권장
 ```
 
-### 3. 전체 배포 (권장)
+### 3. Complete Deployment (Recommended)
 ```bash
 python deploy_all.py
 ```
 
-### 4. 웹 앱 실행
+### 4. Run Web App
 ```bash
 cd investment_advisor && streamlit run app.py
 ```
-브라우저에서 `http://localhost:8501` 접속
+Access `http://localhost:8501` in browser
 
-### 5. 전체 정리
+### 5. Complete Cleanup
 ```bash
 python cleanup_all.py
 ```
