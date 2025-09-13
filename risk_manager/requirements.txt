@@ -1,7 +1,7 @@
 # requirements.txt
-# Risk Manager AgentCore Runtime 의존성
+# Risk Manager AgentCore Runtime Dependencies
 
-# AI 에이전트 프레임워크
+# AI Agent Framework
 strands-agents
 
 # AWS Bedrock AgentCore Runtime

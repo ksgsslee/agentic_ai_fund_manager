@@ -1,36 +1,36 @@
 """
 target_config.py
 
-Gateway Target 설정
-Risk Manager Gateway에서 사용할 MCP 도구 스키마를 정의합니다.
+Gateway Target Configuration
+Defines MCP tool schemas to be used in Risk Manager Gateway.
 """
 
 TARGET_CONFIGURATION = {
     "mcp": {
         "lambda": {
-            "lambdaArn": "",  # 배포 시 자동으로 Lambda ARN이 주입됩니다
+            "lambdaArn": "",  # Lambda ARN will be automatically injected during deployment
             "toolSchema": {
                 "inlinePayload": [
-                    # ETF 뉴스 조회 도구
+                    # ETF news retrieval tool
                     {
                         "name": "get_product_news",
-                        "description": "선택한 ETF 티커의 최신 뉴스 정보를 조회합니다. 리스크 분석과 시장 심리 평가를 위해 제목, 요약, 발행일이 포함된 최근 뉴스 기사들을 반환합니다.",
+                        "description": "Retrieves the latest news information for the selected ETF ticker. Returns recent news articles including title, summary, and publication date for risk analysis and market sentiment evaluation.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
                                 "ticker": {
                                     "type": "string",
-                                    "description": "뉴스를 조회할 ETF 티커 심볼 (예: 'QQQ', 'SPY', 'GLD')"
+                                    "description": "ETF ticker symbol to retrieve news for (e.g., 'QQQ', 'SPY', 'GLD')"
                                 }
                             },
                             "required": ["ticker"]
                         }
                     },
                     
-                    # 거시경제 지표 조회 도구  
+                    # Macroeconomic indicator retrieval tool  
                     {
                         "name": "get_market_data",
-                        "description": "미국 달러 지수, 국채 수익률, VIX 변동성 지수, 원유 가격 등 주요 거시경제 지표 데이터를 조회합니다. 경제 시나리오 계획 수립과 리스크 평가를 위한 실시간 시장 데이터를 반환합니다.",
+                        "description": "Retrieves major macroeconomic indicator data including US Dollar Index, Treasury yields, VIX volatility index, and oil prices. Returns real-time market data for economic scenario planning and risk assessment.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {},
@@ -38,10 +38,10 @@ TARGET_CONFIGURATION = {
                         }
                     },
                     
-                    # 지정학적 리스크 지표 조회 도구
+                    # Geopolitical risk indicator retrieval tool
                     {
                         "name": "get_geopolitical_indicators",
-                        "description": "중국, 신흥국, 유럽, 일본, 한국 등 주요 지역 ETF 데이터를 조회하여 지정학적 리스크를 분석합니다. 각 지역의 시장 상황과 지정학적 긴장도를 파악하기 위한 실시간 지역별 ETF 가격 데이터를 반환합니다.",
+                        "description": "Analyzes geopolitical risks by retrieving major regional ETF data from China, emerging markets, Europe, Japan, Korea, and other regions. Returns real-time regional ETF price data to assess market conditions and geopolitical tensions in each region.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {},

@@ -1,8 +1,8 @@
 """
 cleanup.py
 
-Risk Manager 시스템 정리 스크립트
-모든 AWS 리소스 삭제 및 정리
+Risk Manager System Cleanup Script
+Delete and clean up all AWS resources
 """
 
 import json
@@ -12,31 +12,31 @@ import sys
 from pathlib import Path
 
 def load_deployment_info():
-    """배포 정보 로드"""
+    """Load deployment information"""
     current_dir = Path(__file__).parent
     
-    # Risk Manager 정보
+    # Risk Manager information
     risk_manager_info = None
     risk_manager_file = current_dir / "deployment_info.json"
     if risk_manager_file.exists():
         with open(risk_manager_file) as f:
             risk_manager_info = json.load(f)
     
-    # Gateway 정보
+    # Gateway information
     gateway_info = None
     gateway_file = current_dir / "gateway" / "gateway_deployment_info.json"
     if gateway_file.exists():
         with open(gateway_file) as f:
             gateway_info = json.load(f)
     
-    # Lambda 정보
+    # Lambda information
     lambda_info = None
     lambda_file = current_dir / "lambda" / "lambda_deployment_info.json"
     if lambda_file.exists():
         with open(lambda_file) as f:
             lambda_info = json.load(f)
     
-    # Lambda Layer 정보
+    # Lambda Layer information
     layer_info = None
     layer_file = current_dir / "lambda_layer" / "layer_deployment_info.json"
     if layer_file.exists():
@@ -46,23 +46,23 @@ def load_deployment_info():
     return risk_manager_info, gateway_info, lambda_info, layer_info
 
 def delete_runtime(agent_arn, region):
-    """Runtime 삭제"""
+    """Delete Runtime"""
     try:
         runtime_id = agent_arn.split('/')[-1]
         client = boto3.client('bedrock-agentcore-control', region_name=region)
         client.delete_agent_runtime(agentRuntimeId=runtime_id)
-        print(f"✅ Runtime 삭제: {runtime_id} (리전: {region})")
+        print(f"✅ Runtime deleted: {runtime_id} (region: {region})")
         return True
     except Exception as e:
-        print(f"⚠️ Runtime 삭제 실패: {e}")
+        print(f"⚠️ Runtime deletion failed: {e}")
         return False
 
 def delete_gateway(gateway_id, region):
-    """Gateway 삭제"""
+    """Delete Gateway"""
     try:
         client = boto3.client('bedrock-agentcore-control', region_name=region)
         
-        # Target들 먼저 삭제
+        # Delete targets first
         targets = client.list_gateway_targets(gatewayIdentifier=gateway_id).get('items', [])
         for target in targets:
             client.delete_gateway_target(
@@ -72,112 +72,112 @@ def delete_gateway(gateway_id, region):
         
         time.sleep(3)
         client.delete_gateway(gatewayIdentifier=gateway_id)
-        print(f"✅ Gateway 삭제: {gateway_id} (리전: {region})")
+        print(f"✅ Gateway deleted: {gateway_id} (region: {region})")
         return True
     except Exception as e:
-        print(f"⚠️ Gateway 삭제 실패: {e}")
+        print(f"⚠️ Gateway deletion failed: {e}")
         return False
 
 def delete_lambda_function(function_name, region):
-    """Lambda 함수 삭제"""
+    """Delete Lambda function"""
     try:
         lambda_client = boto3.client('lambda', region_name=region)
         lambda_client.delete_function(FunctionName=function_name)
-        print(f"✅ Lambda 함수 삭제: {function_name} (리전: {region})")
+        print(f"✅ Lambda function deleted: {function_name} (region: {region})")
         return True
     except Exception as e:
-        print(f"⚠️ Lambda 함수 삭제 실패: {e}")
+        print(f"⚠️ Lambda function deletion failed: {e}")
         return False
 
 def delete_lambda_layer(layer_name, region):
-    """Lambda Layer 삭제"""
+    """Delete Lambda Layer"""
     try:
         lambda_client = boto3.client('lambda', region_name=region)
         
-        # Layer의 모든 버전 조회
+        # List all versions of the layer
         versions = lambda_client.list_layer_versions(LayerName=layer_name)
         
-        # 각 버전 삭제
+        # Delete each version
         for version in versions['LayerVersions']:
             version_number = version['Version']
             lambda_client.delete_layer_version(
                 LayerName=layer_name,
                 VersionNumber=version_number
             )
-            print(f"✅ Lambda Layer 버전 삭제: {layer_name} v{version_number}")
+            print(f"✅ Lambda Layer version deleted: {layer_name} v{version_number}")
         
         return True
     except Exception as e:
-        print(f"⚠️ Lambda Layer 삭제 실패 {layer_name}: {e}")
+        print(f"⚠️ Lambda Layer deletion failed {layer_name}: {e}")
         return False
 
 def delete_s3_bucket(bucket_name, region):
-    """S3 버킷 삭제 (객체 포함)"""
+    """Delete S3 bucket (including objects)"""
     try:
         s3 = boto3.client('s3', region_name=region)
         
-        # 버킷 존재 확인
+        # Check if bucket exists
         try:
             s3.head_bucket(Bucket=bucket_name)
         except:
-            print(f"ℹ️ S3 버킷이 존재하지 않음: {bucket_name}")
+            print(f"ℹ️ S3 bucket does not exist: {bucket_name}")
             return True
         
-        # 버킷 내 모든 객체 삭제
+        # Delete all objects in bucket
         paginator = s3.get_paginator('list_objects_v2')
         for page in paginator.paginate(Bucket=bucket_name):
             if 'Contents' in page:
                 objects = [{'Key': obj['Key']} for obj in page['Contents']]
                 s3.delete_objects(Bucket=bucket_name, Delete={'Objects': objects})
         
-        # 버킷 삭제
+        # Delete bucket
         s3.delete_bucket(Bucket=bucket_name)
-        print(f"✅ S3 버킷 삭제: {bucket_name} (리전: {region})")
+        print(f"✅ S3 bucket deleted: {bucket_name} (region: {region})")
         return True
     except Exception as e:
-        print(f"⚠️ S3 버킷 삭제 실패 {bucket_name}: {e}")
+        print(f"⚠️ S3 bucket deletion failed {bucket_name}: {e}")
         return False
 
 def delete_ecr_repo(repo_name, region):
-    """ECR 리포지토리 삭제"""
+    """Delete ECR repository"""
     try:
         ecr = boto3.client('ecr', region_name=region)
         ecr.delete_repository(repositoryName=repo_name, force=True)
-        print(f"✅ ECR 삭제: {repo_name} (리전: {region})")
+        print(f"✅ ECR deleted: {repo_name} (region: {region})")
         return True
     except Exception as e:
-        print(f"⚠️ ECR 삭제 실패 {repo_name}: {e}")
+        print(f"⚠️ ECR deletion failed {repo_name}: {e}")
         return False
 
 def delete_iam_role(role_name):
-    """IAM 역할 삭제"""
+    """Delete IAM role"""
     try:
         iam = boto3.client('iam')
         
-        # 정책 삭제
+        # Delete policies
         policies = iam.list_role_policies(RoleName=role_name)
         for policy in policies['PolicyNames']:
             iam.delete_role_policy(RoleName=role_name, PolicyName=policy)
         
-        # 관리형 정책 분리
+        # Detach managed policies
         attached_policies = iam.list_attached_role_policies(RoleName=role_name)
         for policy in attached_policies['AttachedPolicies']:
             iam.detach_role_policy(RoleName=role_name, PolicyArn=policy['PolicyArn'])
         
-        # 역할 삭제
+        # Delete role
         iam.delete_role(RoleName=role_name)
-        print(f"✅ IAM 역할 삭제: {role_name}")
+        print(f"✅ IAM role deleted: {role_name}")
         return True
     except Exception as e:
-        print(f"⚠️ IAM 역할 삭제 실패 {role_name}: {e}")
+        print(f"⚠️ IAM role deletion failed {role_name}: {e}")
         return False
 
 def delete_cognito_resources(user_pool_id, region):
-    """Cognito 리소스 삭제"""
+    """Delete Cognito resources"""
     try:
         cognito = boto3.client('cognito-idp', region_name=region)
         
-        # 클라이언트들 삭제
+        # Delete clients
         clients = cognito.list_user_pool_clients(UserPoolId=user_pool_id)
         for client in clients['UserPoolClients']:
             cognito.delete_user_pool_client(
@@ -185,16 +185,16 @@ def delete_cognito_resources(user_pool_id, region):
                 ClientId=client['ClientId']
             )
         
-        # User Pool 삭제
+        # Delete User Pool
         cognito.delete_user_pool(UserPoolId=user_pool_id)
-        print(f"✅ Cognito User Pool 삭제: {user_pool_id} (리전: {region})")
+        print(f"✅ Cognito User Pool deleted: {user_pool_id} (region: {region})")
         return True
     except Exception as e:
-        print(f"⚠️ Cognito 삭제 실패: {e}")
+        print(f"⚠️ Cognito deletion failed: {e}")
         return False
 
 def cleanup_local_files():
-    """로컬 생성 파일들 삭제"""
+    """Delete locally generated files"""
     current_dir = Path(__file__).parent
     files_to_delete = [
         current_dir / "deployment_info.json",
@@ -214,82 +214,82 @@ def cleanup_local_files():
             deleted_count += 1
     
     if deleted_count > 0:
-        print(f"✅ 로컬 파일 정리 완료! ({deleted_count}개 파일 삭제)")
+        print(f"✅ Local file cleanup complete! ({deleted_count} files deleted)")
     else:
-        print("📁 삭제할 로컬 파일이 없습니다.")
+        print("📁 No local files to delete.")
 
 def main():
-    print("🧹 Risk Manager 시스템 정리")
+    print("🧹 Risk Manager System Cleanup")
     
-    # 배포 정보 로드
+    # Load deployment information
     risk_manager_info, gateway_info, lambda_info, layer_info = load_deployment_info()
     
     if not risk_manager_info and not gateway_info and not lambda_info and not layer_info:
-        print("⚠️ 배포 정보가 없습니다.")
+        print("⚠️ No deployment information found.")
         return
     
-    # 확인
-    response = input("\n정말로 모든 리소스를 삭제하시겠습니까? (y/N): ")
+    # Confirmation
+    response = input("\nAre you sure you want to delete all resources? (y/N): ")
     if response.lower() != 'y':
-        print("❌ 취소됨")
+        print("❌ Cancelled")
         return
     
-    print("\n🗑️ AWS 리소스 삭제 중...")
+    print("\n🗑️ Deleting AWS resources...")
     
-    # 1. Risk Manager Runtime 삭제
+    # 1. Delete Risk Manager Runtime
     if risk_manager_info and 'agent_arn' in risk_manager_info:
         region = risk_manager_info.get('region', 'us-west-2')
         delete_runtime(risk_manager_info['agent_arn'], region)
     
-    # 2. Gateway 삭제
+    # 2. Delete Gateway
     if gateway_info and 'gateway_id' in gateway_info:
         region = gateway_info.get('region', 'us-west-2')
         delete_gateway(gateway_info['gateway_id'], region)
     
-    # 3. Lambda 함수 삭제
+    # 3. Delete Lambda function
     if lambda_info and 'function_name' in lambda_info:
         region = lambda_info.get('region', 'us-west-2')
         delete_lambda_function(lambda_info['function_name'], region)
     
-    # 4. Lambda Layer 삭제
+    # 4. Delete Lambda Layer
     if layer_info and 'layer_name' in layer_info:
         region = layer_info.get('region', 'us-west-2')
         delete_lambda_layer(layer_info['layer_name'], region)
     
-    # 5. S3 버킷 삭제 (Layer 배포용)
+    # 5. Delete S3 bucket (for Layer deployment)
     if layer_info and 's3_bucket' in layer_info:
         region = layer_info.get('region', 'us-west-2')
         delete_s3_bucket(layer_info['s3_bucket'], region)
     
-    # 6. ECR 리포지토리 삭제
+    # 6. Delete ECR repository
     if risk_manager_info and 'ecr_repo_name' in risk_manager_info and risk_manager_info['ecr_repo_name']:
         region = risk_manager_info.get('region', 'us-west-2')
         delete_ecr_repo(risk_manager_info['ecr_repo_name'], region)
     
-    # 7. IAM 역할들 삭제
+    # 7. Delete IAM roles
     if risk_manager_info and 'iam_role_name' in risk_manager_info:
         delete_iam_role(risk_manager_info['iam_role_name'])
     
     if gateway_info and 'iam_role_name' in gateway_info:
         delete_iam_role(gateway_info['iam_role_name'])
     
-    # Lambda 역할은 자동 생성된 이름 패턴 사용
+    # Lambda role uses auto-generated name pattern
     if lambda_info and 'function_name' in lambda_info:
         lambda_role_name = f"{lambda_info['function_name']}-role"
         delete_iam_role(lambda_role_name)
     
-    # 8. Cognito 리소스 삭제
+    # 8. Delete Cognito resources
     if gateway_info and 'user_pool_id' in gateway_info:
         region = gateway_info.get('region', 'us-west-2')
         delete_cognito_resources(gateway_info['user_pool_id'], region)
     
-    print("\n🎉 AWS 리소스 정리 완료!")
+    print("\n🎉 AWS resource cleanup complete!")
     
-    # 9. 로컬 파일들 정리
-    if input("\n로컬 생성 파일들도 삭제하시겠습니까? (y/N): ").lower() == 'y':
+    # 9. Clean up local files
+    if input("\nDo you also want to delete locally generated files? (y/N): ").lower() == 'y':
         cleanup_local_files()
     else:
-        print("📁 로컬 파일들은 유지됩니다.")
+        print("📁 Local files will be preserved.")
 
 if __name__ == "__main__":
     main()

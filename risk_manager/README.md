@@ -1,78 +1,78 @@
 # Risk Manager
 
-**AWS Bedrock AgentCore Gateway**를 활용한 AI 리스크 관리사입니다.
+AI Risk Manager powered by **AWS Bedrock AgentCore Gateway**.
 
-## 🎯 개요
+## 🎯 Overview
 
-Portfolio Architect의 포트폴리오 설계 결과를 바탕으로 실시간 뉴스 및 거시경제 데이터를 분석하여 리스크 시나리오를 계획하고, 경제 상황별 포트폴리오 조정 전략을 제공하는 AI 에이전트입니다.
+An AI agent that analyzes real-time news and macroeconomic data based on Portfolio Architect's portfolio design results to plan risk scenarios and provide portfolio adjustment strategies according to economic conditions.
 
-### 핵심 기능
-- **실시간 뉴스 분석**: 포트폴리오 ETF별 최신 뉴스 수집 및 리스크 요인 식별
-- **거시경제 지표 모니터링**: 달러지수, 국채수익률, VIX, 원유가격 등 주요 지표 추적
-- **시나리오 플래닝**: 2개 핵심 경제 시나리오 도출 및 포트폴리오 조정 전략 수립
-- **Planning Pattern**: 체계적인 워크플로우 기반 리스크 분석 및 대응 방안 제시
+### Core Features
+- **Real-time News Analysis**: Collect latest news for portfolio ETFs and identify risk factors
+- **Macroeconomic Indicator Monitoring**: Track major indicators including Dollar Index, Treasury yields, VIX, and oil prices
+- **Scenario Planning**: Derive 2 key economic scenarios and establish portfolio adjustment strategies
+- **Planning Pattern**: Systematic workflow-based risk analysis and response planning
 
 ## 🏗️ 아키텍처
 
 ![전체 시스템 아키텍처](../static/risk_manager.png)
 
-### 기술 스택
+### Technology Stack
 - **AI Framework**: Strands Agents SDK
 - **Infrastructure**: AWS Bedrock AgentCore Runtime + Gateway
   - Risk Manager Agent Runtime
-  - MCP Gateway (Lambda 함수를 AI 도구로 노출)
-  - Lambda Layer (yfinance 라이브러리 패키징)
-  - Lambda 함수 (뉴스 및 거시경제 데이터 조회)
+  - MCP Gateway (expose Lambda functions as AI tools)
+  - Lambda Layer (yfinance library packaging)
+  - Lambda Functions (news and macroeconomic data retrieval)
 - **LLM**: Claude 3.7 Sonnet (cross region)
-- **Data Source**: yfinance (실시간 뉴스 및 시장 데이터)
+- **Data Source**: yfinance (real-time news and market data)
 - **Protocol**: MCP (Model Context Protocol)
 - **Authentication**: Cognito JWT OAuth2
 - **UI**: Streamlit
 
-### 처리 흐름
+### Processing Flow
 ```mermaid
 sequenceDiagram
-    participant U as 사용자
+    participant U as User
     participant S as Streamlit
     participant R as AgentCore Runtime
     participant A as Risk Manager
     participant G as MCP Gateway
-    participant L as Lambda 함수
+    participant L as Lambda Function
     participant Y as yfinance
     
-    U->>S: 포트폴리오 설계 결과 입력
-    S->>R: 리스크 분석 요청
-    R->>A: 분석 시작
-    A->>A: 포트폴리오 ETF 식별
+    U->>S: Input portfolio design results
+    S->>R: Risk analysis request
+    R->>A: Start analysis
+    A->>A: Identify portfolio ETFs
     
-    loop 각 ETF별
-        A->>G: get_product_news 호출
-        G->>L: Lambda 함수 실행
-        L->>Y: 뉴스 데이터 조회
-        Y-->>L: ETF 뉴스 반환
-        L-->>G: 뉴스 결과 반환
-        G-->>A: 뉴스 데이터 제공
+    loop For each ETF
+        A->>G: Call get_product_news
+        G->>L: Execute Lambda function
+        L->>Y: Retrieve news data
+        Y-->>L: Return ETF news
+        L-->>G: Return news results
+        G-->>A: Provide news data
     end
     
-    A->>G: get_market_data 호출
-    G->>L: Lambda 함수 실행
-    L->>Y: 거시경제 지표 조회
-    Y-->>L: 시장 데이터 반환
-    L-->>G: 시장 결과 반환
-    G-->>A: 시장 데이터 제공
+    A->>G: Call get_market_data
+    G->>L: Execute Lambda function
+    L->>Y: Retrieve macroeconomic indicators
+    Y-->>L: Return market data
+    L-->>G: Return market results
+    G-->>A: Provide market data
     
-    A->>G: get_geopolitical_indicators 호출
-    G->>L: Lambda 함수 실행
-    L->>Y: 지역별 ETF 데이터 조회
-    Y-->>L: 지정학적 데이터 반환
-    L-->>G: 지정학적 결과 반환
-    G-->>A: 지정학적 데이터 제공
+    A->>G: Call get_geopolitical_indicators
+    G->>L: Execute Lambda function
+    L->>Y: Retrieve regional ETF data
+    Y-->>L: Return geopolitical data
+    L-->>G: Return geopolitical results
+    G-->>A: Provide geopolitical data
     
-    A->>A: 3가지 데이터 종합하여 2개 시나리오 도출
-    A->>A: 포트폴리오 조정 전략 수립
-    A-->>R: 리스크 분석 완료
-    R-->>S: 결과 반환 (스트리밍)
-    S-->>U: 시나리오별 시각화 표시
+    A->>A: Synthesize 3 data types to derive 2 scenarios
+    A->>A: Establish portfolio adjustment strategy
+    A-->>R: Risk analysis complete
+    R-->>S: Return results (streaming)
+    S-->>U: Display scenario-based visualization
 ```
 
 ## 🔧 리스크 분석 프로세스

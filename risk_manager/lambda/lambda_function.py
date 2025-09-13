@@ -1,8 +1,8 @@
 """
 lambda_function.py
 
-Risk Manager Lambda 함수
-yfinance 라이브러리를 사용하여 실시간 뉴스 및 거시경제 데이터를 제공합니다.
+Risk Manager Lambda Function
+Provides real-time news and macroeconomic data using the yfinance library.
 """
 
 import os
@@ -11,26 +11,26 @@ import yfinance as yf
 from datetime import datetime, timedelta
 
 def get_product_news(ticker, top_n=5):
-    """특정 ETF의 최신 뉴스 조회"""
+    """Retrieve latest news for specific ETF"""
     try:
-        # yfinance를 사용하여 ETF 뉴스 조회
+        # Retrieve ETF news using yfinance
         stock = yf.Ticker(ticker)
         news = stock.news[:top_n]
         
-        # 뉴스 데이터 포맷팅
+        # Format news data
         formatted_news = []
         for item in news:
-            # content 객체에서 데이터 추출
+            # Extract data from content object
             content = item.get("content", item)
             
             title = content.get("title", "")
             summary = content.get("summary", "")
             
-            # 날짜 처리
+            # Process date
             pub_date = content.get("pubDate", "")
             publish_date = pub_date.split("T")[0] if "T" in pub_date else pub_date[:10] if len(pub_date) >= 10 else ""
             
-            # 링크 처리
+            # Process link
             link = ""
             if "canonicalUrl" in content:
                 link = content["canonicalUrl"].get("url", "")
@@ -57,27 +57,27 @@ def get_product_news(ticker, top_n=5):
         }
 
 def get_market_data():
-    """주요 거시경제 지표 데이터 조회"""
+    """Retrieve major macroeconomic indicator data"""
     try:
-        # 주요 거시경제 지표 정의 (7개)
+        # Define major macroeconomic indicators (7 indicators)
         market_indicators = {
-            # 금리 지표 (3개)
-            "us_2y_treasury_yield": {"ticker": "^IRX", "description": "미국 2년 국채 수익률 (%)"},
-            "us_10y_treasury_yield": {"ticker": "^TNX", "description": "미국 10년 국채 수익률 (%)"},
-            "us_dollar_index": {"ticker": "DX-Y.NYB", "description": "미국 달러 강세 지수"},
+            # Interest rate indicators (3)
+            "us_2y_treasury_yield": {"ticker": "^IRX", "description": "US 2-Year Treasury Yield (%)"},
+            "us_10y_treasury_yield": {"ticker": "^TNX", "description": "US 10-Year Treasury Yield (%)"},
+            "us_dollar_index": {"ticker": "DX-Y.NYB", "description": "US Dollar Strength Index"},
             
-            # 변동성 및 원자재 (3개)
-            "vix_volatility_index": {"ticker": "^VIX", "description": "VIX 변동성 지수 (공포 지수)"},
-            "crude_oil_price": {"ticker": "CL=F", "description": "WTI 원유 선물 가격 (USD/배럴)"},
-            "gold_price": {"ticker": "GC=F", "description": "금 선물 가격 (USD/온스)"},
+            # Volatility and commodities (3)
+            "vix_volatility_index": {"ticker": "^VIX", "description": "VIX Volatility Index (Fear Index)"},
+            "crude_oil_price": {"ticker": "CL=F", "description": "WTI Crude Oil Futures Price (USD/barrel)"},
+            "gold_price": {"ticker": "GC=F", "description": "Gold Futures Price (USD/ounce)"},
             
-            # 주식 지수 (1개)
-            "sp500_index": {"ticker": "^GSPC", "description": "S&P 500 지수"}
+            # Stock index (1)
+            "sp500_index": {"ticker": "^GSPC", "description": "S&P 500 Index"}
         }
         
         market_data = {}
         
-        # 각 지표별 데이터 조회
+        # Retrieve data for each indicator
         for key, info in market_indicators.items():
             ticker_symbol = info["ticker"]
             
@@ -85,7 +85,7 @@ def get_market_data():
                 ticker = yf.Ticker(ticker_symbol)
                 info_data = ticker.info
                 
-                # 가격 정보 추출
+                # Extract price information
                 market_price = (info_data.get('regularMarketPrice') or 
                               info_data.get('regularMarketPreviousClose') or 
                               info_data.get('previousClose') or 0.0)
@@ -109,20 +109,20 @@ def get_market_data():
         return {"error": f"Error fetching market data: {str(e)}"}
 
 def get_geopolitical_indicators():
-    """지정학적 리스크 지표 데이터 조회"""
+    """Retrieve geopolitical risk indicator data"""
     try:
-        # 지정학적 리스크 지표 정의 (주요 지역 ETF 5개)
+        # Define geopolitical risk indicators (5 major regional ETFs)
         geopolitical_indicators = {
-            "china_market": {"ticker": "ASHR", "description": "중국 A주 ETF"},
-            "emerging_markets": {"ticker": "EEM", "description": "신흥국 ETF"},
-            "europe_market": {"ticker": "VGK", "description": "유럽 ETF"},
-            "japan_market": {"ticker": "EWJ", "description": "일본 ETF"},
-            "korea_market": {"ticker": "EWY", "description": "한국 ETF"}
+            "china_market": {"ticker": "ASHR", "description": "China A-Shares ETF"},
+            "emerging_markets": {"ticker": "EEM", "description": "Emerging Markets ETF"},
+            "europe_market": {"ticker": "VGK", "description": "Europe ETF"},
+            "japan_market": {"ticker": "EWJ", "description": "Japan ETF"},
+            "korea_market": {"ticker": "EWY", "description": "South Korea ETF"}
         }
         
         geopolitical_data = {}
         
-        # 각 지표별 데이터 조회
+        # Retrieve data for each indicator
         for key, info in geopolitical_indicators.items():
             ticker_symbol = info["ticker"]
             
@@ -130,7 +130,7 @@ def get_geopolitical_indicators():
                 ticker = yf.Ticker(ticker_symbol)
                 info_data = ticker.info
                 
-                # 가격 정보 추출
+                # Extract price information
                 market_price = (info_data.get('regularMarketPrice') or 
                               info_data.get('regularMarketPreviousClose') or 
                               info_data.get('previousClose') or 0.0)
@@ -154,7 +154,7 @@ def get_geopolitical_indicators():
         return {"error": f"Error fetching geopolitical data: {str(e)}"}
 
 def lambda_handler(event, context):
-    """AWS Lambda 메인 핸들러 함수"""
+    """AWS Lambda main handler function"""
     try:
         tool_name = context.client_context.custom['bedrockAgentCoreToolName']
         function_name = tool_name.split('___')[-1] if '___' in tool_name else tool_name

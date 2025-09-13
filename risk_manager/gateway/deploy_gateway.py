@@ -1,8 +1,8 @@
 """
 deploy_gateway.py
 
-Risk Manager Gateway 배포 스크립트
-Lambda 함수와 AI 에이전트 간의 MCP 통신을 중개합니다.
+Risk Manager Gateway Deployment Script
+Mediates MCP communication between Lambda functions and AI agents.
 """
 
 import boto3
@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from target_config import TARGET_CONFIGURATION
 
-# 공통 설정 및 shared 모듈 경로 추가
+# Add common configuration and shared module paths
 root_path = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(root_path))
 sys.path.insert(0, str(root_path / "shared"))
@@ -23,40 +23,40 @@ from cognito_utils import get_or_create_user_pool, get_or_create_resource_server
 from gateway_utils import create_agentcore_gateway_role, create_gateway, create_gateway_target
 
 class Config:
-    """Gateway 배포 설정"""
+    """Gateway deployment configuration"""
     REGION = GlobalConfig.REGION
     GATEWAY_NAME = GlobalConfig.GATEWAY_NAME
     TARGET_NAME = GlobalConfig.TARGET_NAME
 
 def load_lambda_info():
-    """Lambda 배포 정보 로드"""
+    """Load Lambda deployment information"""
     info_file = Path(__file__).parent.parent / "lambda" / "lambda_deployment_info.json"
     
     if not info_file.exists():
-        raise FileNotFoundError("Lambda 배포 정보를 찾을 수 없습니다. 먼저 Lambda를 배포하세요.")
+        raise FileNotFoundError("Lambda deployment information not found. Please deploy Lambda first.")
     
     with open(info_file, 'r') as f:
         lambda_info = json.load(f)
     
     lambda_arn = lambda_info.get('function_arn')
     if not lambda_arn:
-        raise KeyError("Lambda ARN을 찾을 수 없습니다.")
+        raise KeyError("Lambda ARN not found.")
     
     return lambda_arn
 
 def cleanup_existing_gateway():
-    """기존 Gateway 정리"""
+    """Clean up existing Gateway"""
     try:
-        print("🔍 기존 Gateway 확인 중...")
+        print("🔍 Checking existing Gateway...")
         gateway_client = boto3.client('bedrock-agentcore-control', region_name=Config.REGION)
         gateways = gateway_client.list_gateways().get('items', [])
 
         for gw in gateways:
             if gw['name'] == Config.GATEWAY_NAME:
                 gateway_id = gw['gatewayId']
-                print(f"🗑️ 기존 Gateway 삭제 중: {gateway_id}")
+                print(f"🗑️ Deleting existing Gateway: {gateway_id}")
                 
-                # Target들 먼저 삭제
+                # Delete targets first
                 targets = gateway_client.list_gateway_targets(gatewayIdentifier=gateway_id).get('items', [])
                 for target in targets:
                     gateway_client.delete_gateway_target(
@@ -70,18 +70,18 @@ def cleanup_existing_gateway():
                 break
                 
     except Exception as e:
-        print(f"⚠️ Gateway 정리 중 오류 (무시하고 진행): {str(e)}")
+        print(f"⚠️ Error during Gateway cleanup (ignoring and proceeding): {str(e)}")
         pass
 
 def setup_cognito_auth():
-    """Cognito 인증 설정"""
-    print("🔐 Cognito 인증 설정 중...")
+    """Set up Cognito authentication"""
+    print("🔐 Setting up Cognito authentication...")
     cognito = boto3.client('cognito-idp', region_name=Config.REGION)
     
-    # User Pool 생성/조회
+    # Create/get User Pool
     user_pool_id = get_or_create_user_pool(cognito, f"{Config.GATEWAY_NAME}-pool", Config.REGION)
     
-    # Resource Server 생성/조회
+    # Create/get Resource Server
     resource_server_id = f"{Config.GATEWAY_NAME}-server"
     scopes = [
         {"ScopeName": "gateway:read", "ScopeDescription": "Gateway read access"},
@@ -90,7 +90,7 @@ def setup_cognito_auth():
     get_or_create_resource_server(cognito, user_pool_id, resource_server_id, 
                                  f"{Config.GATEWAY_NAME} Resource Server", scopes)
     
-    # M2M Client 생성/조회
+    # Create/get M2M Client
     client_id, client_secret = get_or_create_m2m_client(
         cognito, user_pool_id, f"{Config.GATEWAY_NAME}-client", 
         resource_server_id, ["gateway:read", "gateway:write"]
@@ -106,13 +106,13 @@ def setup_cognito_auth():
     }
 
 def create_gateway_runtime(role_arn, auth_components, lambda_arn):
-    """Gateway Runtime 생성"""
-    print("� CGateway Runtime 구성 중...")
+    """Create Gateway Runtime"""
+    print("🔧 Configuring Gateway Runtime...")
     
-    # Gateway 생성
+    # Create Gateway
     gateway = create_gateway(Config.GATEWAY_NAME, role_arn, auth_components, Config.REGION)
     
-    # Gateway Target 생성 (Lambda 함수를 MCP 도구로 노출)
+    # Create Gateway Target (expose Lambda function as MCP tool)
     target_config = copy.deepcopy(TARGET_CONFIGURATION)
     target_config['mcp']['lambda']['lambdaArn'] = lambda_arn
     target = create_gateway_target(gateway['gatewayId'], Config.TARGET_NAME, target_config, Config.REGION)
@@ -124,7 +124,7 @@ def create_gateway_runtime(role_arn, auth_components, lambda_arn):
     }
 
 def save_deployment_info(result):
-    """배포 정보 저장"""
+    """Save deployment information"""
     info_file = Path(__file__).parent / "gateway_deployment_info.json"
     with open(info_file, 'w') as f:
         json.dump(result, f, indent=2)
@@ -132,26 +132,26 @@ def save_deployment_info(result):
 
 def main():
     try:
-        print("🚀 Risk Manager Gateway 배포")
+        print("🚀 Risk Manager Gateway Deployment")
         
-        # Lambda ARN 로드
+        # Load Lambda ARN
         lambda_arn = load_lambda_info()
         
-        # 기존 Gateway 정리
+        # Clean up existing Gateway
         cleanup_existing_gateway()
         
-        # IAM 역할 생성
+        # Create IAM role
         iam_role = create_agentcore_gateway_role(Config.GATEWAY_NAME, Config.REGION)
         iam_role_name = iam_role['Role']['RoleName']
-        time.sleep(10)  # IAM 전파 대기
+        time.sleep(10)  # Wait for IAM propagation
         
-        # Cognito 인증 설정
+        # Set up Cognito authentication
         auth_components = setup_cognito_auth()
         
-        # Gateway Runtime 생성
+        # Create Gateway Runtime
         runtime_result = create_gateway_runtime(iam_role['Role']['Arn'], auth_components, lambda_arn)
         
-        # 배포 결과 구성
+        # Configure deployment result
         result = {
             'lambda_arn': lambda_arn,
             'gateway_id': runtime_result['gateway_id'],
@@ -165,17 +165,17 @@ def main():
             'deployed_at': time.strftime("%Y-%m-%d %H:%M:%S")
         }
         
-        # 배포 정보 저장
+        # Save deployment information
         info_file = save_deployment_info(result)
         
-        print(f"\n🎉 Gateway 배포 완료!")
+        print(f"\n🎉 Gateway Deployment Complete!")
         print(f"🌐 Gateway URL: {result['gateway_url']}")
-        print(f"📄 배포 정보: {info_file}")
+        print(f"📄 Deployment Info: {info_file}")
         
         return result
         
     except Exception as e:
-        print(f"❌ Gateway 배포 실패: {e}")
+        print(f"❌ Gateway Deployment Failed: {e}")
         raise
 
 if __name__ == "__main__":

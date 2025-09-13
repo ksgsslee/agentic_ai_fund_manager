@@ -1,8 +1,8 @@
 """
 risk_manager.py
 
-Risk Manager - AI 리스크 관리사
-MCP Gateway 연동으로 실시간 뉴스 및 시장 데이터 기반 리스크 분석
+Risk Manager - AI Risk Manager
+Real-time news and market data-based risk analysis through MCP Gateway integration
 """
 
 import json
@@ -18,14 +18,14 @@ from bedrock_agentcore.runtime import BedrockAgentCoreApp
 app = BedrockAgentCoreApp()
 
 class Config:
-    """Risk Manager 설정"""
+    """Risk Manager Configuration"""
     MODEL_ID = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
     TEMPERATURE = 0.2
     MAX_TOKENS = 4000
 
 
 class RiskManager:
-    """AI 리스크 관리사 - MCP Gateway 연동"""
+    """AI Risk Manager - MCP Gateway Integration"""
     
     def __init__(self, gateway_info):
         self.gateway_info = gateway_info
@@ -34,7 +34,7 @@ class RiskManager:
         self._create_agent()
     
     def _setup_auth(self):
-        """Cognito OAuth2 토큰 획득"""
+        """Acquire Cognito OAuth2 token"""
         info = self.gateway_info
         self.gateway_url = info['gateway_url']
         
@@ -50,7 +50,7 @@ class RiskManager:
         self.access_token = response.json()['access_token']
     
     def _init_mcp_client(self):
-        """MCP 클라이언트 초기화"""
+        """Initialize MCP client"""
         self.mcp_client = MCPClient(
             lambda: streamablehttp_client(
                 self.gateway_url, 
@@ -59,7 +59,7 @@ class RiskManager:
         )
     
     def _create_agent(self):
-        """AI 에이전트 생성"""
+        """Create AI agent"""
         with self.mcp_client as client:
             tools = client.list_tools_sync()
             
@@ -75,62 +75,62 @@ class RiskManager:
             )
     
     def _get_prompt(self):
-        return """당신은 리스크 관리 전문가입니다. 제안된 포트폴리오에 대해 리스크 분석을 수행하고, 주요 경제 시나리오에 따른 포트폴리오 조정 가이드를 제공해야 합니다.
+        return """You are a risk management expert. You need to perform risk analysis on the proposed portfolio and provide portfolio adjustment guidance according to major economic scenarios.
 
-입력 데이터:
-제안된 포트폴리오 구성이 다음과 같은 JSON 형식으로 제공됩니다:
+Input Data:
+The proposed portfolio composition is provided in the following JSON format:
 {{
   "portfolio_allocation": {{
-    "ticker1": 비율1,
-    "ticker2": 비율2,
-    "ticker3": 비율3
+    "ticker1": allocation1,
+    "ticker2": allocation2,
+    "ticker3": allocation3
   }},
-  "reason": "포트폴리오 구성 근거 및 투자 전략 설명",
+  "reason": "Portfolio composition reasoning and investment strategy explanation",
   "portfolio_scores": {{
-    "profitability": {{"score": 점수, "reason": "평가 근거"}},
-    "risk_management": {{"score": 점수, "reason": "평가 근거"}},
-    "diversification": {{"score": 점수, "reason": "평가 근거"}}
+    "profitability": {{"score": score, "reason": "assessment reasoning"}},
+    "risk_management": {{"score": score, "reason": "assessment reasoning"}},
+    "diversification": {{"score": score, "reason": "assessment reasoning"}}
   }}
 }}
 
-당신의 작업:
-주어진 도구(tools)들을 자유롭게 사용하여 아래 목표를 달성하세요
+Your Tasks:
+Use the given tools freely to achieve the following objectives:
 
-1. 주어진 포트폴리오에 대한 종합적인 리스크 분석
-2. 발생 가능성이 높은 2개의 경제 시나리오를 도출  
-3. 각 시나리오에 대한 포트폴리오 조정 방안을 제시
+1. Comprehensive risk analysis of the given portfolio
+2. Derive 2 economic scenarios with high probability of occurrence
+3. Present portfolio adjustment plans for each scenario
 
-반드시 다음 형식으로 응답해주세요:
+You must respond in the following format:
 {{
   "scenario1": {{
-    "name": "시나리오 1 이름",
-    "description": "시나리오 1 상세 설명",
-    "probability": "발생 확률 (예: 30%)",
+    "name": "Scenario 1 Name",
+    "description": "Scenario 1 detailed description",
+    "probability": "Probability of occurrence (e.g., 30%)",
     "allocation_management": {{
-      "ticker1": 새로운_비율1,
-      "ticker2": 새로운_비율2,
-      "ticker3": 새로운_비율3
+      "ticker1": new_allocation1,
+      "ticker2": new_allocation2,
+      "ticker3": new_allocation3
     }},
-    "reason": "조정 이유 및 전략"
+    "reason": "Adjustment reasoning and strategy"
   }},
   "scenario2": {{
-    "name": "시나리오 2 이름", 
-    "description": "시나리오 2 상세 설명",
-    "probability": "발생 확률 (예: 25%)",
+    "name": "Scenario 2 Name", 
+    "description": "Scenario 2 detailed description",
+    "probability": "Probability of occurrence (e.g., 25%)",
     "allocation_management": {{
-      "ticker1": 새로운_비율1,
-      "ticker2": 새로운_비율2,
-      "ticker3": 새로운_비율3
+      "ticker1": new_allocation1,
+      "ticker2": new_allocation2,
+      "ticker3": new_allocation3
     }},
-    "reason": "조정 이유 및 전략"
+    "reason": "Adjustment reasoning and strategy"
   }}
 }}
 
-응답 시 다음 사항을 반드시 준수하세요:
-1. 포트폴리오 조정 시 입력으로 받은 상품(ticker)만을 사용하세요
-2. 새로운 상품을 추가하거나 기존 상품을 제거하지 마세요
-3. 각 시나리오별 조정 비율의 총합이 100%가 되도록 하세요
-4. 시나리오 상세 설명 및 조정 이유를 최대한 자세히 설명하세요"""
+When responding, you must adhere to the following:
+1. Use only the tickers received as input when adjusting the portfolio
+2. Do not add new products or remove existing products
+3. Ensure that the total of adjusted allocations for each scenario equals 100%
+4. Provide detailed explanations of scenario descriptions and adjustment reasoning"""
     
     async def analyze_risk_async(self, portfolio_data):
         try:
@@ -172,16 +172,16 @@ class RiskManager:
         except Exception as e:
             yield {"type": "error", "error": str(e), "status": "error"}
 
-# 전역 인스턴스
+# Global instance
 manager = None
 
 @app.entrypoint
 async def risk_manager(payload):
-    """AgentCore Runtime 엔트리포인트"""
+    """AgentCore Runtime entrypoint"""
     global manager
     
     if manager is None:
-        # 환경변수에서 Gateway 정보 구성
+        # Configure Gateway information from environment variables
         gateway_info = {
             "client_id": os.getenv("MCP_CLIENT_ID"),
             "client_secret": os.getenv("MCP_CLIENT_SECRET"), 

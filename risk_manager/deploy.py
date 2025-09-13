@@ -1,8 +1,8 @@
 """
 deploy.py
 
-Risk Manager 배포 스크립트
-Gateway와 Risk Manager Runtime 순차 배포
+Risk Manager Deployment Script
+Sequential deployment of Gateway and Risk Manager Runtime
 """
 
 import sys
@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from bedrock_agentcore_starter_toolkit import Runtime
 
-# 공통 설정 및 shared 모듈 경로 추가
+# Add common configuration and shared module paths
 root_path = Path(__file__).parent.parent
 sys.path.insert(0, str(root_path))
 sys.path.insert(0, str(root_path / "shared"))
@@ -20,32 +20,32 @@ from config import Config as GlobalConfig
 from runtime_utils import create_agentcore_runtime_role
 
 class Config:
-    """Risk Manager 배포 설정"""
+    """Risk Manager deployment configuration"""
     REGION = GlobalConfig.REGION
     AGENT_NAME = GlobalConfig.RISK_MANAGER_NAME
 
 def load_gateway_info():
-    """Gateway 배포 정보 로드"""
+    """Load Gateway deployment information"""
     info_file = Path(__file__).parent / "gateway" / "gateway_deployment_info.json"
     if not info_file.exists():
-        print("❌ Gateway 배포 정보가 없습니다.")
-        print("💡 먼저 다음 명령을 실행하세요:")
+        print("❌ Gateway deployment information not found.")
+        print("💡 Please run the following commands first:")
         print("   cd gateway")
         print("   python deploy_gateway.py")
-        raise FileNotFoundError("Gateway를 먼저 배포해주세요.")
+        raise FileNotFoundError("Please deploy Gateway first.")
     
     with open(info_file) as f:
         return json.load(f)
 
 def deploy_risk_manager(gateway_info):
-    """Risk Manager Runtime 배포"""
-    print("🎯 Risk Manager 배포 중...")
+    """Deploy Risk Manager Runtime"""
+    print("🎯 Deploying Risk Manager...")
     
-    # IAM 역할 생성
+    # Create IAM role
     iam_role = create_agentcore_runtime_role(Config.AGENT_NAME, Config.REGION)
     iam_role_name = iam_role['Role']['RoleName']
     
-    # Runtime 구성
+    # Configure Runtime
     current_dir = Path(__file__).parent
     runtime = Runtime()
     runtime.configure(
@@ -57,7 +57,7 @@ def deploy_risk_manager(gateway_info):
         agent_name=Config.AGENT_NAME
     )
     
-    # 환경변수 설정
+    # Set environment variables
     env_vars = {
         "MCP_CLIENT_ID": gateway_info['client_id'],
         "MCP_CLIENT_SECRET": gateway_info['client_secret'],
@@ -67,24 +67,24 @@ def deploy_risk_manager(gateway_info):
         "AWS_REGION": Config.REGION
     }
     
-    # 배포 실행
+    # Execute deployment
     launch_result = runtime.launch(auto_update_on_conflict=True, env_vars=env_vars)
     
-    # 배포 완료 대기
-    for i in range(30):  # 최대 15분 대기
+    # Wait for deployment completion
+    for i in range(30):  # Maximum 15 minutes wait
         try:
             status = runtime.status().endpoint['status']
-            print(f"📊 상태: {status} ({i*30}초 경과)")
+            print(f"📊 Status: {status} ({i*30} seconds elapsed)")
             if status in ['READY', 'CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']:
                 break
         except Exception as e:
-            print(f"⚠️ 상태 확인 오류: {e}")
+            print(f"⚠️ Status check error: {e}")
         time.sleep(30)
     
     if status != 'READY':
-        raise Exception(f"배포 실패: {status}")
+        raise Exception(f"Deployment failed: {status}")
     
-    # ECR 리포지토리 이름 추출
+    # Extract ECR repository name
     ecr_repo_name = None
     if hasattr(launch_result, 'ecr_uri') and launch_result.ecr_uri:
         ecr_repo_name = launch_result.ecr_uri.split('/')[-1].split(':')[0]
@@ -98,7 +98,7 @@ def deploy_risk_manager(gateway_info):
     }
 
 def save_deployment_info(gateway_info, risk_manager_info):
-    """배포 정보 저장"""
+    """Save deployment information"""
     deployment_info = {
         "agent_name": Config.AGENT_NAME,
         "agent_arn": risk_manager_info["agent_arn"],
@@ -117,26 +117,26 @@ def save_deployment_info(gateway_info, risk_manager_info):
 
 def main():
     try:
-        print("🎯 Risk Manager 전체 시스템 배포")
+        print("🎯 Risk Manager Full System Deployment")
         
-        # Gateway 정보 로드 (필수)
+        # Load Gateway information (required)
         gateway_info = load_gateway_info()
-        print("✅ Gateway 정보 로드 완료")
+        print("✅ Gateway information loading complete")
         
-        # Risk Manager 배포
+        # Deploy Risk Manager
         risk_manager_info = deploy_risk_manager(gateway_info)
         
-        # 배포 정보 저장
+        # Save deployment information
         info_file = save_deployment_info(gateway_info, risk_manager_info)
         
-        print(f"\n🎉 배포 완료!")
-        print(f"📄 배포 정보: {info_file}")
+        print(f"\n🎉 Deployment Complete!")
+        print(f"📄 Deployment Info: {info_file}")
         print(f"🔗 Risk Manager ARN: {risk_manager_info['agent_arn']}")
         
         return 0
         
     except Exception as e:
-        print(f"❌ 배포 실패: {e}")
+        print(f"❌ Deployment Failed: {e}")
         return 1
 
 if __name__ == "__main__":

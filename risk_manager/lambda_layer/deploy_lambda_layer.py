@@ -1,8 +1,8 @@
 """
 deploy_lambda_layer.py
 
-Lambda Layer 배포 스크립트
-yfinance 라이브러리 포함 Lambda Layer 배포
+Lambda Layer Deployment Script
+Deploy Lambda Layer including yfinance library
 """
 
 import boto3
@@ -12,19 +12,19 @@ import os
 import sys
 from pathlib import Path
 
-# 공통 설정 경로 추가
+# Add common configuration path
 root_path = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(root_path))
 from config import Config as GlobalConfig
 
 class Config:
-    """Lambda Layer 배포 설정"""
+    """Lambda Layer deployment configuration"""
     REGION = GlobalConfig.REGION
     LAYER_NAME = GlobalConfig.LAMBDA_LAYER_NAME
 
 def setup_s3_bucket():
-    """S3 버킷 설정"""
-    print("📦 S3 버킷 설정 중...")
+    """Set up S3 bucket"""
+    print("📦 Setting up S3 bucket...")
     s3_client = boto3.client('s3', region_name=Config.REGION)
     sts_client = boto3.client('sts', region_name=Config.REGION)
     
@@ -49,7 +49,7 @@ def setup_s3_bucket():
             raise
 
 def upload_layer_zip(zip_file_path, bucket_name):
-    """Layer ZIP 파일 S3 업로드"""
+    """Upload Layer ZIP file to S3"""
     s3_client = boto3.client('s3', region_name=Config.REGION)
     object_key = f"{Config.LAYER_NAME}.zip"
     
@@ -57,8 +57,8 @@ def upload_layer_zip(zip_file_path, bucket_name):
     return object_key
 
 def create_lambda_layer(bucket_name, s3_key):
-    """Lambda Layer 생성"""
-    print("🔧 Lambda Layer 생성 중...")
+    """Create Lambda Layer"""
+    print("🔧 Creating Lambda Layer...")
     lambda_client = boto3.client('lambda', region_name=Config.REGION)
     
     response = lambda_client.publish_layer_version(
@@ -78,7 +78,7 @@ def create_lambda_layer(bucket_name, s3_key):
     }
 
 def save_deployment_info(result):
-    """배포 정보 저장"""
+    """Save deployment information"""
     info_file = Path(__file__).parent / "layer_deployment_info.json"
     with open(info_file, 'w') as f:
         json.dump(result, f, indent=2)
@@ -86,28 +86,28 @@ def save_deployment_info(result):
 
 def main():
     try:
-        print("🚀 yfinance Lambda Layer 배포")
+        print("🚀 yfinance Lambda Layer Deployment")
         
-        # ZIP 파일 확인
+        # Check ZIP file
         current_dir = Path(__file__).parent
         zip_file = current_dir / f"{Config.LAYER_NAME}.zip"
         
         if not zip_file.exists():
             raise FileNotFoundError(
-                f"Layer ZIP 파일을 찾을 수 없습니다: {zip_file}\n"
-                f"{Config.LAYER_NAME}.zip 파일을 현재 디렉토리에 넣어주세요."
+                f"Layer ZIP file not found: {zip_file}\n"
+                f"Please place {Config.LAYER_NAME}.zip file in the current directory."
             )
         
-        # S3 버킷 설정
+        # Set up S3 bucket
         bucket_name = setup_s3_bucket()
         
-        # ZIP 파일 업로드
+        # Upload ZIP file
         s3_key = upload_layer_zip(str(zip_file), bucket_name)
         
-        # Lambda Layer 생성
+        # Create Lambda Layer
         layer_result = create_lambda_layer(bucket_name, s3_key)
         
-        # 배포 결과 구성
+        # Configure deployment result
         result = {
             'layer_name': Config.LAYER_NAME,
             'layer_arn': layer_result['layer_arn'],
@@ -120,17 +120,17 @@ def main():
             'deployed_at': time.strftime("%Y-%m-%d %H:%M:%S")
         }
         
-        # 배포 정보 저장
+        # Save deployment information
         info_file = save_deployment_info(result)
         
-        print(f"\n🎉 Lambda Layer 배포 완료!")
+        print(f"\n🎉 Lambda Layer Deployment Complete!")
         print(f"🔗 Layer Version ARN: {result['layer_version_arn']}")
-        print(f"📄 배포 정보: {info_file}")
+        print(f"📄 Deployment Info: {info_file}")
         
         return result
         
     except Exception as e:
-        print(f"❌ Lambda Layer 배포 실패: {e}")
+        print(f"❌ Lambda Layer Deployment Failed: {e}")
         raise
 
 if __name__ == "__main__":

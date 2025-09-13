@@ -1,8 +1,8 @@
 """
 app.py
 
-Risk Manager Streamlit 앱
-AI 리스크 관리사 웹 인터페이스
+Risk Manager Streamlit App
+AI Risk Manager Web Interface
 """
 
 import streamlit as st
@@ -16,20 +16,20 @@ from pathlib import Path
 st.set_page_config(page_title="Risk Manager")
 st.title("⚠️ Risk Manager")
 
-# 배포 정보 로드
+# Load deployment information
 try:
     with open(Path(__file__).parent / "deployment_info.json") as f:
         deployment_info = json.load(f)
     AGENT_ARN = deployment_info["agent_arn"]
     REGION = deployment_info["region"]
 except Exception:
-    st.error("배포 정보를 찾을 수 없습니다. deploy.py를 먼저 실행해주세요.")
+    st.error("Deployment information not found. Please run deploy.py first.")
     st.stop()
 
 agentcore_client = boto3.client('bedrock-agentcore', region_name=REGION)
 
 def extract_json_from_text(text):
-    """텍스트에서 JSON 추출"""
+    """Extract JSON from text"""
     if isinstance(text, dict):
         return text
     if not isinstance(text, str):
@@ -45,22 +45,22 @@ def extract_json_from_text(text):
     return None
 
 def parse_tool_result(result_text):
-    """도구 실행 결과에서 실제 데이터 추출"""
+    """Extract actual data from tool execution results"""
     parsed_result = json.loads(result_text)
     
-    # statusCode와 body 구조 처리
+    # Handle statusCode and body structure
     if "statusCode" in parsed_result and "body" in parsed_result:
         body = parsed_result["body"]
-        # body가 문자열인 경우 다시 JSON 파싱
+        # Parse JSON again if body is a string
         if isinstance(body, str):
             return json.loads(body)
         return body
     
-    # 직접 반환
+    # Return directly
     return parsed_result
 
 def display_news_data(container, news_data):
-    """ETF 뉴스 데이터 표시"""
+    """Display ETF news data"""
     try:
         if isinstance(news_data, str):
             data = json.loads(news_data)
@@ -71,10 +71,10 @@ def display_news_data(container, news_data):
         news_list = data.get('news', [])
         
         if not news_list:
-            container.warning(f"{ticker}: 뉴스 데이터가 없습니다.")
+            container.warning(f"{ticker}: No news data available.")
             return
         
-        container.markdown(f"**📰 {ticker} 최신 뉴스**")
+        container.markdown(f"**📰 {ticker} Latest News**")
         
         news_df = pd.DataFrame(news_list)
         if not news_df.empty and all(col in news_df.columns for col in ['publish_date', 'title', 'summary']):
@@ -86,21 +86,21 @@ def display_news_data(container, news_data):
         else:
             for i, news_item in enumerate(news_list[:5], 1):
                 with container.expander(f"{i}. {news_item.get('title', 'No Title')}"):
-                    st.write(f"**발행일:** {news_item.get('publish_date', 'Unknown')}")
-                    st.write(f"**요약:** {news_item.get('summary', 'No summary available')}")
+                    st.write(f"**Published:** {news_item.get('publish_date', 'Unknown')}")
+                    st.write(f"**Summary:** {news_item.get('summary', 'No summary available')}")
                 
     except Exception as e:
-        container.error(f"뉴스 데이터 표시 오류: {str(e)}")
+        container.error(f"News data display error: {str(e)}")
 
 def display_market_data(container, market_data):
-    """거시경제 지표 데이터 표시"""
+    """Display macroeconomic indicator data"""
     try:
         if isinstance(market_data, str):
             data = json.loads(market_data)
         else:
             data = market_data
         
-        container.markdown("**📊 주요 거시경제 지표**")
+        container.markdown("**📊 Key Macroeconomic Indicators**")
         
         indicators = {k: v for k, v in data.items() if not k.startswith('_')}
         
@@ -118,17 +118,17 @@ def display_market_data(container, market_data):
                             st.write(f"**{key}**: 데이터 없음")
                 
     except Exception as e:
-        container.error(f"시장 데이터 표시 오류: {str(e)}")
+        container.error(f"Market data display error: {str(e)}")
 
 def display_geopolitical_data(container, geopolitical_data):
-    """지정학적 리스크 지표 데이터 표시"""
+    """Display geopolitical risk indicator data"""
     try:
         if isinstance(geopolitical_data, str):
             data = json.loads(geopolitical_data)
         else:
             data = geopolitical_data
         
-        container.markdown("**🌍 주요 지역 ETF (지정학적 리스크)**")
+        container.markdown("**🌍 Major Regional ETFs (Geopolitical Risk)**")
         
         indicators = {k: v for k, v in data.items() if not k.startswith('_')}
         
@@ -146,36 +146,36 @@ def display_geopolitical_data(container, geopolitical_data):
                             st.write(f"**{key}**: 데이터 없음")
                 
     except Exception as e:
-        container.error(f"지정학적 데이터 표시 오류: {str(e)}")
+        container.error(f"Geopolitical data display error: {str(e)}")
 
 def display_risk_analysis_result(container, analysis_content):
-    """최종 리스크 분석 결과 표시"""
+    """Display final risk analysis results"""
     try:
         data = extract_json_from_text(analysis_content)
         if not data:
-            container.error("리스크 분석 데이터를 찾을 수 없습니다.")
+            container.error("Risk analysis data not found.")
             return
         
         for i, scenario_key in enumerate(["scenario1", "scenario2"], 1):
             if scenario_key in data:
                 scenario = data[scenario_key]
                 
-                container.subheader(f"시나리오 {i}: {scenario.get('name', f'Scenario {i}')}")
-                container.markdown(scenario.get('description', '설명 없음'))
+                container.subheader(f"Scenario {i}: {scenario.get('name', f'Scenario {i}')}")
+                container.markdown(scenario.get('description', 'No description available'))
                 
-                # 시나리오 확률 표시 (상단으로 이동)
+                # Display scenario probability (moved to top)
                 probability_str = scenario.get('probability', '0%')
                 try:
                     prob_value = int(probability_str.replace('%', ''))
-                    container.markdown(f"**📊 발생 확률: {probability_str}**")
+                    container.markdown(f"**📊 Probability: {probability_str}**")
                     container.progress(prob_value / 100)
                 except:
-                    container.markdown(f"**📊 발생 확률: {probability_str}**")
+                    container.markdown(f"**📊 Probability: {probability_str}**")
                 
                 col1, col2 = container.columns(2)
                 
                 with col1:
-                    st.markdown("**조정된 포트폴리오 배분**")
+                    st.markdown("**Adjusted Portfolio Allocation**")
                     allocation = scenario.get('allocation_management', {})
                     if allocation:
                         fig = go.Figure(data=[go.Pie(
@@ -184,19 +184,19 @@ def display_risk_analysis_result(container, analysis_content):
                             hole=.3,
                             textinfo='label+percent'
                         )])
-                        fig.update_layout(height=400, title=f"시나리오 {i} 포트폴리오")
+                        fig.update_layout(height=400, title=f"Scenario {i} Portfolio")
                         st.plotly_chart(fig, width='stretch')
                 
                 with col2:
-                    st.markdown("**조정 이유 및 전략**")
-                    st.info(scenario.get('reason', '근거 없음'))
+                    st.markdown("**Adjustment Reasoning and Strategy**")
+                    st.info(scenario.get('reason', 'No reasoning provided'))
         
     except Exception as e:
-        container.error(f"리스크 분석 표시 오류: {str(e)}")
+        container.error(f"Risk analysis display error: {str(e)}")
         container.text(str(analysis_content))
 
 def invoke_risk_manager(portfolio_data):
-    """Risk Manager 호출"""
+    """Invoke Risk Manager"""
     try:
         response = agentcore_client.invoke_agent_runtime(
             agentRuntimeArn=AGENT_ARN,
@@ -253,9 +253,9 @@ def invoke_risk_manager(portfolio_data):
                 elif event_type == "streaming_complete":
                     result_str = event_data.get("result", "")
                     
-                    # 최종 결과 표시
+                    # Display final results
                     placeholder.divider()
-                    placeholder.subheader("📌 리스크 분석 및 시나리오 플래닝")
+                    placeholder.subheader("📌 Risk Analysis and Scenario Planning")
                     display_risk_analysis_result(placeholder, result_str)
                     
             except json.JSONDecodeError:
@@ -266,45 +266,45 @@ def invoke_risk_manager(portfolio_data):
     except Exception as e:
         return {"status": "error", "error": str(e)}
 
-# UI 구성
-with st.expander("아키텍처", expanded=True):
+# UI Configuration
+with st.expander("Architecture", expanded=True):
     st.image("../static/risk_manager.png", width=800)
-st.markdown("**포트폴리오 구성 입력**")
+st.markdown("**Portfolio Configuration Input**")
 
-# 포트폴리오 배분 입력
-st.markdown("**포트폴리오 배분**")
+# Portfolio allocation input
+st.markdown("**Portfolio Allocation**")
 col1, col2, col3 = st.columns(3)
 with col1:
     ticker1 = st.text_input("ETF 1", value="QQQ")
-    allocation1 = st.number_input("비율 1 (%)", min_value=0, max_value=100, value=60)
+    allocation1 = st.number_input("Allocation 1 (%)", min_value=0, max_value=100, value=60)
 with col2:
     ticker2 = st.text_input("ETF 2", value="SPY")
-    allocation2 = st.number_input("비율 2 (%)", min_value=0, max_value=100, value=30)
+    allocation2 = st.number_input("Allocation 2 (%)", min_value=0, max_value=100, value=30)
 with col3:
     ticker3 = st.text_input("ETF 3", value="GLD")
-    allocation3 = st.number_input("비율 3 (%)", min_value=0, max_value=100, value=10)
+    allocation3 = st.number_input("Allocation 3 (%)", min_value=0, max_value=100, value=10)
 
-reason = st.text_area("포트폴리오 구성 근거 및 투자 전략", value="고성장 기술주 중심의 공격적 포트폴리오로, 고객의 공격적인 위험 성향과 높은 목표 수익률 달성을 위한 전략", height=100)
+reason = st.text_area("Portfolio Composition Reasoning and Investment Strategy", value="Aggressive portfolio focused on high-growth technology stocks, designed to achieve high target returns for clients with aggressive risk tolerance", height=100)
 
-# Portfolio Scores 입력
-st.markdown("**포트폴리오 평가 점수**")
+# Portfolio Scores input
+st.markdown("**Portfolio Evaluation Scores**")
 col1, col2, col3 = st.columns(3)
 with col1:
-    profitability_score = st.number_input("수익성 (1-10)", min_value=1, max_value=10, value=8)
-    profitability_reason = st.text_input("수익성 평가 근거", value="목표 수익률 달성 가능성 높음")
+    profitability_score = st.number_input("Profitability (1-10)", min_value=1, max_value=10, value=8)
+    profitability_reason = st.text_input("Profitability Assessment Reasoning", value="High probability of achieving target returns")
 with col2:
-    risk_score = st.number_input("리스크 관리 (1-10)", min_value=1, max_value=10, value=6)
-    risk_reason = st.text_input("리스크 관리 평가 근거", value="높은 변동성으로 리스크 관리 필요")
+    risk_score = st.number_input("Risk Management (1-10)", min_value=1, max_value=10, value=6)
+    risk_reason = st.text_input("Risk Management Assessment Reasoning", value="Risk management needed due to high volatility")
 with col3:
-    diversification_score = st.number_input("분산투자 완성도 (1-10)", min_value=1, max_value=10, value=7)
-    diversification_reason = st.text_input("분산투자 평가 근거", value="일부 상관관계 존재하나 적절한 분산")
+    diversification_score = st.number_input("Diversification (1-10)", min_value=1, max_value=10, value=7)
+    diversification_reason = st.text_input("Diversification Assessment Reasoning", value="Some correlation exists but adequate diversification")
 
-submitted = st.button("리스크 분석 시작", width='stretch')
+submitted = st.button("Start Risk Analysis", width='stretch')
 
 if submitted:
     st.divider()
     
-    with st.spinner("AI 분석 중..."):
+    with st.spinner("AI Analysis in Progress..."):
         portfolio_dict = {
             "portfolio_allocation": {
                 ticker1: allocation1,
@@ -322,4 +322,4 @@ if submitted:
         result = invoke_risk_manager(portfolio_dict)
         
         if result['status'] == 'error':
-            st.error(f"❌ 분석 중 오류: {result.get('error', 'Unknown error')}")
+            st.error(f"❌ Analysis error: {result.get('error', 'Unknown error')}")
