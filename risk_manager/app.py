@@ -28,22 +28,6 @@ except Exception:
 
 agentcore_client = boto3.client('bedrock-agentcore', region_name=REGION)
 
-def extract_json_from_text(text):
-    """Extract JSON from text"""
-    if isinstance(text, dict):
-        return text
-    if not isinstance(text, str):
-        return None
-    
-    start = text.find('{')
-    end = text.rfind('}') + 1
-    if start != -1 and end > start:
-        try:
-            return json.loads(text[start:end])
-        except json.JSONDecodeError:
-            return None
-    return None
-
 def parse_tool_result(result_text):
     """Extract actual data from tool execution results"""
     parsed_result = json.loads(result_text)
@@ -151,7 +135,7 @@ def display_geopolitical_data(container, geopolitical_data):
 def display_risk_analysis_result(container, analysis_content):
     """Display final risk analysis results"""
     try:
-        data = extract_json_from_text(analysis_content)
+        data = json.loads(analysis_content)
         if not data:
             container.error("Risk analysis data not found.")
             return

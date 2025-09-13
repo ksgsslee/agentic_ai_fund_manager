@@ -1,15 +1,15 @@
 # Investment Advisor
 
-**LangGraph + AgentCore Memory 기반 Multi-Agent 투자 자문 시스템**
+**LangGraph + AgentCore Memory-based Multi-Agent Investment Advisory System**
 
-3개의 전문 AI 에이전트가 LangGraph 워크플로우로 협업하여 종합적인 투자 분석을 제공하고, AgentCore Memory를 통해 상담 히스토리를 자동으로 관리하는 엔터프라이즈급 투자 자문 시스템입니다.
+An enterprise-grade investment advisory system where 3 specialized AI agents collaborate through LangGraph workflows to provide comprehensive investment analysis, with automatic consultation history management through AgentCore Memory.
 
-## 🎯 핵심 기능
+## 🎯 Core Features
 
-- **LangGraph 워크플로우**: 3개 에이전트의 순차적 협업 시스템
-- **실시간 스트리밍**: 각 에이전트의 사고 과정과 도구 사용을 실시간 시각화
-- **AgentCore Memory**: SUMMARY 전략으로 상담 히스토리 자동 요약 및 영구 보존
-- **완전 자동화**: 사용자 입력만으로 전체 투자 자문 프로세스 완료
+- **LangGraph Workflow**: Sequential collaboration system of 3 agents
+- **Real-time Streaming**: Real-time visualization of each agent's reasoning process and tool usage
+- **AgentCore Memory**: Automatic consultation history summarization and permanent storage with SUMMARY strategy
+- **Full Automation**: Complete investment advisory process with user input only
 
 ## 🏗️ 아키텍처
 

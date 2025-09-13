@@ -1,10 +1,10 @@
 # requirements.txt
-# Investment Advisor AgentCore Runtime 의존성
+# Investment Advisor AgentCore Runtime Dependencies
 
 # Langgraph
 langgraph
 
-# AI 에이전트 프레임워크
+# AI Agent Framework
 strands-agents
 
 # AWS Bedrock AgentCore (Runtime + Memory)

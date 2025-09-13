@@ -1,7 +1,7 @@
 """
 deploy.py
 
-Investment Advisor AgentCore Runtime 배포 스크립트
+Investment Advisor AgentCore Runtime Deployment Script
 """
 
 import sys
@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from bedrock_agentcore_starter_toolkit import Runtime
 
-# 공통 설정 및 shared 모듈 경로 추가
+# Add common configuration and shared module paths
 root_path = Path(__file__).parent.parent
 sys.path.insert(0, str(root_path))
 sys.path.insert(0, str(root_path / "shared"))
@@ -19,18 +19,18 @@ from config import Config as GlobalConfig
 from runtime_utils import create_agentcore_runtime_role
 
 class Config:
-    """Investment Advisor 배포 설정"""
+    """Investment Advisor deployment configuration"""
     REGION = GlobalConfig.REGION
     AGENT_NAME = GlobalConfig.INVESTMENT_ADVISOR_NAME
 
 def load_agent_arns():
-    """다른 에이전트들의 배포 정보 로드"""
-    print("📋 다른 에이전트 배포 정보 로드 중...")
+    """Load deployment information of other agents"""
+    print("📋 Loading other agent deployment information...")
     
     base_path = Path(__file__).parent.parent
     agent_arns = {}
     
-    # 필수 에이전트 목록
+    # Required agent list
     required_agents = [
         ("financial_analyst", "Financial Analyst"),
         ("portfolio_architect", "Portfolio Architect"), 
@@ -51,8 +51,8 @@ def load_agent_arns():
     
     if missing_agents:
         raise FileNotFoundError(
-            f"다음 에이전트들이 먼저 배포되어야 합니다: {', '.join(missing_agents)}\n"
-            "각 에이전트 폴더에서 'python deploy.py'를 실행하세요."
+            f"The following agents must be deployed first: {', '.join(missing_agents)}\n"
+            "Run 'python deploy.py' in each agent folder."
         )
     
     return agent_arns

@@ -1,6 +1,6 @@
 """
-Investment Advisor Streamlit 앱
-Multi-Agent 투자 자문 시스템 웹 인터페이스
+Investment Advisor Streamlit App
+Multi-Agent Investment Advisory System Web Interface
 """
 
 import streamlit as st
@@ -21,39 +21,39 @@ st.set_page_config(
 )
 st.title("🤖 Investment Advisor")
 
-# 세션 관리 초기화 - 페이지 로드 시 자동 생성
+# Session management initialization - automatically generated on page load
 if 'current_session_id' not in st.session_state:
     st.session_state.current_session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-# 사이드바 메뉴
+# Sidebar menu
 menu = st.sidebar.selectbox(
-    "메뉴 선택",
-    ["🤖 새로운 투자 상담", "📚 상담 히스토리 (Long-term Memory)"]
+    "Select Menu",
+    ["🤖 New Investment Consultation", "📚 Consultation History (Long-term Memory)"]
 )
 
-# 사이드바에 세션 정보 표시
+# Display session information in sidebar
 st.sidebar.divider()
-st.sidebar.success(f"**현재 세션**: {st.session_state.current_session_id}")
-st.sidebar.caption("페이지 로드 시 자동 생성됨")
+st.sidebar.success(f"**Current Session**: {st.session_state.current_session_id}")
+st.sidebar.caption("Automatically generated on page load")
 
-# 세션 초기화 버튼
-if st.sidebar.button("🔄 새 세션 시작"):
+# Session reset button
+if st.sidebar.button("🔄 Start New Session"):
     st.session_state.current_session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     st.rerun()
 
-# 배포 정보 로드 (환경변수 우선, 없으면 로컬 JSON 파일)
+# Load deployment information (environment variables first, then local JSON files)
 def load_deployment_info():
-    """환경변수 또는 로컬 JSON 파일에서 배포 정보 로드"""
-    # 환경변수에서 먼저 시도 (Docker 컨테이너 환경)
+    """Load deployment information from environment variables or local JSON files"""
+    # Try environment variables first (Docker container environment)
     agent_arn = os.getenv("BWB_INVESTMENT_ADVISOR_ARN")
     memory_id = os.getenv("BWB_MEMORY_ID") 
     region = os.getenv("BWB_AWS_REGION")
     
     if agent_arn and memory_id and region:
-        # Docker 환경: static 폴더 경로 설정
+        # Docker environment: set static folder path
         return agent_arn, memory_id, region, "static"
     
-    # 환경변수가 없으면 로컬 JSON 파일에서 로드 (로컬 개발 환경)
+    # If no environment variables, load from local JSON files (local development environment)
     try:
         with open(Path(__file__).parent / "deployment_info.json") as f:
             deployment_info = json.load(f)
@@ -64,11 +64,11 @@ def load_deployment_info():
             memory_info = json.load(f)
         memory_id = memory_info["memory_id"]
         
-        # 로컬 환경: static 폴더 경로 설정
+        # Local environment: set static folder path
         return agent_arn, memory_id, region, "../static"
         
     except Exception as e:
-        st.error(f"배포 정보를 찾을 수 없습니다. 환경변수(INVESTMENT_ADVISOR_ARN, MEMORY_ID, AWS_REGION)를 설정하거나 deploy.py를 먼저 실행해주세요. 오류: {e}")
+        st.error(f"Deployment information not found. Please set environment variables (INVESTMENT_ADVISOR_ARN, MEMORY_ID, AWS_REGION) or run deploy.py first. Error: {e}")
         st.stop()
 
 AGENT_ARN, MEMORY_ID, REGION, STATIC_PATH = load_deployment_info()
@@ -77,7 +77,7 @@ agentcore_client = boto3.client('bedrock-agentcore', region_name=REGION)
 memory_client = MemoryClient(region_name=REGION)
 
 def extract_json_from_text(text):
-    """텍스트에서 JSON 추출"""
+    """Extract JSON from text"""
     if isinstance(text, dict):
         return text
     if not isinstance(text, str):
@@ -93,25 +93,25 @@ def extract_json_from_text(text):
     return None
 
 def display_calculator_result(container, tool_input, result_text):
-    """Calculator 도구 결과 표시"""
-    container.markdown("**🧮 Calculator 계산 결과**")
+    """Display Calculator tool results"""
+    container.markdown("**🧮 Calculator Calculation Results**")
     container.code(f"Input: {tool_input}\n\n{result_text}", language="text")
 
 def display_etf_analysis_result(container, etf_data):
-    """개별 ETF 분석 결과 표시"""
+    """Display individual ETF analysis results"""
     try:
-        container.markdown(f"**📊 {etf_data['ticker']} 분석 결과 (몬테카를로 시뮬레이션)**")
+        container.markdown(f"**📊 {etf_data['ticker']} Analysis Results (Monte Carlo Simulation)**")
         
         col1, col2, col3, col4 = container.columns(4)
         
         with col1:
-            st.metric("예상 수익률", f"{etf_data['expected_annual_return']}%")
+            st.metric("Expected Return", f"{etf_data['expected_annual_return']}%")
         with col2:
-            st.metric("손실 확률", f"{etf_data['loss_probability']}%")
+            st.metric("Loss Probability", f"{etf_data['loss_probability']}%")
         with col3:
-            st.metric("변동성", f"{etf_data['volatility']}%")
+            st.metric("Volatility", f"{etf_data['volatility']}%")
         with col4:
-            st.metric("과거 수익률", f"{etf_data['historical_annual_return']}%")
+            st.metric("Historical Return", f"{etf_data['historical_annual_return']}%")
         
         if 'return_distribution' in etf_data:
             distribution = etf_data['return_distribution']
@@ -121,16 +121,16 @@ def display_etf_analysis_result(container, etf_data):
             fig = go.Figure(data=[go.Bar(
                 x=ranges,
                 y=counts,
-                text=[f"{count}회<br>({count/5:.1f}%)" for count in counts],
+                text=[f"{count} times<br>({count/5:.1f}%)" for count in counts],
                 textposition='auto',
                 marker_color='lightblue',
                 name=etf_data['ticker']
             )])
             
             fig.update_layout(
-                title=f"1년 후 예상 수익률 분포 (1000회 시뮬레이션)",
-                xaxis_title="수익률 구간",
-                yaxis_title="시나리오 개수",
+                title=f"Expected Return Distribution After 1 Year (1000 Simulations)",
+                xaxis_title="Return Range",
+                yaxis_title="Number of Scenarios",
                 height=400,
                 showlegend=False
             )
@@ -138,12 +138,12 @@ def display_etf_analysis_result(container, etf_data):
             container.plotly_chart(fig, width='stretch')
         
     except Exception as e:
-        container.error(f"ETF 분석 결과 표시 오류: {e}")
+        container.error(f"ETF analysis result display error: {e}")
 
 def display_correlation_analysis(container, correlation_data):
-    """상관관계 분석 결과 표시"""
+    """Display correlation analysis results"""
     try:
-        container.markdown("**🔗 ETF 상관관계 매트릭스**")
+        container.markdown("**🔗 ETF Correlation Matrix**")
         
         correlation_matrix = correlation_data.get('correlation_matrix', {})
         
@@ -163,7 +163,7 @@ def display_correlation_analysis(container, correlation_data):
             )
             
             fig.update_layout(
-                title="ETF 간 상관관계 매트릭스",
+                title="ETF Correlation Matrix",
                 height=400,
                 xaxis_title="ETF",
                 yaxis_title="ETF"
@@ -172,20 +172,20 @@ def display_correlation_analysis(container, correlation_data):
             fig.update_traces(texttemplate="%{z:.2f}", textfont_size=12)
             container.plotly_chart(fig, width='stretch')
             
-            container.markdown("**상관관계 해석**")
+            container.markdown("**Correlation Interpretation**")
             container.info("""
-            - **1.0**: 완전한 양의 상관관계 (같은 방향으로 움직임)
-            - **0.7~0.9**: 높은 양의 상관관계 (분산투자 효과 제한적)
-            - **0.3~0.7**: 중간 양의 상관관계 (적당한 분산투자 효과)
-            - **-0.3~0.3**: 낮은 상관관계 (좋은 분산투자 효과)
-            - **-1.0**: 완전한 음의 상관관계 (반대 방향으로 움직임)
+            - **1.0**: Perfect positive correlation (moves in the same direction)
+            - **0.7~0.9**: High positive correlation (limited diversification effect)
+            - **0.3~0.7**: Medium positive correlation (moderate diversification effect)
+            - **-0.3~0.3**: Low correlation (good diversification effect)
+            - **-1.0**: Perfect negative correlation (moves in opposite directions)
             """)
         
     except Exception as e:
-        container.error(f"상관관계 분석 표시 오류: {e}")
+        container.error(f"Correlation analysis display error: {e}")
 
 def display_news_data(container, news_data):
-    """ETF 뉴스 데이터 표시"""
+    """Display ETF news data"""
     try:
         if isinstance(news_data, str):
             data = json.loads(news_data)
@@ -196,10 +196,10 @@ def display_news_data(container, news_data):
         news_list = data.get('news', [])
         
         if not news_list:
-            container.warning(f"{ticker}: 뉴스 데이터가 없습니다.")
+            container.warning(f"{ticker}: No news data available.")
             return
         
-        container.markdown(f"**📰 {ticker} 최신 뉴스**")
+        container.markdown(f"**📰 {ticker} Latest News**")
         
         news_df = pd.DataFrame(news_list)
         if not news_df.empty and all(col in news_df.columns for col in ['publish_date', 'title', 'summary']):
@@ -211,21 +211,21 @@ def display_news_data(container, news_data):
         else:
             for i, news_item in enumerate(news_list[:5], 1):
                 with container.expander(f"{i}. {news_item.get('title', 'No Title')}"):
-                    st.write(f"**발행일:** {news_item.get('publish_date', 'Unknown')}")
-                    st.write(f"**요약:** {news_item.get('summary', 'No summary available')}")
+                    st.write(f"**Published:** {news_item.get('publish_date', 'Unknown')}")
+                    st.write(f"**Summary:** {news_item.get('summary', 'No summary available')}")
                 
     except Exception as e:
-        container.error(f"뉴스 데이터 표시 오류: {str(e)}")
+        container.error(f"News data display error: {str(e)}")
 
 def display_market_data(container, market_data):
-    """거시경제 지표 데이터 표시"""
+    """Display macroeconomic indicator data"""
     try:
         if isinstance(market_data, str):
             data = json.loads(market_data)
         else:
             data = market_data
         
-        container.markdown("**📊 주요 거시경제 지표**")
+        container.markdown("**📊 Key Macroeconomic Indicators**")
         
         indicators = {k: v for k, v in data.items() if not k.startswith('_')}
         
@@ -243,10 +243,10 @@ def display_market_data(container, market_data):
                             st.write(f"**{key}**: 데이터 없음")
                 
     except Exception as e:
-        container.error(f"시장 데이터 표시 오류: {str(e)}")
+        container.error(f"Market data display error: {str(e)}")
 
 def display_geopolitical_data(container, geopolitical_data):
-    """지정학적 리스크 지표 데이터 표시"""
+    """Display geopolitical risk indicator data"""
     try:
         if isinstance(geopolitical_data, str):
             data = json.loads(geopolitical_data)

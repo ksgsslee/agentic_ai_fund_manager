@@ -28,27 +28,10 @@ except Exception:
 
 agentcore_client = boto3.client('bedrock-agentcore', region_name=REGION)
 
-def extract_json_from_text(text):
-    """Extract JSON from text"""
-    if isinstance(text, dict):
-        return text
-    if not isinstance(text, str):
-        return None
-    
-    start = text.find('{')
-    end = text.rfind('}') + 1
-    if start != -1 and end > start:
-        try:
-            return json.loads(text[start:end])
-        except json.JSONDecodeError:
-            return None
-    return None
-
-
 def display_portfolio_result(container, portfolio_content):
     """Display final portfolio results"""
     try:
-        data = extract_json_from_text(portfolio_content)
+        data = json.loads(portfolio_content)
         if not data:
             container.error("Portfolio data not found.")
             return

@@ -22,6 +22,19 @@ class Config:
     TEMPERATURE = 0.3
     MAX_TOKENS = 3000
 
+def extract_json_from_text(text_content):
+    """Extract only JSON part from AI response"""
+    if not isinstance(text_content, str):
+        return text_content
+    
+    start_idx = text_content.find('{')
+    end_idx = text_content.rfind('}') + 1
+    
+    if start_idx != -1 and end_idx > start_idx:
+        return text_content[start_idx:end_idx]
+    
+    return text_content
+
 class PortfolioArchitect:
     def __init__(self, mcp_server_info):
         self.mcp_server_info = mcp_server_info
@@ -144,7 +157,9 @@ Important Notes:
                                 }
                 
                 if "result" in event:
-                    yield {"type": "streaming_complete", "result": str(event["result"])}
+                    raw_result = str(event["result"])
+                    clean_json = extract_json_from_text(raw_result)
+                    yield {"type": "streaming_complete", "result": clean_json}
 
 # Global instance
 architect = None

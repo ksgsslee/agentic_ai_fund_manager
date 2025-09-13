@@ -1,8 +1,8 @@
 """
 deploy_agentcore_memory.py
 
-AgentCore Memory 배포 스크립트
-Investment Advisor용 Memory 생성 및 배포 정보 저장
+AgentCore Memory Deployment Script
+Create Memory for Investment Advisor and save deployment information
 """
 
 import json
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from bedrock_agentcore.memory import MemoryClient
 
-# 공통 설정 경로 추가
+# Add common configuration path
 root_path = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(root_path))
 from config import Config as GlobalConfig
@@ -21,21 +21,21 @@ class Config:
     MEMORY_NAME = GlobalConfig.MEMORY_NAME
 
 def deploy_memory():
-    """AgentCore Memory 생성"""
-    print("🧠 AgentCore Memory 생성 중...")
+    """Create AgentCore Memory"""
+    print("🧠 Creating AgentCore Memory...")
     
     memory_client = MemoryClient(region_name=Config.REGION)
     
     try:
-        # 기존 메모리 확인
+        # Check existing memory
         memories = memory_client.list_memories()
         existing_memory = next((m for m in memories if m['id'].startswith(Config.MEMORY_NAME)), None)
         
         if existing_memory:
             memory_id = existing_memory['id']
-            print(f"✅ 기존 메모리 사용: {memory_id}")
+            print(f"✅ Using existing memory: {memory_id}")
         else:
-            # 새 메모리 생성 - SUMMARY 전략으로 Long-term 자동 요약
+            # Create new memory - SUMMARY strategy for Long-term auto-summarization
             from bedrock_agentcore.memory.constants import StrategyType
             
             memory = memory_client.create_memory_and_wait(
@@ -50,21 +50,21 @@ def deploy_memory():
                         }
                     }
                 ],
-                event_expiry_days=7,   # Short-term 보존 기간
+                event_expiry_days=7,   # Short-term retention period
                 max_wait=300,
                 poll_interval=10
             )
             memory_id = memory['id']
-            print(f"✅ 새 메모리 생성: {memory_id}")
+            print(f"✅ New memory created: {memory_id}")
         
         return memory_id
         
     except Exception as e:
-        print(f"❌ 메모리 생성 실패: {e}")
+        print(f"❌ Memory creation failed: {e}")
         raise
 
 def save_deployment_info(memory_id):
-    """배포 정보 저장"""
+    """Save deployment information"""
     deployment_info = {
         "memory_id": memory_id,
         "memory_name": Config.MEMORY_NAME,
@@ -80,22 +80,22 @@ def save_deployment_info(memory_id):
 
 def main():
     try:
-        print("🧠 AgentCore Memory 배포 시작")
+        print("🧠 AgentCore Memory Deployment Started")
         
-        # Memory 생성
+        # Create Memory
         memory_id = deploy_memory()
         
-        # 배포 정보 저장
+        # Save deployment information
         info_file = save_deployment_info(memory_id)
         
-        print(f"\n🎉 배포 완료!")
-        print(f"📄 배포 정보: {info_file}")
+        print(f"\n🎉 Deployment Complete!")
+        print(f"📄 Deployment Info: {info_file}")
         print(f"🧠 Memory ID: {memory_id}")
         
         return 0
         
     except Exception as e:
-        print(f"❌ 배포 실패: {e}")
+        print(f"❌ Deployment Failed: {e}")
         return 1
 
 if __name__ == "__main__":

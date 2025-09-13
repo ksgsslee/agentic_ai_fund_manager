@@ -23,6 +23,18 @@ class Config:
     TEMPERATURE = 0.2
     MAX_TOKENS = 4000
 
+def extract_json_from_text(text_content):
+    """Extract only JSON part from AI response"""
+    if not isinstance(text_content, str):
+        return text_content
+    
+    start_idx = text_content.find('{')
+    end_idx = text_content.rfind('}') + 1
+    
+    if start_idx != -1 and end_idx > start_idx:
+        return text_content[start_idx:end_idx]
+    
+    return text_content
 
 class RiskManager:
     """AI Risk Manager - MCP Gateway Integration"""
@@ -167,7 +179,9 @@ When responding, you must adhere to the following:
                                     }
                     
                     if "result" in event:
-                        yield {"type": "streaming_complete", "result": str(event["result"])}
+                        raw_result = str(event["result"])
+                        clean_json = extract_json_from_text(raw_result)
+                        yield {"type": "streaming_complete", "result": clean_json}
 
         except Exception as e:
             yield {"type": "error", "error": str(e), "status": "error"}
