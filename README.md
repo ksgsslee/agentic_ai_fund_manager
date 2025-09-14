@@ -29,14 +29,8 @@ A production-level AI fund management system where 4 specialized AI agents colla
 4. Recommend investment sectors based on personal preferences
 
 **Output**:
-```json
-{
-  "risk_profile": "Aggressive",
-  "required_annual_return_rate": 40.0,
-  "key_sectors": ["Growth Stocks", "Technology Stocks", "Global Equities"],
-  "summary": "Aggressive fund management strategy required to achieve 40% target return"
-}
-```
+![Financial Analyst Output](static/financial_analyst_output.png)
+
 
 ### Lab 2: Portfolio Architect
 **Role**: Optimal fund portfolio design based on real-time ETF data
@@ -57,17 +51,8 @@ A production-level AI fund management system where 4 specialized AI agents colla
 5. Determine investment weights and evaluate portfolio (profitability/risk management/diversification scores)
 
 **Output**:
-```json
-{
-  "portfolio_allocation": {"QQQ": 50, "SPY": 30, "GLD": 20},
-  "reason": "Tech-focused growth strategy...",
-  "portfolio_scores": {
-    "profitability": {"score": 8, "reason": "High probability of achieving target return"},
-    "risk_management": {"score": 7, "reason": "Appropriate volatility level"},
-    "diversification": {"score": 9, "reason": "Excellent diversification with low correlation"}
-  }
-}
-```
+![Portfolio Architect Output](static/portfolio_architect_output.png)
+
 
 ### Lab 3: Risk Manager
 **Role**: Fund risk scenario analysis based on news and macroeconomic data
@@ -88,22 +73,8 @@ A production-level AI fund management system where 4 specialized AI agents colla
 5. Establish portfolio adjustment strategies for each scenario
 
 **Output**:
-```json
-{
-  "scenario1": {
-    "name": "Tech-Led Economic Recovery",
-    "probability": "35%",
-    "allocation_management": {"QQQ": 70, "SPY": 25, "GLD": 5},
-    "reason": "Maximize returns by increasing exposure to technology sector growth"
-  },
-  "scenario2": {
-    "name": "Persistent Inflation and Economic Slowdown", 
-    "probability": "25%",
-    "allocation_management": {"QQQ": 40, "SPY": 40, "GLD": 20},
-    "reason": "Strengthen risk hedging by expanding safe asset allocation"
-  }
-}
-```
+![Risk Manager Output](static/risk_manager_output.png)
+
 
 ### Lab 4: Fund Manager
 **Role**: Integration of 3 agent results and long-term memory management
@@ -124,10 +95,8 @@ A production-level AI fund management system where 4 specialized AI agents colla
 3. **Memory Storage**: Save each agent's results as session-based conversation events
 4. **Automatic Summarization**: SUMMARY strategy structures and summarizes entire consultation sessions by topics
 
-**Memory Structure**:
-- **Short-term**: Store each agent's results as session-based conversations (7 days)
-- **Long-term**: SUMMARY strategy generates topic-structured summaries (permanent preservation)
-- **Namespace**: `fund/session/{sessionId}` structure
+**Output**:
+![Fund Managner Output](static/fund_manager_output.png)
 
 ## 🔧 Technical Implementation Details
 
@@ -157,24 +126,6 @@ A production-level AI fund management system where 4 specialized AI agents colla
 - Monitor performance and usage of each agent
 - Real-time log and metric collection
 - Insights for system optimization
-
-### Data Flow
-
-```
-User Input
-    ↓
-Fund Manager (LangGraph Orchestration)
-    ↓
-Financial Analyst (Runtime + OpenAI GPT-OSS 120B)
-    ↓ (Risk Profile, Target Return)
-Portfolio Architect (Runtime + MCP Server + Claude 4.0 Sonnet)
-    ↓ (Portfolio Allocation)
-Risk Manager (Runtime + Gateway + Claude 3.7 Sonnet)
-    ↓ (Risk Scenarios)
-Fund Manager (Memory Storage + Final Integration)
-    ↓
-Final Fund Management Guide + Automatic Summary Storage
-```
 
 ## 🚀 Quick Start
 
