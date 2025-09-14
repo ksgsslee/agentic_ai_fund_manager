@@ -1,7 +1,7 @@
 """
 deploy.py
 
-Investment Advisor AgentCore Runtime Deployment Script
+Fund Manager AgentCore Runtime Deployment Script
 """
 
 import sys
@@ -76,8 +76,8 @@ def load_memory_info():
         return memory_id
 
 def create_iam_role_with_agent_permissions():
-    """Create IAM role for Investment Advisor (including permissions to call other agents)"""
-    print("🔐 Creating Investment Advisor IAM role...")
+    """Create IAM role for Fund Manager (including permissions to call other agents)"""
+    print("🔐 Creating Fund Manager IAM role...")
     
     # Create basic AgentCore Runtime role
     iam_role = create_agentcore_runtime_role(Config.AGENT_NAME, Config.REGION)
@@ -117,7 +117,7 @@ def _add_agent_call_permissions(role_name):
     try:
         iam_client.put_role_policy(
             PolicyDocument=json.dumps(additional_policy),
-            PolicyName="InvestmentAdvisorAgentCallsPolicy",
+            PolicyName="FundManagerAgentCallsPolicy",
             RoleName=role_name
         )
         print("✅ Agent call permissions added successfully")
@@ -148,7 +148,7 @@ def deploy_fund_manager(agent_arns, memory_id):
         "FINANCIAL_ANALYST_ARN": agent_arns["financial_analyst"],
         "PORTFOLIO_ARCHITECT_ARN": agent_arns["portfolio_architect"],
         "RISK_MANAGER_ARN": agent_arns["risk_manager"],
-        "INVESTMENT_MEMORY_ID": memory_id,
+        "FUND_MEMORY_ID": memory_id,
         "AWS_REGION": Config.REGION
     }
     

@@ -272,8 +272,8 @@ def display_financial_analysis(container, analysis_content):
     with col2:
         st.metric("**Required Return**", f"{data.get('required_annual_return_rate', 'N/A')}%")
         
-        # Display recommended investment sectors as tags
-        st.markdown("**🎯 Recommended Investment Sectors**")
+        # Display recommended fund investment sectors as tags
+        st.markdown("**🎯 Recommended Fund Investment Sectors**")
         sectors = data.get("key_sectors", [])
         tag_html = ""
         for sector in sectors:
@@ -626,13 +626,13 @@ if menu == "🤖 New Fund Management":
     with col4:
         experience_categories = ["0-1 years", "1-3 years", "3-5 years", "5-10 years", "10-20 years", "20+ years"]
         stock_investment_experience_years = st.selectbox(
-            "Stock Investment Experience",
+            "Stock Fund Investment Experience",
             options=experience_categories,
             index=3
         )
 
     with col5:
-        investment_purpose = st.selectbox(
+        fund_purpose = st.selectbox(
             "🎯 Fund Management Purpose",
             options=["Short-term Profit", "Retirement Planning", "Home Purchase Fund", "Education Fund", "Surplus Fund Management"],
             index=0
@@ -673,7 +673,7 @@ if menu == "🤖 New Fund Management":
             "age": age_number,
             "stock_investment_experience_years": experience_years,
             "target_amount": int(target_amount * 100000000),
-            "investment_purpose": investment_purpose,
+            "fund_purpose": fund_purpose,
             "preferred_sectors": preferred_sectors
         }
         
@@ -704,7 +704,7 @@ elif menu == "📚 Management History (Long-term Memory)":
             st.warning("Fund management summary for the current session has not been generated yet.")
             st.markdown("""
             **Summary Generation Conditions:**
-            - Investment consultation must be completed (all 3 agents executed)
+            - Fund management consultation must be completed (all 3 agents executed)
             - AgentCore SUMMARY strategy automatically generates summaries
             - Summary generation may take a few minutes
             """)
@@ -724,7 +724,7 @@ elif menu == "📚 Management History (Long-term Memory)":
         
         # Simple processing of XML-format summary
         if isinstance(content, str):
-            st.markdown("## 📋 Investment Consultation Summary")
+            st.markdown("## 📋 Fund Management Consultation Summary")
             
             # Extract and display topics from XML
             import re
@@ -742,5 +742,5 @@ elif menu == "📚 Management History (Long-term Memory)":
                 st.text(content)
         else:
             # General text processing
-            st.markdown("## 📋 Investment Consultation Summary")
+            st.markdown("## 📋 Fund Management Consultation Summary")
             st.write(content)

@@ -100,7 +100,7 @@ streamlit run app.py
 ## 📊 Usage
 
 ### New Fund Management
-1. Input investor information (age, investment experience, investment amount, target amount, etc.)
+1. Input client information (age, fund investment experience, fund amount, target amount, etc.)
 2. Execute LangGraph workflow (3 agents in sequential execution)
 3. Real-time monitoring (check each agent's reasoning process and tool usage)
 4. Review comprehensive results (Financial Analysis → Portfolio Design → Risk Scenarios)
@@ -112,12 +112,12 @@ streamlit run app.py
 ## 📋 Input/Output
 
 ### Input Information
-- **Available Investment Amount**: In hundred millions (e.g., 0.5 = 50 million)
+- **Available Fund Amount**: In hundred millions (e.g., 0.5 = 50 million)
 - **Target Amount**: Target amount after 1 year
 - **Age**: Age range selection
-- **Investment Experience**: Years of stock investment experience
-- **Investment Purpose**: Short-term profit, retirement planning, etc.
-- **Areas of Interest**: Multiple selection from 10 investment sectors
+- **Fund Investment Experience**: Years of stock fund investment experience
+- **Fund Management Purpose**: Short-term profit, retirement planning, etc.
+- **Areas of Interest**: Multiple selection from 10 fund investment sectors
 
 ### Output Results
 ```json
@@ -144,7 +144,7 @@ streamlit run app.py
 - **Automatic Summarization**: Entire consultation sessions automatically summarized
 - **Short-term Storage**: Individual agent results stored as conversations (7 days)
 - **Long-term Preservation**: SUMMARY strategy creates permanent consultation summaries
-- **Namespace Structure**: `investment/session/{sessionId}` for organized storage
+- **Namespace Structure**: `fund/session/{sessionId}` for organized storage
 
 
 

@@ -1,5 +1,5 @@
 # requirements.txt
-# Investment Advisor AgentCore Runtime Dependencies
+# Fund Manager AgentCore Runtime Dependencies
 
 # Langgraph
 langgraph
