@@ -1,7 +1,8 @@
 """
 deploy.py
 
-Fund Manager AgentCore Runtime Deployment Script
+Fund Manager Deployment Script
+AgentCore Runtime deployment for Fund Manager
 """
 
 import sys
@@ -182,15 +183,15 @@ def deploy_fund_manager(agent_arns, memory_id):
         "ecr_repo_name": ecr_repo_name
     }
 
-def save_deployment_info(advisor_info, agent_arns):
+def save_deployment_info(agent_info, agent_arns):
     """Save deployment information"""
     deployment_info = {
         "agent_name": Config.AGENT_NAME,
-        "agent_arn": advisor_info["agent_arn"],
-        "agent_id": advisor_info["agent_id"],
+        "agent_arn": agent_info["agent_arn"],
+        "agent_id": agent_info["agent_id"],
         "region": Config.REGION,
-        "iam_role_name": advisor_info["iam_role_name"],
-        "ecr_repo_name": advisor_info.get("ecr_repo_name"),
+        "iam_role_name": agent_info["iam_role_name"],
+        "ecr_repo_name": agent_info.get("ecr_repo_name"),
         "dependent_agents": agent_arns,
         "deployed_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
@@ -203,7 +204,7 @@ def save_deployment_info(advisor_info, agent_arns):
 
 def main():
     try:
-        print("🎯 Fund Manager Runtime Deployment")
+        print("🚀 Fund Manager Runtime Deployment")
         
         # Load other agent ARNs
         agent_arns = load_agent_arns()
@@ -212,14 +213,14 @@ def main():
         memory_id = load_memory_info()
         
         # Deploy Fund Manager
-        advisor_info = deploy_fund_manager(agent_arns, memory_id)
+        agent_info = deploy_fund_manager(agent_arns, memory_id)
         
         # Save deployment information
-        info_file = save_deployment_info(advisor_info, agent_arns)
+        info_file = save_deployment_info(agent_info, agent_arns)
         
         print(f"\n🎉 Deployment Complete!")
         print(f"📄 Deployment Info: {info_file}")
-        print(f"🔗 Fund Manager ARN: {advisor_info['agent_arn']}")
+        print(f"🔗 Fund Manager ARN: {agent_info['agent_arn']}")
         
         return 0
         

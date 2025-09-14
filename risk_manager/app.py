@@ -251,7 +251,7 @@ def invoke_risk_manager(portfolio_data):
         return {"status": "error", "error": str(e)}
 
 # UI Configuration
-with st.expander("Architecture", expanded=True):
+with st.expander("🏗️ Risk Manager Architecture", expanded=True):
     st.image("../static/risk_manager.png")
 st.markdown("**Portfolio Configuration Input**")
 

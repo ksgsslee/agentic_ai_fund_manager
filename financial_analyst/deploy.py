@@ -1,7 +1,8 @@
 """
 deploy.py
 
-Financial Analyst AgentCore Runtime Deployment Script
+Financial Analyst Deployment Script
+AgentCore Runtime deployment for Financial Analyst
 """
 
 import sys
@@ -73,15 +74,15 @@ def deploy_financial_analyst():
         "ecr_repo_name": ecr_repo_name
     }
 
-def save_deployment_info(analyst_info):
+def save_deployment_info(agent_info):
     """Save deployment information"""
     deployment_info = {
         "agent_name": Config.AGENT_NAME,
-        "agent_arn": analyst_info["agent_arn"],
-        "agent_id": analyst_info["agent_id"],
+        "agent_arn": agent_info["agent_arn"],
+        "agent_id": agent_info["agent_id"],
         "region": Config.REGION,
-        "iam_role_name": analyst_info["iam_role_name"],
-        "ecr_repo_name": analyst_info.get("ecr_repo_name"),
+        "iam_role_name": agent_info["iam_role_name"],
+        "ecr_repo_name": agent_info.get("ecr_repo_name"),
         "deployed_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
@@ -93,17 +94,17 @@ def save_deployment_info(analyst_info):
 
 def main():
     try:
-        print("🎯 Financial Analyst Runtime Deployment")
+        print("🚀 Financial Analyst Runtime Deployment")
         
         # Deploy Financial Analyst
-        analyst_info = deploy_financial_analyst()
+        agent_info = deploy_financial_analyst()
         
         # Save deployment information
-        info_file = save_deployment_info(analyst_info)
+        info_file = save_deployment_info(agent_info)
         
         print(f"\n🎉 Deployment Complete!")
         print(f"📄 Deployment Info: {info_file}")
-        print(f"🔗 Financial Analyst ARN: {analyst_info['agent_arn']}")
+        print(f"🔗 Financial Analyst ARN: {agent_info['agent_arn']}")
         
         return 0
         

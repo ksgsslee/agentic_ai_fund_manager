@@ -262,7 +262,7 @@ def invoke_portfolio_architect(financial_analysis):
         return {"status": "error", "error": str(e)}
 
 # UI Configuration
-with st.expander("Architecture", expanded=True):
+with st.expander("🏗️ Portfolio Architect Architecture", expanded=True):
     st.image("../static/portfolio_architect.png")
 
 st.markdown("**Financial Analysis Results Input**")

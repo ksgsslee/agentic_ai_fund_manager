@@ -1,9 +1,9 @@
 # requirements.txt
-# Financial Analyst AgentCore Runtime Dependencies
+# Financial Analyst Dependencies
 
 # AI Agent Framework
 strands-agents
 strands-agents-tools
 
-# AWS Bedrock AgentCore Runtime
+# AWS Bedrock AgentCore
 bedrock-agentcore

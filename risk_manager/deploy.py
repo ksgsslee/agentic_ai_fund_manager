@@ -2,7 +2,7 @@
 deploy.py
 
 Risk Manager Deployment Script
-Sequential deployment of Gateway and Risk Manager Runtime
+AgentCore Runtime deployment for Risk Manager
 """
 
 import sys
@@ -98,15 +98,15 @@ def deploy_risk_manager(gateway_info):
         "ecr_repo_name": ecr_repo_name
     }
 
-def save_deployment_info(gateway_info, risk_manager_info):
+def save_deployment_info(gateway_info, agent_info):
     """Save deployment information"""
     deployment_info = {
         "agent_name": Config.AGENT_NAME,
-        "agent_arn": risk_manager_info["agent_arn"],
-        "agent_id": risk_manager_info["agent_id"],
+        "agent_arn": agent_info["agent_arn"],
+        "agent_id": agent_info["agent_id"],
         "region": Config.REGION,
-        "iam_role_name": risk_manager_info["iam_role_name"],
-        "ecr_repo_name": risk_manager_info.get("ecr_repo_name"),
+        "iam_role_name": agent_info["iam_role_name"],
+        "ecr_repo_name": agent_info.get("ecr_repo_name"),
         "deployed_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
@@ -118,21 +118,21 @@ def save_deployment_info(gateway_info, risk_manager_info):
 
 def main():
     try:
-        print("🎯 Risk Manager Full System Deployment")
+        print("🚀 Risk Manager Runtime Deployment")
         
         # Load Gateway information (required)
         gateway_info = load_gateway_info()
         print("✅ Gateway information loading complete")
         
         # Deploy Risk Manager
-        risk_manager_info = deploy_risk_manager(gateway_info)
+        agent_info = deploy_risk_manager(gateway_info)
         
         # Save deployment information
-        info_file = save_deployment_info(gateway_info, risk_manager_info)
+        info_file = save_deployment_info(gateway_info, agent_info)
         
         print(f"\n🎉 Deployment Complete!")
         print(f"📄 Deployment Info: {info_file}")
-        print(f"🔗 Risk Manager ARN: {risk_manager_info['agent_arn']}")
+        print(f"🔗 Risk Manager ARN: {agent_info['agent_arn']}")
         
         return 0
         

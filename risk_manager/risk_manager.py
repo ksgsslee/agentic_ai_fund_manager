@@ -2,7 +2,7 @@
 risk_manager.py
 
 Risk Manager - AI Risk Manager
-Real-time news and market data-based risk analysis through MCP Gateway integration
+Risk scenario analysis based on real-time news and market data through MCP Gateway integration
 """
 
 import json

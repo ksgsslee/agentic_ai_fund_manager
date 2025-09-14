@@ -2,7 +2,7 @@
 cleanup.py
 
 Portfolio Architect System Cleanup Script
-Delete all AWS resources and save cleanup information to JSON
+Delete and clean up all AWS resources
 """
 
 import json

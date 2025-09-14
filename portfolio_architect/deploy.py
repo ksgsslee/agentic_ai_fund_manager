@@ -2,7 +2,7 @@
 deploy.py
 
 Portfolio Architect Deployment Script
-Sequential deployment of MCP Server and Portfolio Architect Runtime
+AgentCore Runtime deployment for Portfolio Architect
 """
 
 import sys
@@ -97,15 +97,15 @@ def deploy_portfolio_architect(mcp_info):
         "ecr_repo_name": ecr_repo_name
     }
 
-def save_deployment_info(mcp_info, architect_info):
+def save_deployment_info(mcp_info, agent_info):
     """Save deployment information"""
     deployment_info = {
         "agent_name": Config.AGENT_NAME,
-        "agent_arn": architect_info["agent_arn"],
-        "agent_id": architect_info["agent_id"],
+        "agent_arn": agent_info["agent_arn"],
+        "agent_id": agent_info["agent_id"],
         "region": Config.REGION,
-        "iam_role_name": architect_info["iam_role_name"],
-        "ecr_repo_name": architect_info.get("ecr_repo_name"),
+        "iam_role_name": agent_info["iam_role_name"],
+        "ecr_repo_name": agent_info.get("ecr_repo_name"),
         "deployed_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
@@ -117,21 +117,21 @@ def save_deployment_info(mcp_info, architect_info):
 
 def main():
     try:
-        print("🎯 Portfolio Architect Full System Deployment")
+        print("🚀 Portfolio Architect Runtime Deployment")
         
         # Load MCP Server information (required)
         mcp_info = load_mcp_info()
         print("✅ MCP Server information loading complete")
         
         # Deploy Portfolio Architect
-        architect_info = deploy_portfolio_architect(mcp_info)
+        agent_info = deploy_portfolio_architect(mcp_info)
         
         # Save deployment information
-        info_file = save_deployment_info(mcp_info, architect_info)
+        info_file = save_deployment_info(mcp_info, agent_info)
         
         print(f"\n🎉 Deployment Complete!")
         print(f"📄 Deployment Info: {info_file}")
-        print(f"🔗 Portfolio Architect ARN: {architect_info['agent_arn']}")
+        print(f"🔗 Portfolio Architect ARN: {agent_info['agent_arn']}")
         
         return 0
         

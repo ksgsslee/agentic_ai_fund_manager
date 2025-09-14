@@ -1,7 +1,8 @@
 """
 financial_analyst.py
 
-Financial Analyst - Financial Analysis Using Calculator Tool
+Financial Analyst - AI Financial Analyst
+Personal financial situation analysis and risk profile assessment using Calculator tool
 """
 
 import json

@@ -1,9 +1,9 @@
 """
 fund_manager.py
 
-LangGraph-based Fund Manager Orchestrator
-Multi-agent sequential workflow with AgentCore Memory's SUMMARY strategy
-for automatic session summarization and long-term context retention.
+Fund Manager - LangGraph-based Multi-Agent Orchestrator
+Sequential workflow integration of 3 specialized agents with AgentCore Memory's SUMMARY strategy
+for automatic session summarization and long-term context retention
 """
 
 import json

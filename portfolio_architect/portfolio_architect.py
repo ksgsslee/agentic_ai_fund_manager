@@ -2,7 +2,7 @@
 portfolio_architect.py
 
 Portfolio Architect - AI Portfolio Designer
-Real-time ETF data-based portfolio design through MCP Server integration
+Optimal investment portfolio design using real-time ETF data through MCP Server integration
 """
 
 import json

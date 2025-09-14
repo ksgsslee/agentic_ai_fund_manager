@@ -2,6 +2,7 @@
 cleanup.py
 
 Financial Analyst System Cleanup Script
+Delete and clean up all AWS resources
 """
 
 import json

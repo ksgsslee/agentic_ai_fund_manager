@@ -1,5 +1,5 @@
 # requirements.txt
-# MCP Server Runtime Dependencies
+# MCP Server Dependencies
 
 # MCP Protocol Library
 mcp

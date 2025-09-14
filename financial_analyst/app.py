@@ -2,6 +2,7 @@
 app.py
 
 Financial Analyst Streamlit Application
+AI Financial Analyst Web Interface
 """
 
 import streamlit as st
@@ -15,11 +16,11 @@ st.title("💰 Financial Analyst")
 
 # Load deployment information
 try:
-    with open(Path(__file__).parent / "deployment_info.json", "r") as f:
+    with open(Path(__file__).parent / "deployment_info.json") as f:
         deployment_info = json.load(f)
     AGENT_ARN = deployment_info["agent_arn"]
     REGION = deployment_info["region"]
-except Exception as e:
+except Exception:
     st.error("Deployment information not found. Please run deploy.py first.")
     st.stop()
 
@@ -128,9 +129,9 @@ def invoke_financial_advisor(input_data):
     except Exception as e:
         return {"status": "error", "error": str(e)}
 
-# Architecture description
-with st.expander("Architecture", expanded=True):
-    st.image(os.path.join("../static/financial_analyst.png"))
+# UI Configuration
+with st.expander("🏗️ Financial Analyst Architecture", expanded=True):
+    st.image("../static/financial_analyst.png")
 
 # Input form
 st.markdown("**Investor Information Input**")

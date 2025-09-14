@@ -1,13 +1,13 @@
 # requirements.txt
-# Fund Manager AgentCore Runtime Dependencies
+# Fund Manager Dependencies
 
-# Langgraph
+# LangGraph
 langgraph
 
 # AI Agent Framework
 strands-agents
 
-# AWS Bedrock AgentCore (Runtime + Memory)
+# AWS Bedrock AgentCore
 bedrock-agentcore
 
 # AWS SDK
