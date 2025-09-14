@@ -1,6 +1,8 @@
 """
+app.py
+
 Fund Manager Streamlit App
-Multi-Agent Fund Management System Web Interface
+AI Fund Manager Web Interface
 """
 
 import streamlit as st
@@ -626,13 +628,13 @@ if menu == "🤖 New Fund Management":
     with col4:
         experience_categories = ["0-1 years", "1-3 years", "3-5 years", "5-10 years", "10-20 years", "20+ years"]
         stock_investment_experience_years = st.selectbox(
-            "Stock Fund Investment Experience",
+            "Stock Investment Experience",
             options=experience_categories,
             index=3
         )
 
     with col5:
-        fund_purpose = st.selectbox(
+        investment_purpose = st.selectbox(
             "🎯 Investment Purpose",
             options=["Short-term Profit", "Retirement Planning", "Home Purchase Fund", "Education Fund", "Surplus Fund Management"],
             index=0
@@ -673,7 +675,7 @@ if menu == "🤖 New Fund Management":
             "age": age_number,
             "stock_investment_experience_years": experience_years,
             "target_amount": int(target_amount * 100000000),
-            "fund_purpose": fund_purpose,
+            "investment_purpose": investment_purpose,
             "preferred_sectors": preferred_sectors
         }
         
