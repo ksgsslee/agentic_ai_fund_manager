@@ -67,7 +67,7 @@ class AgentClient:
     
     def _load_memory_id(self):
         """Load Memory ID from environment or deployment file"""
-        memory_id = os.getenv("INVESTMENT_MEMORY_ID")
+        memory_id = os.getenv("FUND_MEMORY_ID")
         if memory_id:
             return memory_id
         

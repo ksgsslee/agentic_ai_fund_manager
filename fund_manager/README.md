@@ -4,13 +4,13 @@ LangGraph-based Multi-Agent Fund Management System powered by **AWS Bedrock Agen
 
 ## 🎯 Overview
 
-An AI orchestrator that integrates 3 specialized agents through LangGraph workflows to provide comprehensive fund management services with automatic consultation history management.
+An AI orchestrator that integrates 3 specialized agents through LangGraph workflows to provide comprehensive fund management services with automatic management history tracking.
 
 ### Core Features
 
 - **LangGraph Workflow**: Sequential collaboration system of 3 agents
 - **Real-time Streaming**: Real-time visualization of each agent's reasoning process and tool usage
-- **AgentCore Memory**: Automatic consultation history summarization and permanent storage with SUMMARY strategy
+- **AgentCore Memory**: Automatic fund management history summarization and permanent storage with SUMMARY strategy
 - **Full Automation**: Complete fund management process with user input only
 
 ## 🏗️ Architecture
@@ -36,15 +36,15 @@ sequenceDiagram
     participant R as Risk Manager
     participant M as AgentCore Memory
     
-    U->>S: Input investment info
-    S->>I: Start consultation
+    U->>S: Input fund management info
+    S->>I: Start fund management
     I->>F: Financial analysis request
     F-->>I: Risk profile & target return
     I->>P: Portfolio design request
     P-->>I: Portfolio allocation
     I->>R: Risk analysis request
     R-->>I: Risk scenarios
-    I->>M: Save consultation summary
+    I->>M: Save fund management summary
     I-->>S: Complete results
     S-->>U: Display comprehensive report
 ```

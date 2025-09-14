@@ -13,7 +13,7 @@ A production-level AI fund management system where 4 specialized AI agents colla
 ## 🏗️ Detailed Agent Architecture
 
 ### Lab 1: Financial Analyst
-**Role**: Personal financial situation analysis and risk profile assessment
+**Role**: Client financial situation analysis and investment profile assessment
 
 ![Financial Analyst](static/financial_analyst.png)
 
@@ -23,10 +23,10 @@ A production-level AI fund management system where 4 specialized AI agents colla
 - **AI Model**: OpenAI GPT-OSS 120B
 
 **Processing Flow**:
-1. Analyze user input data (age, investment experience, investment amount, target amount)
+1. Analyze client input data (age, investment experience, fund amount, target amount)
 2. Calculate required annual return using Calculator tool: `((target_amount/investment_amount)-1)*100`
 3. Assess risk profile considering age and experience (Conservative/Neutral/Aggressive)
-4. Recommend investment sectors based on personal preferences
+4. Recommend investment sectors based on client preferences
 
 **Output**:
 ```json
@@ -34,12 +34,12 @@ A production-level AI fund management system where 4 specialized AI agents colla
   "risk_profile": "Aggressive",
   "required_annual_return_rate": 40.0,
   "key_sectors": ["Growth Stocks", "Technology Stocks", "Global Equities"],
-  "summary": "Aggressive investment strategy required to achieve 40% target return"
+  "summary": "Aggressive fund management strategy required to achieve 40% target return"
 }
 ```
 
 ### Lab 2: Portfolio Architect
-**Role**: Optimal portfolio design based on real-time ETF data
+**Role**: Optimal fund portfolio design based on real-time ETF data
 
 ![Portfolio Architect](static/portfolio_architect.png)
 
@@ -70,7 +70,7 @@ A production-level AI fund management system where 4 specialized AI agents colla
 ```
 
 ### Lab 3: Risk Manager
-**Role**: Risk scenario analysis based on news and macroeconomic data
+**Role**: Fund risk scenario analysis based on news and macroeconomic data
 
 ![Risk Manager](static/risk_manager.png)
 
@@ -127,7 +127,7 @@ A production-level AI fund management system where 4 specialized AI agents colla
 **Memory Structure**:
 - **Short-term**: Store each agent's results as session-based conversations (7 days)
 - **Long-term**: SUMMARY strategy generates topic-structured summaries (permanent preservation)
-- **Namespace**: `investment/session/{sessionId}` structure
+- **Namespace**: `fund/session/{sessionId}` structure
 
 ## 🔧 Technical Implementation Details
 
@@ -149,9 +149,9 @@ A production-level AI fund management system where 4 specialized AI agents colla
 - Abstract complex Lambda infrastructure into simple AI tools
 
 **4. Memory - Long-term Memory and Personalization**
-- Automatic consultation session summarization with SUMMARY strategy
-- Long-term preservation of user-specific investment history
-- Foundation for personalized investment services
+- Automatic fund management session summarization with SUMMARY strategy
+- Long-term preservation of user-specific fund management history
+- Foundation for personalized fund management services
 
 **5. Observability - Monitoring and Tracking**
 - Monitor performance and usage of each agent
@@ -161,7 +161,7 @@ A production-level AI fund management system where 4 specialized AI agents colla
 ### Data Flow
 
 ```
-User Input
+Client Input
     ↓
 Fund Manager (LangGraph Orchestration)
     ↓
@@ -227,8 +227,8 @@ python cleanup_all.py
 ### Scenario 1: Complete System Experience (Recommended)
 1. `python deploy_all.py` - Deploy entire system
 2. `cd fund_manager && streamlit run app.py` - Run integrated web app
-3. Enter investment information and observe real-time collaboration between 4 agents
-4. Check automatically summarized past consultation records in consultation history
+3. Enter fund management information and observe real-time collaboration between 4 agents
+4. Check automatically summarized past fund management records in management history
 
 ### Scenario 2: Individual Agent Learning
 1. `cd financial_analyst && python deploy.py && streamlit run app.py`
@@ -373,7 +373,7 @@ agentic_ai_fund_manager/
 │   ├── 📂 lambda/                 # Lambda function (data query)
 │   └── 📂 gateway/                # MCP Gateway (Lambda → MCP tools)
 │
-├── 📂 fund_manager/         # Lab 4: Integrated Fund Management (AgentCore Memory)
+├── 📂 fund_manager/         # Lab 4: Fund Management Orchestration (AgentCore Memory)
 │   ├── 📄 README.md               # Detailed description and usage
 │   ├── 🚀 deploy.py               # Individual deployment
 │   ├── 🌐 app.py                  # Streamlit integrated web app (main)
@@ -404,7 +404,7 @@ cd financial_analyst
 python deploy.py                    # Deploy
 streamlit run app.py               # Individual test web app
 ```
-- **Features**: Investor information input → Risk tolerance assessment → Target return calculation
+- **Features**: Client information input → Risk tolerance assessment → Target return calculation
 - **Tools**: Verify accurate return calculation process with Calculator
 
 #### Lab 2: Portfolio Architect  
@@ -438,5 +438,5 @@ cd agentcore_memory && python deploy_agentcore_memory.py && cd ..  # Deploy Memo
 python deploy.py                    # Deploy integrated agent
 streamlit run app.py               # 🎯 Main integrated web app
 ```
-- **Features**: Execute entire workflow → Sequential calls to 3 agents → Final investment guide
-- **Characteristics**: Real-time streaming to observe all agents' thinking processes + consultation history management
+- **Features**: Execute entire workflow → Sequential calls to 3 agents → Final fund management guide
+- **Characteristics**: Real-time streaming to observe all agents' thinking processes + fund management history tracking

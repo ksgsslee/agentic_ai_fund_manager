@@ -587,13 +587,13 @@ if menu == "🤖 New Fund Management":
         st.image(os.path.join(STATIC_PATH, "fund_manager.png"))
 
 
-    st.markdown("**Investor Information Input**")
+    st.markdown("**Client Information Input**")
 
     col1, col2 = st.columns(2)
 
     with col1:
         total_investable_amount = st.number_input(
-            "💰 Available Investment Amount (in hundred millions)",
+            "💰 Available Fund Amount (in hundred millions)",
             min_value=0.0,
             max_value=1000.0,
             value=0.5,
@@ -633,13 +633,13 @@ if menu == "🤖 New Fund Management":
 
     with col5:
         investment_purpose = st.selectbox(
-            "🎯 Investment Purpose",
+            "🎯 Fund Management Purpose",
             options=["Short-term Profit", "Retirement Planning", "Home Purchase Fund", "Education Fund", "Surplus Fund Management"],
             index=0
         )
 
     preferred_sectors = st.multiselect(
-        "📈 Investment Areas of Interest (Multiple Selection)",
+        "📈 Fund Investment Areas of Interest (Multiple Selection)",
         options=[
             "Dividend Stocks (Stable Dividends)",
             "Growth Stocks (Tech/Bio)",
@@ -655,7 +655,7 @@ if menu == "🤖 New Fund Management":
         default=["Growth Stocks (Tech/Bio)"]
     )
 
-    submitted = st.button("Start Analysis", width='stretch')
+    submitted = st.button("Start Fund Management Analysis", width='stretch')
 
     if submitted:
         # Use existing session (already created on page load)
@@ -678,14 +678,14 @@ if menu == "🤖 New Fund Management":
         }
         
         st.divider()
-        with st.spinner("AI Analysis in Progress..."):
+        with st.spinner("AI Fund Management Analysis in Progress..."):
             result = invoke_fund_manager(
                 input_data, 
                 st.session_state.current_session_id
             )
             
             if result['status'] == 'error':
-                st.error(f"❌ Analysis error: {result.get('error', 'Unknown error')}")
+                st.error(f"❌ Fund Management Analysis error: {result.get('error', 'Unknown error')}")
 
 elif menu == "📚 Management History (Long-term Memory)":
     st.markdown("### 📚 Current Session Fund Management Summary")
