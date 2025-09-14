@@ -1,5 +1,5 @@
 # requirements.txt
-# Portfolio Architect Dependencies
+# Portfolio Architect AgentCore Runtime Dependencies
 
 # AI Agent Framework
 strands-agents

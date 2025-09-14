@@ -1,10 +1,7 @@
 """
-__init__.py
-Portfolio Architect Package Initialization
+Portfolio Architect Package
 
 Lab 2: Portfolio Architect with MCP Server Integration
-Portfolio Architect Implementation (AgentCore Runtime Version)
-
 An AI agent system that analyzes real-time market data to propose
 customized investment portfolios using MCP Server for ETF data retrieval.
 """

@@ -1,5 +1,5 @@
 # requirements.txt
-# MCP Server Runtime Dependencies (only what is actually used in server.py)
+# MCP Server Runtime Dependencies
 
 # MCP Protocol Library
 mcp

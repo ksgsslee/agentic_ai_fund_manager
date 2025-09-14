@@ -30,8 +30,9 @@ def load_gateway_info():
     if not info_file.exists():
         print("❌ Gateway deployment information not found.")
         print("💡 Please run the following commands first:")
-        print("   cd gateway")
-        print("   python deploy_gateway.py")
+        print("   cd lambda_layer && python deploy_lambda_layer.py")
+        print("   cd ../lambda && python deploy_lambda.py") 
+        print("   cd ../gateway && python deploy_gateway.py")
         raise FileNotFoundError("Please deploy Gateway first.")
     
     with open(info_file) as f:
