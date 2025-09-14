@@ -6,6 +6,9 @@ Agentic AI Fund Manager powered by **AWS Bedrock AgentCore & Strands Agent & Lan
 
 A production-level AI fund management system where 4 specialized AI agents collaborate to provide institutional-grade portfolio management and risk optimization.
 
+🎥 **Watch the Live Demo**: See how all 4 AI agents work together in real-time 
+→ https://youtu.be/hb-zWkbXQdE
+
 ## 🏗️ Overall System Architecture
 
 ![Overall System Architecture](static/fund_manager.png)
