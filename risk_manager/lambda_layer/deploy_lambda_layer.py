@@ -93,10 +93,9 @@ def main():
         zip_file = current_dir / f"{Config.LAYER_NAME}.zip"
         
         if not zip_file.exists():
-            raise FileNotFoundError(
-                f"Layer ZIP file not found: {zip_file}\n"
-                f"Please place {Config.LAYER_NAME}.zip file in the current directory."
-            )
+            print(f"❌ Layer ZIP file not found: {zip_file}")
+            print(f"💡 Please place {Config.LAYER_NAME}.zip file in the current directory.")
+            raise FileNotFoundError(f"Layer ZIP file not found: {Config.LAYER_NAME}.zip")
         
         # Set up S3 bucket
         bucket_name = setup_s3_bucket()
