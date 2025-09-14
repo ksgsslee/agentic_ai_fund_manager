@@ -177,15 +177,54 @@ def delete_cognito_resources(user_pool_id, region):
     try:
         cognito = boto3.client('cognito-idp', region_name=region)
         
-        # Delete clients
-        clients = cognito.list_user_pool_clients(UserPoolId=user_pool_id)
-        for client in clients['UserPoolClients']:
-            cognito.delete_user_pool_client(
-                UserPoolId=user_pool_id,
-                ClientId=client['ClientId']
-            )
+        # 1. Delete all clients first
+        try:
+            clients = cognito.list_user_pool_clients(UserPoolId=user_pool_id)
+            for client in clients['UserPoolClients']:
+                cognito.delete_user_pool_client(
+                    UserPoolId=user_pool_id,
+                    ClientId=client['ClientId']
+                )
+                print(f"✅ Cognito Client deleted: {client['ClientId']}")
+        except Exception as e:
+            print(f"⚠️ Client deletion failed: {e}")
         
-        # Delete User Pool
+        # 1.5. Delete resource servers
+        try:
+            # List and delete resource servers
+            response = cognito.list_resource_servers(UserPoolId=user_pool_id, MaxResults=50)
+            for resource_server in response.get('ResourceServers', []):
+                cognito.delete_resource_server(
+                    UserPoolId=user_pool_id,
+                    Identifier=resource_server['Identifier']
+                )
+                print(f"✅ Resource Server deleted: {resource_server['Identifier']}")
+        except Exception as e:
+            print(f"⚠️ Resource server deletion failed: {e}")
+        
+        # 2. Delete domain if exists
+        try:
+            user_pool_details = cognito.describe_user_pool(UserPoolId=user_pool_id)
+            domain = user_pool_details.get("UserPool", {}).get("Domain")
+            
+            if domain:
+                cognito.delete_user_pool_domain(Domain=domain, UserPoolId=user_pool_id)
+                print(f"✅ Cognito Domain deleted: {domain}")
+                time.sleep(5)  # Wait for domain deletion
+        except Exception as e:
+            print(f"⚠️ Domain deletion failed (may not exist): {e}")
+        
+        # 3. Disable deletion protection if enabled
+        try:
+            cognito.update_user_pool(
+                UserPoolId=user_pool_id,
+                DeletionProtection='INACTIVE'
+            )
+            print(f"✅ Deletion protection disabled for: {user_pool_id}")
+        except Exception as e:
+            print(f"⚠️ Deletion protection update failed: {e}")
+        
+        # 4. Delete User Pool
         cognito.delete_user_pool(UserPoolId=user_pool_id)
         print(f"✅ Cognito User Pool deleted: {user_pool_id} (region: {region})")
         return True

@@ -38,7 +38,10 @@ def get_or_create_user_pool(cognito, user_pool_name, region):
     
     # Create new user pool
     print("🆕 Creating new user pool...")
-    created = cognito.create_user_pool(PoolName=user_pool_name)
+    created = cognito.create_user_pool(
+        PoolName=user_pool_name,
+        DeletionProtection='INACTIVE'  # Disable deletion protection for easier cleanup
+    )
     user_pool_id = created["UserPool"]["Id"]
     
     # Create domain
