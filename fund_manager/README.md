@@ -36,8 +36,8 @@ sequenceDiagram
     participant R as Risk Manager
     participant M as AgentCore Memory
     
-    U->>S: Input fund management info
-    S->>I: Start fund management
+    U->>S: Input investment info
+    S->>I: Start consultation
     I->>F: Financial analysis request
     F-->>I: Risk profile & target return
     I->>P: Portfolio design request

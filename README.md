@@ -13,7 +13,7 @@ A production-level AI fund management system where 4 specialized AI agents colla
 ## 🏗️ Detailed Agent Architecture
 
 ### Lab 1: Financial Analyst
-**Role**: Client financial situation analysis and investment profile assessment
+**Role**: Personal financial situation analysis and risk profile assessment
 
 ![Financial Analyst](static/financial_analyst.png)
 
@@ -23,10 +23,10 @@ A production-level AI fund management system where 4 specialized AI agents colla
 - **AI Model**: OpenAI GPT-OSS 120B
 
 **Processing Flow**:
-1. Analyze client input data (age, investment experience, fund amount, target amount)
+1. Analyze user input data (age, investment experience, investment amount, target amount)
 2. Calculate required annual return using Calculator tool: `((target_amount/investment_amount)-1)*100`
 3. Assess risk profile considering age and experience (Conservative/Neutral/Aggressive)
-4. Recommend investment sectors based on client preferences
+4. Recommend investment sectors based on personal preferences
 
 **Output**:
 ```json
@@ -161,7 +161,7 @@ A production-level AI fund management system where 4 specialized AI agents colla
 ### Data Flow
 
 ```
-Client Input
+User Input
     ↓
 Fund Manager (LangGraph Orchestration)
     ↓
@@ -227,7 +227,7 @@ python cleanup_all.py
 ### Scenario 1: Complete System Experience (Recommended)
 1. `python deploy_all.py` - Deploy entire system
 2. `cd fund_manager && streamlit run app.py` - Run integrated web app
-3. Enter fund management information and observe real-time collaboration between 4 agents
+3. Enter investment information and observe real-time collaboration between 4 agents
 4. Check automatically summarized past fund management records in management history
 
 ### Scenario 2: Individual Agent Learning
@@ -404,7 +404,7 @@ cd financial_analyst
 python deploy.py                    # Deploy
 streamlit run app.py               # Individual test web app
 ```
-- **Features**: Client information input → Risk tolerance assessment → Target return calculation
+- **Features**: Investor information input → Risk tolerance assessment → Target return calculation
 - **Tools**: Verify accurate return calculation process with Calculator
 
 #### Lab 2: Portfolio Architect  
