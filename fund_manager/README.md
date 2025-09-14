@@ -120,23 +120,8 @@ streamlit run app.py
 - **Areas of Interest**: Multiple selection from 10 fund investment sectors
 
 ### Output Results
-```json
-{
-  "financial_analysis": {
-    "risk_profile": "Aggressive",
-    "required_annual_return_rate": 40.0,
-    "key_sectors": ["Growth Stocks", "Cryptocurrency"]
-  },
-  "portfolio_design": {
-    "portfolio_allocation": {"QQQ": 50, "SPY": 30, "BND": 20},
-    "portfolio_scores": {"profitability": 8, "risk_management": 7, "diversification": 9}
-  },
-  "risk_analysis": {
-    "scenario1": {"name": "Tech Recovery", "probability": "35%"},
-    "scenario2": {"name": "Economic Slowdown", "probability": "25%"}
-  }
-}
-```
+
+![Fund Manager Output](../static/fund_manager_output.png)
 
 ## 🧠 AgentCore Memory System
 

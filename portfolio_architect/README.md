@@ -74,17 +74,8 @@ streamlit run app.py
 - **Overall Assessment**: Investment strategy summary
 
 ### Output Results
-```json
-{
-  "portfolio_allocation": {"QQQ": 50, "SPY": 30, "BND": 20},
-  "reason": "Tech-focused growth strategy. (QQQ: NASDAQ 100 Tech ETF), (SPY: S&P 500 Large Cap ETF), (BND: US Bond ETF)",
-  "portfolio_scores": {
-    "profitability": {"score": 8, "reason": "High probability of achieving target return"},
-    "risk_management": {"score": 7, "reason": "Appropriate volatility level"},
-    "diversification": {"score": 9, "reason": "Excellent diversification with low correlation"}
-  }
-}
-```
+
+![Portfolio Architect Output](../static/portfolio_architect_output.png)
 
 ### Processing Flow
 ```mermaid

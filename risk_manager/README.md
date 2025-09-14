@@ -161,32 +161,8 @@ streamlit run app.py
 - **Portfolio Evaluation Scores**: Profitability, risk management, diversification (1-10 points)
 
 ### Output Results
-```json
-{
-  "scenario1": {
-    "name": "Tech-Led Economic Recovery",
-    "description": "Economic recovery scenario led by technology sector with interest rate cuts",
-    "probability": "35%",
-    "allocation_management": {
-      "QQQ": 70,
-      "SPY": 25,
-      "GLD": 5
-    },
-    "reason": "Maximize returns by increasing exposure to technology sector growth"
-  },
-  "scenario2": {
-    "name": "Persistent Inflation and Economic Slowdown",
-    "description": "Economic slowdown under sustained high interest rates and inflation pressure",
-    "probability": "25%",
-    "allocation_management": {
-      "QQQ": 40,
-      "SPY": 40,
-      "GLD": 20
-    },
-    "reason": "Strengthen risk hedging by expanding safe asset allocation"
-  }
-}
-```
+
+![Risk Manager Output](../static/risk_manager_output.png)
 
 ## 🛠️ Lambda Tools Details
 

@@ -67,15 +67,8 @@ streamlit run app.py
 - **Areas of Interest**: Multiple selection from 10 investment sectors
 
 ### Output Results
-```json
-{
-  "risk_profile": "Aggressive",
-  "risk_profile_reason": "High risk tolerance with 35 years old and 10 years experience",
-  "required_annual_return_rate": 40.0,
-  "key_sectors": ["Growth Stocks", "Cryptocurrency", "Global Equities"],
-  "summary": "Aggressive investment strategy required to achieve 40% target return"
-}
-```
+
+![Financial Analyst Output](../static/financial_analyst_output.png)
 
 ### Processing Flow
 ```mermaid
