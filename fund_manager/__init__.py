@@ -1,7 +1,7 @@
 """
-Investment Advisor Orchestrator Package
+Fund Manager Orchestrator Package
 
-LangGraph-based Multi-Agent Investment Advisory System.
+LangGraph-based Multi-Agent Fund Management System.
 Implements sequential workflow pattern where specialized agents collaborate
 in a defined order: Financial Analyst → Portfolio Architect → Risk Manager.
 
@@ -13,5 +13,5 @@ This orchestrator leverages:
 """
 
 __version__ = "1.0.0"
-__author__ = "Investment Advisor Team"
-__description__ = "LangGraph Multi-Agent Investment Advisory System with Sequential Workflow"
+__author__ = "Fund Manager Team"
+__description__ = "LangGraph Multi-Agent Fund Management System with Sequential Workflow"

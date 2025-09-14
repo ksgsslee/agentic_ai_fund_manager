@@ -29,9 +29,9 @@ def deploy_step(name, commands):
     return True
 
 def main():
-    print("🚀 AI Investment Advisor System Deployment")
+    print("🚀 AI Fund Manager System Deployment")
     print(f"📍 Deployment Region: {Config.REGION}")
-    print(f"🏗️ Agent Configuration: {Config.FINANCIAL_ANALYST_NAME}, {Config.PORTFOLIO_ARCHITECT_NAME}, {Config.RISK_MANAGER_NAME}, {Config.INVESTMENT_ADVISOR_NAME}")
+    print(f"🏗️ Agent Configuration: {Config.FINANCIAL_ANALYST_NAME}, {Config.PORTFOLIO_ARCHITECT_NAME}, {Config.RISK_MANAGER_NAME}, {Config.FUND_MANAGER_NAME}")
     
     # AWS verification
     if not run_cmd("aws sts get-caller-identity"):
@@ -53,9 +53,9 @@ def main():
             ("python deploy_gateway.py", "risk_manager/gateway"),
             ("python deploy.py", "risk_manager")
         ]),
-        ("Lab 4: Investment Advisor", [
-            ("python deploy_agentcore_memory.py", "investment_advisor/agentcore_memory"),
-            ("python deploy.py", "investment_advisor")
+        ("Lab 4: Fund Manager", [
+            ("python deploy_agentcore_memory.py", "fund_manager/agentcore_memory"),
+            ("python deploy.py", "fund_manager")
         ])
     ]
     
@@ -64,7 +64,7 @@ def main():
             return 1
     
     print("\n🎉 Deployment Complete!")
-    print("Run web app: cd investment_advisor && streamlit run app.py")
+    print("Run web app: cd fund_manager && streamlit run app.py")
     return 0
 
 if __name__ == "__main__":

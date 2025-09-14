@@ -132,11 +132,11 @@ financial_analyst/
 
 ## 🔗 Full System Integration
 
-This Financial Analyst is the first stage of the **AI Investment Advisor** system:
+This Financial Analyst is the first stage of the **AI Fund Manager** system:
 
 1. **Financial Analyst** (current) → Financial analysis and risk profile assessment
 2. **Portfolio Architect** → Real-time ETF data-based portfolio design  
 3. **Risk Manager** → News analysis and risk scenario planning
-4. **Investment Advisor** → Full agent integration and final report
+4. **Fund Manager** → Full agent integration and final report
 
-The complete system can be run from `../investment_advisor/app.py`.
+The complete system can be run from `../fund_manager/app.py`.

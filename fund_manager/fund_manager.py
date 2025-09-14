@@ -1,7 +1,7 @@
 """
-investment_advisor.py
+fund_manager.py
 
-LangGraph-based Investment Advisor Orchestrator
+LangGraph-based Fund Manager Orchestrator
 Multi-agent sequential workflow with AgentCore Memory's SUMMARY strategy
 for automatic session summarization and long-term context retention.
 """
@@ -21,10 +21,10 @@ from bedrock_agentcore.memory import MemoryClient
 app = BedrockAgentCoreApp()
 
 class Config:
-    """Investment Advisor Configuration"""
+    """Fund Manager Configuration"""
     REGION = "us-west-2"
 
-class InvestmentState(TypedDict):
+class FundManagementState(TypedDict):
     user_input: Dict[str, Any]
     session_id: str
     financial_analysis: str
@@ -109,7 +109,7 @@ class AgentClient:
             
             self.memory_client.create_event(
                 memory_id=self.memory_id,
-                actor_id="investment_user",
+                actor_id="fund_user",
                 session_id=session_id,
                 messages=[
                     (f"{agent_type} analysis request: {input_text}", "USER"),
@@ -126,7 +126,7 @@ class AgentClient:
 
 agent_client = AgentClient()
 
-def financial_node(state: InvestmentState):
+def financial_node(state: FundManagementState):
     """Financial Analysis node"""
     writer = get_stream_writer()
     writer({"type": "node_start", "agent_name": "financial", "session_id": state["session_id"]})
@@ -142,7 +142,7 @@ def financial_node(state: InvestmentState):
     state["financial_analysis"] = result
     return state
 
-def portfolio_node(state: InvestmentState):
+def portfolio_node(state: FundManagementState):
     """Portfolio Architecture node"""
     writer = get_stream_writer()
     writer({"type": "node_start", "agent_name": "portfolio", "session_id": state["session_id"]})
@@ -158,7 +158,7 @@ def portfolio_node(state: InvestmentState):
     state["portfolio_recommendation"] = result
     return state
 
-def risk_node(state: InvestmentState):
+def risk_node(state: FundManagementState):
     """Risk Management node"""
     writer = get_stream_writer()
     writer({"type": "node_start", "agent_name": "risk", "session_id": state["session_id"]})
@@ -177,7 +177,7 @@ def risk_node(state: InvestmentState):
 
 
 def create_graph():
-    workflow = StateGraph(InvestmentState)
+    workflow = StateGraph(FundManagementState)
     
     workflow.add_node("financial", financial_node)
     workflow.add_node("portfolio", portfolio_node)
@@ -190,12 +190,12 @@ def create_graph():
     
     return workflow.compile()
 
-class InvestmentAdvisor:
+class FundManager:
     def __init__(self):
         self.graph = create_graph()
     
     async def run_consultation(self, user_input, session_id=None):
-        """Execute investment consultation"""
+        """Execute fund management consultation"""
         # Use session ID from Streamlit, generate default if not provided
         if not session_id:
             session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -216,10 +216,10 @@ class InvestmentAdvisor:
 advisor = None
 
 @app.entrypoint
-async def investment_advisor_entrypoint(payload):
+async def fund_manager_entrypoint(payload):
     global advisor
     if advisor is None:
-        advisor = InvestmentAdvisor()
+        advisor = FundManager()
     
     user_input = payload.get("input_data")
     session_id = payload.get("session_id")

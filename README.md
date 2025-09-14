@@ -1,14 +1,14 @@
-# 🤖 Agentic AI Investment Advisor
+# 🤖 Agentic AI Fund Manager
 
-Agentic AI Investment Advisor powered by **AWS Bedrock AgentCore & Strands Agent & LangGraph**
+Agentic AI Fund Manager powered by **AWS Bedrock AgentCore & Strands Agent & LangGraph**
 
 ## 🎯 System Overview
 
-A production-level investment advisory system where 4 specialized AI agents collaborate to provide personalized investment portfolio recommendations.
+A production-level AI fund management system where 4 specialized AI agents collaborate to provide institutional-grade portfolio management and risk optimization.
 
 ## 🏗️ Overall System Architecture
 
-![Overall System Architecture](static/investment_advisor.png)
+![Overall System Architecture](static/fund_manager.png)
 
 ## 🏗️ Detailed Agent Architecture
 
@@ -105,10 +105,10 @@ A production-level investment advisory system where 4 specialized AI agents coll
 }
 ```
 
-### Lab 4: Investment Advisor
+### Lab 4: Fund Manager
 **Role**: Integration of 3 agent results and long-term memory management
 
-![Investment Advisor](static/investment_advisor.png)
+![Fund Manager](static/fund_manager.png)
 
 **Architecture**:
 - **LangGraph**: Sequential execution workflow of 3 agents
@@ -163,7 +163,7 @@ A production-level investment advisory system where 4 specialized AI agents coll
 ```
 User Input
     ↓
-Investment Advisor (LangGraph Orchestration)
+Fund Manager (LangGraph Orchestration)
     ↓
 Financial Analyst (Runtime + OpenAI GPT-OSS 120B)
     ↓ (Risk Profile, Target Return)
@@ -171,9 +171,9 @@ Portfolio Architect (Runtime + MCP Server + Claude 4.0 Sonnet)
     ↓ (Portfolio Allocation)
 Risk Manager (Runtime + Gateway + Claude 3.7 Sonnet)
     ↓ (Risk Scenarios)
-Investment Advisor (Memory Storage + Final Integration)
+Fund Manager (Memory Storage + Final Integration)
     ↓
-Final Investment Guide + Automatic Summary Storage
+Final Fund Management Guide + Automatic Summary Storage
 ```
 
 ## 🚀 Quick Start
@@ -199,7 +199,7 @@ All resources are deployed to the **us-west-2** region. This can be changed in t
 ### 2. Environment Setup
 ```bash
 git clone <repository-url>
-cd investment_advisor_strands
+cd agentic_ai_fund_manager
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -213,7 +213,7 @@ python deploy_all.py
 
 ### 4. Run Web App
 ```bash
-cd investment_advisor && streamlit run app.py
+cd fund_manager && streamlit run app.py
 ```
 Access `http://localhost:8501` in browser
 
@@ -226,7 +226,7 @@ python cleanup_all.py
 
 ### Scenario 1: Complete System Experience (Recommended)
 1. `python deploy_all.py` - Deploy entire system
-2. `cd investment_advisor && streamlit run app.py` - Run integrated web app
+2. `cd fund_manager && streamlit run app.py` - Run integrated web app
 3. Enter investment information and observe real-time collaboration between 4 agents
 4. Check automatically summarized past consultation records in consultation history
 
@@ -288,7 +288,7 @@ class Config:
   - Financial Analyst: OpenAI GPT-OSS 120B
   - Portfolio Architect: Claude 4.0 Sonnet (global.anthropic.claude-sonnet-4-20250514-v1:0)
   - Risk Manager: Claude 3.7 Sonnet (us.anthropic.claude-3-7-sonnet-20250219-v1:0)
-  - Investment Advisor: LangGraph orchestration (No LLM, calls other agents)
+  - Fund Manager: LangGraph orchestration (No LLM, calls other agents)
 - **Data Sources**: yfinance (Real-time ETF/news/market data)
 - **Authentication**: Cognito JWT OAuth2
 - **UI**: Streamlit (Real-time streaming support)
@@ -302,7 +302,7 @@ graph LR
             RT1[📦 Financial Analyst Runtime]
             RT2[📦 Portfolio Architect Runtime]
             RT3[📦 Risk Manager Runtime]
-            RT4[📦 Investment Advisor Runtime]
+            RT4[📦 Fund Manager Runtime]
             MCP[🔧 MCP Server Runtime]
             MEM[🧠 AgentCore Memory]
             GW[🌉 Gateway for Risk Manager]
@@ -348,7 +348,7 @@ graph LR
 ## 📁 Project Structure and Individual Testing
 
 ```
-investment_advisor_strands/
+agentic_ai_fund_manager/
 ├── 📂 financial_analyst/           # Lab 1: Financial Analysis (AgentCore Runtime)
 │   ├── 📄 README.md               # Detailed description and usage
 │   ├── 🚀 deploy.py               # Individual deployment
@@ -373,11 +373,11 @@ investment_advisor_strands/
 │   ├── 📂 lambda/                 # Lambda function (data query)
 │   └── 📂 gateway/                # MCP Gateway (Lambda → MCP tools)
 │
-├── 📂 investment_advisor/         # Lab 4: Integrated Advisory (AgentCore Memory)
+├── 📂 fund_manager/         # Lab 4: Integrated Fund Management (AgentCore Memory)
 │   ├── 📄 README.md               # Detailed description and usage
 │   ├── 🚀 deploy.py               # Individual deployment
 │   ├── 🌐 app.py                  # Streamlit integrated web app (main)
-│   ├── 🤖 investment_advisor.py   # LangGraph-based integrated agent
+│   ├── 🤖 fund_manager.py   # LangGraph-based integrated agent
 │   
 │   └── 📂 agentcore_memory/       # AgentCore Memory
 │       └── 🚀 deploy_agentcore_memory.py # Memory deployment
@@ -431,9 +431,9 @@ streamlit run app.py               # Individual test web app
 - **Features**: Portfolio input → News/market data analysis → Risk scenarios
 - **Tools**: Verify real-time news, macroeconomic indicators, and geopolitical data collection process
 
-#### Lab 4: Investment Advisor (Integrated System)
+#### Lab 4: Fund Manager (Integrated System)
 ```bash
-cd investment_advisor
+cd fund_manager
 cd agentcore_memory && python deploy_agentcore_memory.py && cd ..  # Deploy Memory first
 python deploy.py                    # Deploy integrated agent
 streamlit run app.py               # 🎯 Main integrated web app

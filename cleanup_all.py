@@ -23,7 +23,7 @@ def cleanup_step(name, commands):
         run_cmd(cmd, cwd)
 
 def main():
-    print("🧹 AI Investment Advisor System Cleanup")
+    print("🧹 AI Fund Manager System Cleanup")
     print(f"📍 Target Region: {Config.REGION}")
     
     response = input("Are you sure you want to delete all resources? (y/N): ")
@@ -33,8 +33,8 @@ def main():
     
     # Cleanup steps (reverse order)
     steps = [
-        ("Lab 4: Investment Advisor", [
-            ("python cleanup.py", "investment_advisor")
+        ("Lab 4: Fund Manager", [
+            ("python cleanup.py", "fund_manager")
         ]),
         ("Lab 3: Risk Manager", [
             ("python cleanup.py", "risk_manager")

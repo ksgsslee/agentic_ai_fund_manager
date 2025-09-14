@@ -1,7 +1,7 @@
 """
 cleanup.py
 
-Investment Advisor System Cleanup Script
+Fund Manager System Cleanup Script
 Delete and clean up all AWS resources
 """
 
@@ -15,7 +15,7 @@ def load_deployment_info():
     """Load deployment information"""
     current_dir = Path(__file__).parent
     
-    # Investment Advisor information
+    # Fund Manager information
     advisor_info = None
     advisor_file = current_dir / "deployment_info.json"
     if advisor_file.exists():
@@ -113,7 +113,7 @@ def cleanup_local_files():
         print("📁 No local files to delete.")
 
 def main():
-    print("🧹 Investment Advisor System Cleanup")
+    print("🧹 Fund Manager System Cleanup")
     
     # Load deployment information
     advisor_info, memory_info = load_deployment_info()
@@ -130,7 +130,7 @@ def main():
     
     print("\n🗑️ Deleting AWS resources...")
     
-    # 1. Delete Investment Advisor Runtime
+    # 1. Delete Fund Manager Runtime
     if advisor_info and 'agent_arn' in advisor_info:
         region = advisor_info.get('region', 'us-west-2')
         delete_runtime(advisor_info['agent_arn'], region)

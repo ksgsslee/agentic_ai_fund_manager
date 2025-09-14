@@ -19,9 +19,9 @@ from config import Config as GlobalConfig
 from runtime_utils import create_agentcore_runtime_role
 
 class Config:
-    """Investment Advisor deployment configuration"""
+    """Fund Manager deployment configuration"""
     REGION = GlobalConfig.REGION
-    AGENT_NAME = GlobalConfig.INVESTMENT_ADVISOR_NAME
+    AGENT_NAME = GlobalConfig.FUND_MANAGER_NAME
 
 def load_agent_arns():
     """Load deployment information of other agents"""
@@ -124,9 +124,9 @@ def _add_agent_call_permissions(role_name):
     except Exception as e:
         print(f"⚠️ Additional permission setup error: {e}")
 
-def deploy_investment_advisor(agent_arns, memory_id):
-    """Deploy Investment Advisor Runtime"""
-    print("🎯 Deploying Investment Advisor...")
+def deploy_fund_manager(agent_arns, memory_id):
+    """Deploy Fund Manager Runtime"""
+    print("🎯 Deploying Fund Manager...")
     
     # Create IAM role (with permissions)
     role_arn, iam_role_name = create_iam_role_with_agent_permissions()
@@ -135,7 +135,7 @@ def deploy_investment_advisor(agent_arns, memory_id):
     current_dir = Path(__file__).parent
     runtime = Runtime()
     runtime.configure(
-        entrypoint=str(current_dir / "investment_advisor.py"),
+        entrypoint=str(current_dir / "fund_manager.py"),
         execution_role=role_arn,
         auto_create_ecr=True,
         requirements_file=str(current_dir / "requirements.txt"),
@@ -203,7 +203,7 @@ def save_deployment_info(advisor_info, agent_arns):
 
 def main():
     try:
-        print("🎯 Investment Advisor Runtime Deployment")
+        print("🎯 Fund Manager Runtime Deployment")
         
         # Load other agent ARNs
         agent_arns = load_agent_arns()
@@ -211,15 +211,15 @@ def main():
         # Load AgentCore Memory information
         memory_id = load_memory_info()
         
-        # Deploy Investment Advisor
-        advisor_info = deploy_investment_advisor(agent_arns, memory_id)
+        # Deploy Fund Manager
+        advisor_info = deploy_fund_manager(agent_arns, memory_id)
         
         # Save deployment information
         info_file = save_deployment_info(advisor_info, agent_arns)
         
         print(f"\n🎉 Deployment Complete!")
         print(f"📄 Deployment Info: {info_file}")
-        print(f"🔗 Investment Advisor ARN: {advisor_info['agent_arn']}")
+        print(f"🔗 Fund Manager ARN: {advisor_info['agent_arn']}")
         
         return 0
         

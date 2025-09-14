@@ -1,6 +1,6 @@
 """
-Investment Advisor Streamlit App
-Multi-Agent Investment Advisory System Web Interface
+Fund Manager Streamlit App
+Multi-Agent Fund Management System Web Interface
 """
 
 import streamlit as st
@@ -15,11 +15,11 @@ from pathlib import Path
 from bedrock_agentcore.memory import MemoryClient
 
 st.set_page_config(
-    page_title="🤖 Investment Advisor",
+    page_title="🤖 Fund Manager",
     layout="wide",
     initial_sidebar_state="expanded"
 )
-st.title("🤖 Investment Advisor")
+st.title("🤖 Fund Manager")
 
 # Session management initialization - automatically generated on page load
 if 'current_session_id' not in st.session_state:
@@ -28,7 +28,7 @@ if 'current_session_id' not in st.session_state:
 # Sidebar menu
 menu = st.sidebar.selectbox(
     "Select Menu",
-    ["🤖 New Investment Consultation", "📚 Consultation History (Long-term Memory)"]
+    ["🤖 New Fund Management", "📚 Management History (Long-term Memory)"]
 )
 
 # Display session information in sidebar
@@ -45,7 +45,7 @@ if st.sidebar.button("🔄 Start New Session"):
 def load_deployment_info():
     """Load deployment information from environment variables or local JSON files"""
     # Try environment variables first (Docker container environment)
-    agent_arn = os.getenv("BWB_INVESTMENT_ADVISOR_ARN")
+    agent_arn = os.getenv("BWB_FUND_MANAGER_ARN")
     memory_id = os.getenv("BWB_MEMORY_ID") 
     region = os.getenv("BWB_AWS_REGION")
     
@@ -68,7 +68,7 @@ def load_deployment_info():
         return agent_arn, memory_id, region, "../static"
         
     except Exception as e:
-        st.error(f"Deployment information not found. Please set environment variables (INVESTMENT_ADVISOR_ARN, MEMORY_ID, AWS_REGION) or run deploy.py first. Error: {e}")
+        st.error(f"Deployment information not found. Please set environment variables (FUND_MANAGER_ARN, MEMORY_ID, AWS_REGION) or run deploy.py first. Error: {e}")
         st.stop()
 
 AGENT_ARN, MEMORY_ID, REGION, STATIC_PATH = load_deployment_info()
@@ -377,8 +377,8 @@ def display_risk_analysis_result(container, analysis_content):
     except Exception as e:
         container.error(f"Risk analysis display error: {str(e)}")
 
-def invoke_investment_advisor(input_data, session_id):
-    """Invoke Investment Advisor - Pass session ID"""
+def invoke_fund_manager(input_data, session_id):
+    """Invoke Fund Manager - Pass session ID"""
     try:
         # Include session ID in payload
         payload_data = {
@@ -529,7 +529,7 @@ def invoke_investment_advisor(input_data, session_id):
         # Display analysis completion message at the bottom of results_container
         with results_container:
             st.success("🎉 All Agent Analysis Complete!")
-            st.info("💾 This consultation content is automatically summarized and stored in AgentCore Memory. You can check it in the 📚 Consultation History menu on the left.")
+            st.info("💾 This fund management content is automatically summarized and stored in AgentCore Memory. You can check it in the 📚 Management History menu on the left.")
 
         return {"status": "success"}
         
@@ -541,12 +541,12 @@ def load_current_session_summary():
     try:
         # Query current session's SUMMARY strategy results
         current_session = st.session_state.current_session_id
-        session_namespace = f"investment/session/{current_session}"
+        session_namespace = f"fund/session/{current_session}"
         
         response = memory_client.retrieve_memories(
             memory_id=MEMORY_ID,
             namespace=session_namespace,
-            query="investment consultation summary"
+            query="fund management summary"
         )
         
         if response and len(response) > 0:
@@ -582,9 +582,9 @@ def load_current_session_summary():
         }
 
 # UI configuration by menu
-if menu == "🤖 New Investment Consultation":
-    with st.expander("🏗️ Investment Advisor Architecture", expanded=True):
-        st.image(os.path.join(STATIC_PATH, "investment_advisor.png"))
+if menu == "🤖 New Fund Management":
+    with st.expander("🏗️ Fund Manager Architecture", expanded=True):
+        st.image(os.path.join(STATIC_PATH, "fund_manager.png"))
 
 
     st.markdown("**Investor Information Input**")
@@ -679,7 +679,7 @@ if menu == "🤖 New Investment Consultation":
         
         st.divider()
         with st.spinner("AI Analysis in Progress..."):
-            result = invoke_investment_advisor(
+            result = invoke_fund_manager(
                 input_data, 
                 st.session_state.current_session_id
             )
@@ -687,8 +687,8 @@ if menu == "🤖 New Investment Consultation":
             if result['status'] == 'error':
                 st.error(f"❌ Analysis error: {result.get('error', 'Unknown error')}")
 
-elif menu == "📚 Consultation History (Long-term Memory)":
-    st.markdown("### 📚 Current Session Investment Consultation Summary")
+elif menu == "📚 Management History (Long-term Memory)":
+    st.markdown("### 📚 Current Session Fund Management Summary")
     st.info(f"You can check the automatic summary of current session **{st.session_state.current_session_id}** using AgentCore SUMMARY strategy.")
     
     if st.button("🔄 Refresh Summary", width='stretch'):
@@ -701,7 +701,7 @@ elif menu == "📚 Consultation History (Long-term Memory)":
         if 'error' in summary_data:
             st.error(f"Error occurred while querying summary: {summary_data['error']}")
         else:
-            st.warning("Investment consultation summary for the current session has not been generated yet.")
+            st.warning("Fund management summary for the current session has not been generated yet.")
             st.markdown("""
             **Summary Generation Conditions:**
             - Investment consultation must be completed (all 3 agents executed)
